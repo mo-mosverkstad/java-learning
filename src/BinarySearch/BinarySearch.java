@@ -1,4 +1,4 @@
-package src.basic;
+package BinarySearch;
 
 public class BinarySearch {
     public static void main(String[] args) throws Exception {       

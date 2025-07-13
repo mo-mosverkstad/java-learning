@@ -1,4 +1,4 @@
-package src.basic;
+package BinarySearch;
 
 public class HelloWorld{
     public static void main(String[] args){

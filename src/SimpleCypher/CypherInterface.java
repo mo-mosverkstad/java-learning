@@ -1,4 +1,4 @@
-package src.SimpleCypher;
+package SimpleCypher;
 
 public interface CypherInterface{
     String encrypt(String plain);

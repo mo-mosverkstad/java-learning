@@ -1,4 +1,4 @@
-package src.SimpleCypher;
+package SimpleCypher;
 
 public class SimpleCypher {
     public static void main(String[] args) {

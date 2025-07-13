@@ -1,4 +1,4 @@
-package src.SimpleCypher;
+package SimpleCypher;
 
 public class CaesarCypher extends MappingCypher {
     public CaesarCypher(int key, char offsetBase, int amount){

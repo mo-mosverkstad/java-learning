@@ -1,4 +1,4 @@
-package src.SimpleCypher;
+package SimpleCypher;
 
 public class MappingCypher implements CypherInterface {
     private static String format = "MappingCypher(encryptMap = [%s], decryptMap = [%s], offsetBase = '%c')";
