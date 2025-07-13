@@ -3,28 +3,49 @@ package TFIDF;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TFIDF {
     public static void main(String[] args) {
-        //System.out.println("Working Directory = " + System.getProperty("user.dir"));
-        // String filePath = "./Test01/src/Wordsort/words.txt";
-
-        String[] filePaths = {
-            "./Test01/src/Wordsort/boat-types.txt", 
-            "./Test01/src/Wordsort/MVC-description.txt",
-            "./Test01/src/Wordsort/religionvsspirituality.txt",
-            "./Test01/src/Wordsort/thelastofus.txt",
-            "./Test01/src/Wordsort/strengthenmuscletendons.txt"
-        };
-
-        int documentCount = filePaths.length;
-
         List<HashMap<String, Triple<Integer, Double, Double>>> TFMaps = new LinkedList<>();
         HashMap<String, Pair<Integer, Double>> IDFMap = new HashMap<>();
 
+        List<String> filePaths = getFiles("./Test01/src/Wordsort/");
+        
+        int documentCount = filePaths.size();
+
+        processFileData(filePaths, TFMaps, IDFMap);
+
+        generateIDF(IDFMap, documentCount);
+
+        generateTFIDF(TFMaps, IDFMap);
+
+        printTFIDF(TFMaps);
+    }
+
+    private static List<String> getFiles(String filePath) {
+        try {
+            List<Path> filePaths = Files.walk(Paths.get(filePath))
+                .filter(Files::isRegularFile)
+                .filter(path -> path.toString().endsWith(".txt"))
+                .collect(Collectors.toList());
+            return filePaths.stream().map(Path::toString).collect(Collectors.toList());
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static void processFileData(List<String> filePaths,
+        List<HashMap<String, Triple<Integer, Double, Double>>> TFMaps,
+        HashMap<String, Pair<Integer, Double>> IDFMap) {
         for (String filePath : filePaths) {
             int totalWords = 0;
             HashMap<String, Triple<Integer, Double, Double>> TFMap = new HashMap<>();
@@ -72,12 +93,17 @@ public class TFIDF {
             }
             TFMaps.add(TFMap);
         }
+    }
 
+    private static void generateIDF(HashMap<String, Pair<Integer, Double>> IDFMap, int documentCount) {
         for (HashMap.Entry<String, Pair<Integer, Double>> entry : IDFMap.entrySet()) {
             Pair<Integer, Double> pair = entry.getValue();
             pair.setRight(Math.log((double) documentCount / pair.getLeft()));
         }
+    }
 
+    private static void generateTFIDF(List<HashMap<String, Triple<Integer, Double, Double>>> TFMaps,
+        HashMap<String, Pair<Integer, Double>> IDFMap) {
         for (HashMap<String, Triple<Integer, Double, Double>> wordCountMap : TFMaps) {
             for (HashMap.Entry<String, Triple<Integer, Double, Double>> entry : wordCountMap.entrySet()) {
                 String word = entry.getKey();
@@ -85,8 +111,9 @@ public class TFIDF {
                 triple.setRight(IDFMap.get(word).getRight() * triple.getMiddle());
             }
         }
-        
+    }
 
+    private static void printTFIDF(List<HashMap<String, Triple<Integer, Double, Double>>> TFMaps) {
         System.out.println("TFMaps: ");
         for (HashMap<String, Triple<Integer, Double, Double>> wordCountMap : TFMaps) {
             System.out.println("---");
@@ -97,14 +124,5 @@ public class TFIDF {
                 .limit(10)
                 .forEach(System.out::println);
         }
-
-        /* 
-        System.out.println("\nIDFMaps: ");
-        IDFMap
-            .entrySet()
-            .stream()
-            .sorted((left, right) -> Integer.compare(right.getValue().getLeft(), left.getValue().getLeft()))
-            .forEach(System.out::println);
-        */
     }
 }
