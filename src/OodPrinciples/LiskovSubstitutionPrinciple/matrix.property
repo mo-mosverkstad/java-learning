@@ -1,0 +1,4 @@
+# Configuration to print a matrix
+matrix.entry=%
+matrix.width=4
+matrix.height=5

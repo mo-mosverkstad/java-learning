@@ -7,11 +7,11 @@ import java.util.HashMap;
 
 public class Wordsort {
     public static void main(String[] args) {
-        //System.out.println("Working Directory = " + System.getProperty("user.dir"));
+        System.out.println("Working Directory = " + System.getProperty("user.dir"));
 
         int totalWords = 0;
         HashMap<String ,Integer> wordCountMap = new HashMap<>();
-        String filePath = "./Test01/src/Wordsort/words.txt";
+        String filePath = "./src/Wordsort/MVC-description.txt";
         BufferedReader bufferedReader = null;
         try{
             bufferedReader = new BufferedReader(new FileReader(filePath));
