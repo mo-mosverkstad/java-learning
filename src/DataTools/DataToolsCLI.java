@@ -1,8 +1,46 @@
 package DataTools;
 
+import java.util.Arrays;
+import java.util.Scanner;
 
-public class DataTools {
+public class DataToolsCLI {
+    public static final String PROMPT = "> ";
+    public static final String COMMAND_EXIT = "exit";
+    public static final String SPLIT_REGEX = "\\s+";
     public static void main(String[] args) {
+
+        Table table = init();
+        System.out.println("DataToolsCLI is running...");
+        try (Scanner scanner = new Scanner(System.in)){
+            boolean continueFlag = true;
+            while (continueFlag) {
+                System.out.print(PROMPT);
+                String inputLine = scanner.nextLine();
+                String[] inputLineTokens = inputLine.split(SPLIT_REGEX);
+                if (inputLineTokens.length != 0 && inputLineTokens[0].trim() != "") {
+                    String command = inputLineTokens[0];
+                    String[] arguments = Arrays.copyOfRange(inputLineTokens, 1, inputLineTokens.length);
+                    if (command.equals(COMMAND_EXIT)) {
+                        continueFlag = false;
+                    }
+                    else if (command.equals("view")){
+                        System.out.println(table);
+                    }
+                    else if (command.equals("u")){
+                        table.updateRow(Integer.parseInt(arguments[0]) - 1, arguments);
+                    }
+                    else{
+                        // System.out.println(inputLine);
+                    }
+                }
+            }
+            System.out.println("Bye!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Table init(){
         Table table = new Table();
         table.addColumn("id", new IntColumn());
         table.addColumn("name", new StringColumn());
@@ -26,14 +64,7 @@ public class DataTools {
         table.appendRow(new Object[] { 12, "Mia", 31, false, "Jacksonville", 63000, 16000 });  // Female
         table.appendRow(new Object[] { 13, "Noah", 37, true, "Fort Worth", 70000, 24000 });    // Male
         table.appendRow(new Object[] { 14, "Isabella", 39, false, "Columbus", 78000, 26000 }); // Female
-        table.appendRow(new Object[] { 15, "Ethan", 43, true, "Charlotte", 83000, 35000 });    // Male
-
-        table.updateRow(2, new Object[] { 3, "Bob", 37, true, "Dallas", 50000, 20000 });
-
-        table.updateRow(20, new Object[] { 21, "John", 25, true, "New York", 50000, 10000 });
-        table.updateRow(19, new Object[] { 20, "Jane", 30, false, "Los Angeles", 60000, 20000 });
-        
-        
-        System.out.println(table);
+        table.appendRow(new Object[] { 15, "Ethan", 43, true, "Charlotte", 83000, 35000 }); 
+        return table;
     }
 }

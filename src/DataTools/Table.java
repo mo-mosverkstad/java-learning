@@ -4,31 +4,57 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class Table {
-    private final List<Pair<String, Column>> columns = new ArrayList<>();
+    private final List<Pair<String, ColumnInterface>> columns = new ArrayList<>();
     public Table() {}
 
-    public void addColumn(String columnName, Column column){
-        columns.add(new Pair<String, Column>(columnName, column));
+    public int rowSize(){
+        return columns.get(0).getRight().size();
+    }
+
+    public int columnSize(){
+        return columns.size();
+    }
+
+    public void addColumn(String columnName, ColumnInterface column){
+        columns.add(new Pair<String, ColumnInterface>(columnName, column));
     }
 
     public void appendRow(Object[] rowData) throws IllegalArgumentException{
-        if (rowData.length != columns.size()) {
+        if (rowData.length != columnSize()) {
             throw new IllegalArgumentException("Row data length does not match column count");
         }
-        for (int i = 0; i < columns.size(); i++) {
+        for (int i = 0; i < columnSize(); i++) {
             columns.get(i).getRight().append(rowData[i]);
         }
     }
 
-    public void updateRow(Object[] rowData) throws IllegalArgumentException{
-        
+    public void updateRow(int index, Object[] rowData) throws IllegalArgumentException{
+    
+        if (rowData.length != columnSize()) {
+            throw new IllegalArgumentException("Row data length does not match column count");
+        }
+        if (index < 0) {
+            throw new IllegalArgumentException("Row index cannot be negative");
+        }
+        for (int i = 0; i < columnSize(); i++) {
+            ColumnInterface column = columns.get(i).getRight();
+            while (index >= columns.get(i).getRight().size()) {
+                column.append();
+            }
+            column.set(index, rowData[i]);
+        }
     }
 
+    /**
+     * Returns a string representation of the table.
+     *
+     * @return         	A string representation of the table.
+     */
     @Override
     public String toString() {
         if (columns.isEmpty()) return "<Empty Table>";
-        int rowCount = columns.get(0).getRight().size();
-        int colCount = columns.size();
+        int rowCount = rowSize();
+        int colCount = columnSize();
 
         // Calculate max width for each column (header + cell contents)
         int[] colWidths = new int[colCount];

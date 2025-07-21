@@ -3,7 +3,7 @@ package DataTools;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class AbstractColumn<T> implements Column {
+abstract class AbstractColumn<T> implements ColumnInterface {
     protected final List<T> data = new ArrayList<>();
 
     @Override
@@ -26,6 +26,17 @@ abstract class AbstractColumn<T> implements Column {
         return data.size();
     }
 
+    @Override
+    public String toString() {
+        StringBuilder content = new StringBuilder(data.size() * 16);
+        content.append("Column[");
+        for (T t : data) {
+            content.append(t.toString()).append(", ");
+        }
+        content.setLength(content.length() - 2);
+        content.append("]");
+        return content.toString();
+    }
+
     protected abstract T cast(Object value);
 }
-
