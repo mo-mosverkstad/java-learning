@@ -20,6 +20,10 @@ public class Table {
         }
     }
 
+    public void updateRow(Object[] rowData) throws IllegalArgumentException{
+        
+    }
+
     @Override
     public String toString() {
         if (columns.isEmpty()) return "<Empty Table>";
