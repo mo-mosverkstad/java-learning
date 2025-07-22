@@ -1,5 +1,7 @@
 package DataTools;
 
+import java.util.ArrayList;
+
 public class DataToolsTest {
     public static Table createTable(){
         Table table = new Table();
@@ -11,21 +13,23 @@ public class DataToolsTest {
         table.addColumn(new IntColumn("salary")); // salary in dollars
         table.addColumn(new IntColumn("balance")); // balance in dollars
 
-        table.appendRow(new Object[] { 1, "John", 25, true, "New York", 50000, 10000 });
-        table.appendRow(new Object[] { 2, "Jane", 30, false, "Los Angeles", 60000, 20000 });
-        table.appendRow(new Object[] { 3, "Bob", 35, true, "Chicago", 70000, 30000 });
-        table.appendRow(new Object[] { 4, "Alice", 40, false, "Houston", 80000, 40000 });
-        table.appendRow(new Object[] { 5, "Mike", 45, true, "Phoenix", 90000, 50000 });
-        table.appendRow(new Object[] { 6, "Emma", 28, false, "Philadelphia", 52000, 12000 });  // Female
-        table.appendRow(new Object[] { 7, "David", 33, true, "San Antonio", 61000, 18000 });   // Male
-        table.appendRow(new Object[] { 8, "Sophia", 29, false, "San Diego", 58000, 14000 });   // Female
-        table.appendRow(new Object[] { 9, "James", 38, true, "Dallas", 75000, 22000 });        // Male
-        table.appendRow(new Object[] { 10, "Olivia", 42, false, "San Jose", 85000, 27000 });   // Female
-        table.appendRow(new Object[] { 11, "Liam", 26, true, "Austin", 49000, 9000 });         // Male
-        table.appendRow(new Object[] { 12, "Mia", 31, false, "Jacksonville", 63000, 16000 });  // Female
-        table.appendRow(new Object[] { 13, "Noah", 37, true, "Fort Worth", 70000, 24000 });    // Male
-        table.appendRow(new Object[] { 14, "Isabella", 39, false, "Columbus", 78000, 26000 }); // Female
-        table.appendRow(new Object[] { 15, "Ethan", 43, true, "Charlotte", 83000, 35000 });    // Male
+
+        table.appendRow(new ArrayList<>() {{ add(1); add("John"); add(25); add(true); add("New York"); add(50000); add(10000); }});
+        table.appendRow(new ArrayList<>() {{ add(2); add("Jane"); add(30); add(false); add("Los Angeles"); add(60000); add(20000); }});
+        table.appendRow(new ArrayList<>() {{ add(3); add("Bob"); add(35); add(true); add("Chicago"); add(70000); add(30000); }});
+        table.appendRow(new ArrayList<>() {{ add(4); add("Alice"); add(40); add(false); add("Houston"); add(80000); add(40000); }});
+        table.appendRow(new ArrayList<>() {{ add(5); add("Mike"); add(45); add(true); add("Phoenix"); add(90000); add(50000); }});
+        table.appendRow(new ArrayList<>() {{ add(6); add("Emma"); add(28); add(false); add("Philadelphia"); add(52000); add(12000); }});
+        table.appendRow(new ArrayList<>() {{ add(7); add("David"); add(33); add(true); add("San Antonio"); add(61000); add(18000); }});
+        table.appendRow(new ArrayList<>() {{ add(8); add("Sophia"); add(29); add(false); add("San Diego"); add(58000); add(14000); }});
+        table.appendRow(new ArrayList<>() {{ add(9); add("James"); add(38); add(true); add("Dallas"); add(75000); add(22000); }});
+        table.appendRow(new ArrayList<>() {{ add(10); add("Olivia"); add(42); add(false); add("San Jose"); add(85000); add(27000); }});
+        table.appendRow(new ArrayList<>() {{ add(11); add("Liam"); add(26); add(true); add("Austin"); add(49000); add(9000); }});
+        table.appendRow(new ArrayList<>() {{ add(12); add("Mia"); add(31); add(false); add("Jacksonville"); add(63000); add(16000); }});
+        table.appendRow(new ArrayList<>() {{ add(13); add("Noah"); add(37); add(true); add("Fort Worth"); add(70000); add(24000); }});
+        table.appendRow(new ArrayList<>() {{ add(14); add("Isabella"); add(39); add(false); add("Columbus"); add(78000); add(26000); }});
+        table.appendRow(new ArrayList<>() {{ add(15); add("Ethan"); add(43); add(true); add("Charlotte"); add(83000); add(35000); }});
+
         return table;
     }
 }

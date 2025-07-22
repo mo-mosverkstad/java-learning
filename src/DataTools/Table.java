@@ -3,6 +3,7 @@ package DataTools;
 import java.util.List;
 import java.util.ArrayList;
 
+
 public class Table {
     private final List<ColumnInterface> columns = new ArrayList<>();
     public Table() {}
@@ -19,28 +20,36 @@ public class Table {
         columns.add(column);
     }
 
-    public boolean isValidRow(Object[] rowData){
-        if (rowData.length != columnSize()) {
+    public Class<?>[] getColumnTypes(){
+        Class<?>[] columnClasses = new Class<?>[columns.size()];
+        for (int i = 0; i < columnClasses.length; i++) {
+            columnClasses[i] = columns.get(i).getClass();
+        }
+        return columnClasses;
+    }
+
+    public boolean isValidRow(List<Object> rowData){
+        if (rowData.size() != columnSize()) {
             return false;
         }
         for (int i = 0; i < columnSize(); i++) {
-            if (!columns.get(i).validate(rowData[i])) {
+            if (!columns.get(i).validate(rowData.get(i))) {
                 return false;
             }
         }
         return true;
     }
 
-    public void appendRow(Object[] rowData) throws IllegalArgumentException{
+    public void appendRow(List<Object> rowData) throws IllegalArgumentException{
         if (!isValidRow(rowData)) {
             throw new IllegalArgumentException("Row data is not valid for this table");
         }
         for (int i = 0; i < columnSize(); i++) {
-            columns.get(i).append(rowData[i]);
+            columns.get(i).append(rowData.get(i));
         }
     }
 
-    public void updateRow(int index, Object[] rowData) throws IllegalArgumentException{
+    public void updateRow(int index, List<Object> rowData) throws IllegalArgumentException{
         if (index < 0) {
             throw new IllegalArgumentException("Row index cannot be negative");
         }
@@ -52,7 +61,7 @@ public class Table {
             while (index >= column.size()) {
                 column.append();
             }
-            column.set(index, rowData[i]);
+            column.set(index, rowData.get(i));
         }
     }
 
