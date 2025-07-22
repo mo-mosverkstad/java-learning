@@ -4,7 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 abstract class AbstractColumn<T> implements ColumnInterface {
+    protected String name;
     protected final List<T> data = new ArrayList<>();
+
+    protected AbstractColumn(String name) {
+        this.name = name;
+    }
+
+    public String getName(){
+        return name;
+    }
 
     @Override
     public void append(Object value) {

@@ -1,6 +1,10 @@
 package DataTools;
 
 class StringColumn extends AbstractColumn<String> {
+    public StringColumn(String name) {
+        super(name);
+    }
+
     @Override
     public void append() {
         data.add("");
@@ -9,5 +13,10 @@ class StringColumn extends AbstractColumn<String> {
     @Override
     protected String cast(Object value) {
         return (String) value;
+    }
+
+    @Override
+    public boolean validate(Object value) {
+        return value instanceof String;
     }
 }

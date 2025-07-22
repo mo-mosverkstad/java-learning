@@ -3,36 +3,12 @@ package DataTools;
 
 public class DataTools {
     public static void main(String[] args) {
-        Table table = new Table();
-        table.addColumn("id", new IntColumn());
-        table.addColumn("name", new StringColumn());
-        table.addColumn("age", new IntColumn()); // age in years
-        table.addColumn("gender", new BooleanColumn()); // true = male, false = female
-        table.addColumn("city", new StringColumn());
-        table.addColumn("salary", new IntColumn()); // salary in dollars
-        table.addColumn("balance", new IntColumn()); // balance in dollars
-
-        table.appendRow(new Object[] { 1, "John", 25, true, "New York", 50000, 10000 });
-        table.appendRow(new Object[] { 2, "Jane", 30, false, "Los Angeles", 60000, 20000 });
-        table.appendRow(new Object[] { 3, "Bob", 35, true, "Chicago", 70000, 30000 });
-        table.appendRow(new Object[] { 4, "Alice", 40, false, "Houston", 80000, 40000 });
-        table.appendRow(new Object[] { 5, "Mike", 45, true, "Phoenix", 90000, 50000 });
-        table.appendRow(new Object[] { 6, "Emma", 28, false, "Philadelphia", 52000, 12000 });  // Female
-        table.appendRow(new Object[] { 7, "David", 33, true, "San Antonio", 61000, 18000 });   // Male
-        table.appendRow(new Object[] { 8, "Sophia", 29, false, "San Diego", 58000, 14000 });   // Female
-        table.appendRow(new Object[] { 9, "James", 38, true, "Dallas", 75000, 22000 });        // Male
-        table.appendRow(new Object[] { 10, "Olivia", 42, false, "San Jose", 85000, 27000 });   // Female
-        table.appendRow(new Object[] { 11, "Liam", 26, true, "Austin", 49000, 9000 });         // Male
-        table.appendRow(new Object[] { 12, "Mia", 31, false, "Jacksonville", 63000, 16000 });  // Female
-        table.appendRow(new Object[] { 13, "Noah", 37, true, "Fort Worth", 70000, 24000 });    // Male
-        table.appendRow(new Object[] { 14, "Isabella", 39, false, "Columbus", 78000, 26000 }); // Female
-        table.appendRow(new Object[] { 15, "Ethan", 43, true, "Charlotte", 83000, 35000 });    // Male
+        Table table = DataToolsTest.createTable();
 
         table.updateRow(2, new Object[] { 3, "Bob", 37, true, "Dallas", 50000, 20000 });
-
         table.updateRow(20, new Object[] { 21, "John", 25, true, "New York", 50000, 10000 });
         table.updateRow(19, new Object[] { 20, "Jane", 30, false, "Los Angeles", 60000, 20000 });
-        
+        table.updateRow(18, new Object[] { 10, false, "other", 12, 60000, 20000, 30000 });
         
         System.out.println(table);
     }

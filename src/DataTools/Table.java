@@ -4,41 +4,52 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class Table {
-    private final List<Pair<String, ColumnInterface>> columns = new ArrayList<>();
+    private final List<ColumnInterface> columns = new ArrayList<>();
     public Table() {}
 
     public int rowSize(){
-        return columns.get(0).getRight().size();
+        return columns.get(0).size();
     }
 
     public int columnSize(){
         return columns.size();
     }
 
-    public void addColumn(String columnName, ColumnInterface column){
-        columns.add(new Pair<String, ColumnInterface>(columnName, column));
+    public void addColumn(ColumnInterface column){
+        columns.add(column);
+    }
+
+    public boolean isValidRow(Object[] rowData){
+        if (rowData.length != columnSize()) {
+            return false;
+        }
+        for (int i = 0; i < columnSize(); i++) {
+            if (!columns.get(i).validate(rowData[i])) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public void appendRow(Object[] rowData) throws IllegalArgumentException{
-        if (rowData.length != columnSize()) {
-            throw new IllegalArgumentException("Row data length does not match column count");
+        if (!isValidRow(rowData)) {
+            throw new IllegalArgumentException("Row data is not valid for this table");
         }
         for (int i = 0; i < columnSize(); i++) {
-            columns.get(i).getRight().append(rowData[i]);
+            columns.get(i).append(rowData[i]);
         }
     }
 
     public void updateRow(int index, Object[] rowData) throws IllegalArgumentException{
-    
-        if (rowData.length != columnSize()) {
-            throw new IllegalArgumentException("Row data length does not match column count");
-        }
         if (index < 0) {
             throw new IllegalArgumentException("Row index cannot be negative");
         }
+        if (!isValidRow(rowData)) {
+            throw new IllegalArgumentException("Row data is not valid for this table");
+        }
         for (int i = 0; i < columnSize(); i++) {
-            ColumnInterface column = columns.get(i).getRight();
-            while (index >= columns.get(i).getRight().size()) {
+            ColumnInterface column = columns.get(i);
+            while (index >= column.size()) {
                 column.append();
             }
             column.set(index, rowData[i]);
@@ -59,10 +70,10 @@ public class Table {
         // Calculate max width for each column (header + cell contents)
         int[] colWidths = new int[colCount];
         for (int j = 0; j < colCount; j++) {
-            String header = columns.get(j).getLeft();
+            String header = columns.get(j).getName();
             colWidths[j] = header.length();
             for (int i = 0; i < rowCount; i++) {
-                Object cell = columns.get(j).getRight().get(i);
+                Object cell = columns.get(j).get(i);
                 int len = (cell != null ? cell.toString() : "null").length();
                 if (len > colWidths[j]) colWidths[j] = len;
             }
@@ -73,7 +84,7 @@ public class Table {
 
         // Header
         for (int j = 0; j < colCount; j++) {
-            content.append(pad(columns.get(j).getLeft(), colWidths[j])).append("  ");
+            content.append(pad(columns.get(j).getName(), colWidths[j])).append("  ");
         }
         content.append("\n");
 
@@ -86,7 +97,7 @@ public class Table {
         // Rows
         for (int i = 0; i < rowCount; i++) {
             for (int j = 0; j < colCount; j++) {
-                Object cell = columns.get(j).getRight().get(i);
+                Object cell = columns.get(j).get(i);
                 content.append(pad(cell != null ? cell.toString() : "null", colWidths[j])).append("  ");
             }
             content.append("\n");
