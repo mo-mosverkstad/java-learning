@@ -22,6 +22,10 @@ public class DataToolsCLI {
         Consumer<String[]> update = (arguments) -> {
             Class<?>[] columnTypes = table.getColumnTypes();
             List<Object> rowData = new ArrayList<>(columnTypes.length);
+            if (columnTypes.length != arguments.length){
+                System.out.println(String.format("PROBLEM: Numbers of arguments (%d) mismatch with table collation (%d)", arguments.length, columnTypes.length));
+                return;
+            }
             for (int i = 0; i < arguments.length; i++) {
                 Class<?> columnType = columnTypes[i];
                 String argument = arguments[i];
@@ -30,7 +34,8 @@ public class DataToolsCLI {
                         rowData.add(Integer.parseInt(argument));
                     }
                     else{
-                        System.out.println(String.format("PROBLEM: Malformed integer on column %d: %s", i, argument));
+                        System.out.println(String.format("PROBLEM: Malformed integer on argument %d: %s", i, argument));
+                        return;
                     }
                 }
                 else if (columnType == BooleanColumn.class){
@@ -41,14 +46,16 @@ public class DataToolsCLI {
                         rowData.add(false);
                     }
                     else{
-                        System.out.println(String.format("PROBLEM: Malformed boolean on column %d: %s", i, argument));
+                        System.out.println(String.format("PROBLEM: Malformed boolean on argument %d: %s", i, argument));
+                        return;
                     }
                 }
                 else if (columnType == StringColumn.class){
                     rowData.add(argument);
                 }
                 else{
-                    System.out.println(String.format("PROBLEM: Unrecognized type on column %d: %s", i, argument));
+                    System.out.println(String.format("PROBLEM: Unrecognized type on argument %d: %s", i, argument));
+                    return;
                 }
             }
             table.updateRow((int) rowData.get(0) - 1, rowData);
