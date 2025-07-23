@@ -23,6 +23,7 @@ public class DataToolsCLI {
     public static void main(String[] args) {
         Table table = DataToolsTest.createTable();
 
+        /*
         Consumer<String[]> view = (arguments) -> {
             System.out.println(table);
         };
@@ -67,10 +68,11 @@ public class DataToolsCLI {
             }
             table.updateRow((int) rowData.get(0) - 1, rowData);
         };
+        */
 
-        Map<String, Consumer<String[]>> commandMap = new HashMap<>();
-        commandMap.put("view", view);
-        commandMap.put("u", update);
+        Map<String, CommandInterface> commandMap = new HashMap<>();
+        commandMap.put("view", new ViewCommand(table));
+        commandMap.put("u", new UpdateCommand(table));
 
         
         System.out.println("DataToolsCLI is running...");
@@ -87,7 +89,7 @@ public class DataToolsCLI {
                         continueFlag = false;
                     }
                     else if (commandMap.containsKey(command)) {
-                        commandMap.get(command).accept(arguments);
+                        commandMap.get(command).execute(arguments);
                     }
                     else{
                         System.out.println("Unknown command: " + command);
