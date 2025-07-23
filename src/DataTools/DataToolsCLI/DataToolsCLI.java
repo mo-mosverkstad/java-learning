@@ -10,65 +10,29 @@ import DataTools.Utils.DataToolsTest;
 
 public class DataToolsCLI {
     public static final String PROMPT = "> ";
-    public static final String COMMAND_EXIT = "exit";
     public static final String SPLIT_REGEX = "\\s+";
+
+    public static final String COMMAND_EXIT = "exit";
+    public static final String COMMAND_VIEW = "view";
+    public static final String COMMAND_UPDATE = "update";
+    public static final String COMMAND_UPDATE_SHORT = "u";
+    // public static final String COMMAND_HELP = "help";
+
+    public static final String DATATOOLS_INITIAL_MESSAGE = "DataToolsCLI is running...";
+    public static final String DATATOOLS_EXIT_MESSAGE = "SUCCESS: Successfully exited DataToolsCLI!";
+
+    public static final String UNRECOGNIZED_COMMAND_PROBLEM_FORMAT = "PROBLEM: Unrecognized command '%s'!";
     
     public static void main(String[] args) {
         Table table = DataToolsTest.createTable();
 
-        /*
-        Consumer<String[]> view = (arguments) -> {
-            System.out.println(table);
-        };
-        Consumer<String[]> update = (arguments) -> {
-            Class<?>[] columnTypes = table.getColumnTypes();
-            List<Object> rowData = new ArrayList<>(columnTypes.length);
-            if (columnTypes.length != arguments.length){
-                System.out.println(String.format("PROBLEM: Numbers of arguments (%d) mismatch with table collation (%d)", arguments.length, columnTypes.length));
-                return;
-            }
-            for (int i = 0; i < arguments.length; i++) {
-                Class<?> columnType = columnTypes[i];
-                String argument = arguments[i];
-                if (columnType == IntColumn.class){
-                    if (Util.isStringDigit(argument)) {
-                        rowData.add(Integer.parseInt(argument));
-                    }
-                    else{
-                        System.out.println(String.format("PROBLEM: Malformed integer on argument %d: %s", i, argument));
-                        return;
-                    }
-                }
-                else if (columnType == BooleanColumn.class){
-                    if (argument.equals("true")) {
-                        rowData.add(true);
-                    }
-                    else if (argument.equals("false")) {
-                        rowData.add(false);
-                    }
-                    else{
-                        System.out.println(String.format("PROBLEM: Malformed boolean on argument %d: %s", i, argument));
-                        return;
-                    }
-                }
-                else if (columnType == StringColumn.class){
-                    rowData.add(argument);
-                }
-                else{
-                    System.out.println(String.format("PROBLEM: Unrecognized type on argument %d: %s", i, argument));
-                    return;
-                }
-            }
-            table.updateRow((int) rowData.get(0) - 1, rowData);
-        };
-        */
-
         Map<String, CommandInterface> commandMap = new HashMap<>();
-        commandMap.put("view", new ViewCommand(table));
-        commandMap.put("u", new UpdateCommand(table));
+        commandMap.put(COMMAND_VIEW, new ViewCommand(table));
+        commandMap.put(COMMAND_UPDATE, new UpdateCommand(table));
+        commandMap.put(COMMAND_UPDATE_SHORT, new UpdateCommand(table));
 
         
-        System.out.println("DataToolsCLI is running...");
+        System.out.println(DATATOOLS_INITIAL_MESSAGE);
         try (Scanner scanner = new Scanner(System.in)){
             boolean continueFlag = true;
             while (continueFlag) {
@@ -85,11 +49,11 @@ public class DataToolsCLI {
                         commandMap.get(command).execute(arguments);
                     }
                     else{
-                        System.out.println("Unknown command: " + command);
+                        System.out.println(String.format(UNRECOGNIZED_COMMAND_PROBLEM_FORMAT, command));
                     }
                 }
             }
-            System.out.println("Bye!");
+            System.out.println(DATATOOLS_EXIT_MESSAGE);
         } catch (Exception e) {
             e.printStackTrace();
         }

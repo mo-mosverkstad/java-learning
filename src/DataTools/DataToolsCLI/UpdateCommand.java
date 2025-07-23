@@ -9,7 +9,15 @@ import DataTools.Tables.StringColumn;
 import DataTools.Tables.Table;
 import DataTools.Utils.Util;
 
-public class UpdateCommand implements CommandInterface{
+public final class UpdateCommand implements CommandInterface{
+    private final static String BOOLEAN_KEYWORD_TRUE = "true";
+    private final static String BOOLEAN_KEYWORD_FALSE = "false";
+
+    private final static String MISMATCH_ARGUMENT_NUMBER_PROBLEM_FORMAT = "PROBLEM: Numbers of arguments (%d) mismatch with table collation columns (%d)";
+    private final static String MALFORMED_INTEGER_PROBLEM_FORMAT = "PROBLEM: Malformed integer argument on argument %d: %s";
+    private final static String MALFORMED_BOOLEAN_PROBLEM_FORMAT = "PROBLEM: Malformed boolean argument on argument %d: %s";
+    private final static String UNRECOGNIZED_ARGUMENT_PROBLEM_FORMAT = "PROBLEM: Unrecognized argument on argument %d: %s";
+
     private final Table table;
     public UpdateCommand(Table table){
         this.table = table;
@@ -20,7 +28,7 @@ public class UpdateCommand implements CommandInterface{
         Class<?>[] columnTypes = table.getColumnTypes();
         List<Object> rowData = new ArrayList<>(columnTypes.length);
         if (columnTypes.length != arguments.length){
-            System.out.println(String.format("PROBLEM: Numbers of arguments (%d) mismatch with table collation (%d)", arguments.length, columnTypes.length));
+            System.out.println(String.format(MISMATCH_ARGUMENT_NUMBER_PROBLEM_FORMAT, arguments.length, columnTypes.length));
             return;
         }
         for (int i = 0; i < arguments.length; i++) {
@@ -31,19 +39,20 @@ public class UpdateCommand implements CommandInterface{
                     rowData.add(Integer.parseInt(argument));
                 }
                 else{
-                    System.out.println(String.format("PROBLEM: Malformed integer on argument %d: %s", i, argument));
+                    System.out.println(String.format(MALFORMED_INTEGER_PROBLEM_FORMAT, i, argument));
                     return;
                 }
             }
             else if (columnType == BooleanColumn.class){
-                if (argument.equals("true")) {
+                argument = argument.toLowerCase();
+                if (argument.equals(BOOLEAN_KEYWORD_TRUE)) {
                     rowData.add(true);
                 }
-                else if (argument.equals("false")) {
+                else if (argument.equals(BOOLEAN_KEYWORD_FALSE)) {
                     rowData.add(false);
                 }
                 else{
-                    System.out.println(String.format("PROBLEM: Malformed boolean on argument %d: %s", i, argument));
+                    System.out.println(String.format(MALFORMED_BOOLEAN_PROBLEM_FORMAT, i, argument));
                     return;
                 }
             }
@@ -51,7 +60,7 @@ public class UpdateCommand implements CommandInterface{
                 rowData.add(argument);
             }
             else{
-                System.out.println(String.format("PROBLEM: Unrecognized type on argument %d: %s", i, argument));
+                System.out.println(String.format(UNRECOGNIZED_ARGUMENT_PROBLEM_FORMAT, i, argument));
                 return;
             }
         }

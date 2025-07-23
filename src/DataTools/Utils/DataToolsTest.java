@@ -9,7 +9,7 @@ import DataTools.Tables.Table;
 
 public class DataToolsTest {
     public static Table createTable(){
-        Table table = new Table();
+        Table table = new Table("Employees");
         table.addColumn(new IntColumn("id"));
         table.addColumn(new StringColumn("name"));
         table.addColumn(new IntColumn("age")); // age in years
