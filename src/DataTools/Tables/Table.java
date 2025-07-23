@@ -1,4 +1,4 @@
-package DataTools;
+package DataTools.Tables;
 
 import java.util.List;
 import java.util.ArrayList;

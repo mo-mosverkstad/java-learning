@@ -1,4 +1,4 @@
-package DataTools;
+package DataTools.Utils;
 
 public class Util {
     public static boolean isStringDigit(String str) {

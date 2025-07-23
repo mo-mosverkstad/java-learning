@@ -1,6 +1,6 @@
-package DataTools;
+package DataTools.Tables;
 
-class BooleanColumn extends AbstractColumn<Boolean> {
+public class BooleanColumn extends AbstractColumn<Boolean> {
 
     public BooleanColumn(String name) {
         super(name);

@@ -1,6 +1,11 @@
-package DataTools;
+package DataTools.Utils;
 
 import java.util.ArrayList;
+
+import DataTools.Tables.BooleanColumn;
+import DataTools.Tables.IntColumn;
+import DataTools.Tables.StringColumn;
+import DataTools.Tables.Table;
 
 public class DataToolsTest {
     public static Table createTable(){

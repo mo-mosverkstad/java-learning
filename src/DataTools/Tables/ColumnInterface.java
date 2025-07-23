@@ -1,6 +1,6 @@
-package DataTools;
+package DataTools.Tables;
 
-interface ColumnInterface {
+public interface ColumnInterface {
     public void append();
     public void append(Object value);
     public void set(int index, Object value);

@@ -1,6 +1,9 @@
-package DataTools;
+package DataTools.DataTools;
 
 import java.util.ArrayList;
+
+import DataTools.Tables.Table;
+import DataTools.Utils.DataToolsTest;
 
 public class DataTools {
     public static void main(String[] args) {

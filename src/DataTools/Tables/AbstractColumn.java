@@ -1,9 +1,9 @@
-package DataTools;
+package DataTools.Tables;
 
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class AbstractColumn<T> implements ColumnInterface {
+public abstract class AbstractColumn<T> implements ColumnInterface {
     protected String name;
     protected final List<T> data = new ArrayList<>();
 

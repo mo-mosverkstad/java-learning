@@ -1,6 +1,6 @@
-package DataTools;
+package DataTools.Tables;
 
-class StringColumn extends AbstractColumn<String> {
+public class StringColumn extends AbstractColumn<String> {
     public StringColumn(String name) {
         super(name);
     }

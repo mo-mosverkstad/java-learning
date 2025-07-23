@@ -1,6 +1,6 @@
-package DataTools;
+package DataTools.Tables;
 
-class IntColumn extends AbstractColumn<Integer> {
+public class IntColumn extends AbstractColumn<Integer> {
 
     public IntColumn(String name) {
         super(name);
