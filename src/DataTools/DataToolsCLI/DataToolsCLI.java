@@ -1,19 +1,12 @@
 package DataTools.DataToolsCLI;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.function.Consumer;
 
-import DataTools.Tables.BooleanColumn;
-import DataTools.Tables.IntColumn;
-import DataTools.Tables.StringColumn;
 import DataTools.Tables.Table;
 import DataTools.Utils.DataToolsTest;
-import DataTools.Utils.Util;
 
 public class DataToolsCLI {
     public static final String PROMPT = "> ";
