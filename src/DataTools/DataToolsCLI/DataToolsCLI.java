@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 import DataTools.Tables.Table;
+import DataTools.Tables.Table2;
 import DataTools.Utils.DataToolsTest;
 
 public class DataToolsCLI {
@@ -24,7 +25,7 @@ public class DataToolsCLI {
     public static final String UNRECOGNIZED_COMMAND_PROBLEM_FORMAT = "PROBLEM: Unrecognized command '%s'!";
     
     public static void main(String[] args) {
-        Table table = DataToolsTest.createTable();
+        Table2 table = DataToolsTest.createTable();
 
         Map<String, CommandInterface> commandMap = new HashMap<>();
         commandMap.put(COMMAND_VIEW, new ViewCommand(table));
