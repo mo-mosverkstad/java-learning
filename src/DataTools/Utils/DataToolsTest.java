@@ -2,21 +2,20 @@ package DataTools.Utils;
 
 import java.util.ArrayList;
 
-import DataTools.Tables.BooleanColumn;
-import DataTools.Tables.IntColumn;
-import DataTools.Tables.StringColumn;
-import DataTools.Tables.Table;
+import DataTools.Tables.CollationEntry;
+import DataTools.Tables.CollationTypes;
+import DataTools.Tables.Table2;
 
 public class DataToolsTest {
-    public static Table createTable(){
-        Table table = new Table("Employees");
-        table.addColumn(new IntColumn("id"));
-        table.addColumn(new StringColumn("name"));
-        table.addColumn(new IntColumn("age")); // age in years
-        table.addColumn(new BooleanColumn("gender")); // true = male, false = female
-        table.addColumn(new StringColumn("city"));
-        table.addColumn(new IntColumn("salary")); // salary in dollars
-        table.addColumn(new IntColumn("balance")); // balance in dollars
+    public static Table2 createTable(){
+        Table2 table = new Table2("Employees");
+        table.addColumn(new CollationEntry("id", CollationTypes.INTEGER));
+        table.addColumn(new CollationEntry("name", CollationTypes.STRING));
+        table.addColumn(new CollationEntry("age", CollationTypes.INTEGER)); // age in years
+        table.addColumn(new CollationEntry("gender", CollationTypes.BOOLEAN)); // true = male, false = female
+        table.addColumn(new CollationEntry("city", CollationTypes.STRING));
+        table.addColumn(new CollationEntry("salary", CollationTypes.INTEGER)); // salary in dollars
+        table.addColumn(new CollationEntry("balance", CollationTypes.INTEGER)); // balance in dollars
 
 
         table.appendRow(new ArrayList<>() {{ add(1); add("John"); add(25); add(true); add("New York"); add(50000); add(10000); }});
