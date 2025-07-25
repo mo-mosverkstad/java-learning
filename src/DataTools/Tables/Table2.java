@@ -1,8 +1,13 @@
 package DataTools.Tables;
 
-public class Table2 {
-    public Table2(){
+import java.util.ArrayList;
+import java.util.List;
 
+public class Table2 {
+    private String name;
+    private final List<List<Object>> rows = new ArrayList<>();
+    public Table2(String name){
+        this.name = name;
     }
 
     
