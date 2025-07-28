@@ -3,10 +3,9 @@ package DataTools.DataToolsCLI;
 import java.util.ArrayList;
 import java.util.List;
 
-import DataTools.Tables.BooleanColumn;
-import DataTools.Tables.IntColumn;
-import DataTools.Tables.StringColumn;
-import DataTools.Tables.Table;
+import DataTools.Tables.CollationEntry;
+import DataTools.Tables.CollationTypes;
+import DataTools.Tables.TableInterface;
 import DataTools.Utils.Util;
 
 public final class UpdateCommand implements CommandInterface{
@@ -18,23 +17,27 @@ public final class UpdateCommand implements CommandInterface{
     private final static String MALFORMED_BOOLEAN_PROBLEM_FORMAT = "PROBLEM: Malformed boolean argument on argument %d: %s";
     private final static String UNRECOGNIZED_ARGUMENT_PROBLEM_FORMAT = "PROBLEM: Unrecognized argument on argument %d: %s";
 
-    private final Table table;
-    public UpdateCommand(Table table){
+    private final TableInterface table;
+    public UpdateCommand(TableInterface table){
         this.table = table;
     }
 
     @Override
     public void execute(String[] arguments){
-        Class<?>[] columnTypes = table.getColumnTypes();
-        List<Object> rowData = new ArrayList<>(columnTypes.length);
-        if (columnTypes.length != arguments.length){
-            System.out.println(String.format(MISMATCH_ARGUMENT_NUMBER_PROBLEM_FORMAT, arguments.length, columnTypes.length));
+        List<CollationEntry> collationEntries = table.getCollation();
+
+        int collationEntriesSize = collationEntries.size();
+        int argumentsSize = arguments.length;
+
+        List<Object> rowData = new ArrayList<>(collationEntriesSize);
+        if (collationEntriesSize != argumentsSize){
+            System.out.println(String.format(MISMATCH_ARGUMENT_NUMBER_PROBLEM_FORMAT, argumentsSize, collationEntriesSize));
             return;
         }
-        for (int i = 0; i < arguments.length; i++) {
-            Class<?> columnType = columnTypes[i];
+        for (int i = 0; i < argumentsSize; i++) {
+            CollationTypes columnType = collationEntries.get(i).type();
             String argument = arguments[i];
-            if (columnType == IntColumn.class){
+            if (columnType == CollationTypes.INTEGER) {
                 if (Util.isStringDigit(argument)) {
                     rowData.add(Integer.parseInt(argument));
                 }
@@ -43,7 +46,7 @@ public final class UpdateCommand implements CommandInterface{
                     return;
                 }
             }
-            else if (columnType == BooleanColumn.class){
+            else if (columnType == CollationTypes.BOOLEAN) {
                 argument = argument.toLowerCase();
                 if (argument.equals(BOOLEAN_KEYWORD_TRUE)) {
                     rowData.add(true);
@@ -56,7 +59,7 @@ public final class UpdateCommand implements CommandInterface{
                     return;
                 }
             }
-            else if (columnType == StringColumn.class){
+            else if (columnType == CollationTypes.STRING) {
                 rowData.add(argument);
             }
             else{

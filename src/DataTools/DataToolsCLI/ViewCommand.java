@@ -1,12 +1,12 @@
 package DataTools.DataToolsCLI;
 
-import DataTools.Tables.Table;
+import DataTools.Tables.TableInterface;
 
 public final class ViewCommand implements CommandInterface{
     private static final String NO_ARGUMENTS_ACCEPTED_PROBLEM_FORMAT = "PROBLEM: No arguments are accepted to view command! Number of arguments: %d";
 
-    private final Table table;
-    public ViewCommand(Table table){
+    private final TableInterface table;
+    public ViewCommand(TableInterface table){
         this.table = table;
     }
 
