@@ -1,15 +1,14 @@
-package DataTools.DataToolsCLI;
+package Bookkeeping.BookkeepingCLIApp;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+import Bookkeeping.Tables.TableInterface;
+import Bookkeeping.Utils.DataToolsTest;
 
-import DataTools.Tables.TableInterface;
-import DataTools.Utils.DataToolsTest;
-
-public class DataToolsCLI {
+public class BookkeepingCLI {
     public static final String PROMPT = "> ";
     public static final String SPLIT_REGEX = "\\s+";
 

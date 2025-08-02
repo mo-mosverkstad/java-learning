@@ -1,4 +1,4 @@
-package DataTools.Tables;
+package Bookkeeping.Tables;
 
 import java.util.List;
 

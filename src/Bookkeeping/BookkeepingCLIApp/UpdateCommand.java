@@ -1,12 +1,12 @@
-package DataTools.DataToolsCLI;
+package Bookkeeping.BookkeepingCLIApp;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import DataTools.Tables.CollationEntry;
-import DataTools.Tables.CollationTypes;
-import DataTools.Tables.TableInterface;
-import DataTools.Utils.Util;
+import Bookkeeping.Tables.CollationEntry;
+import Bookkeeping.Tables.CollationTypes;
+import Bookkeeping.Tables.TableInterface;
+import Bookkeeping.Utils.Util;
 
 public final class UpdateCommand implements CommandInterface{
     private final static String BOOLEAN_KEYWORD_TRUE = "true";

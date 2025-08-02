@@ -1,4 +1,4 @@
-package DataTools.Tables;
+package Bookkeeping.Tables;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,12 +103,14 @@ public class OrderedFlatTable implements TableInterface{
         content.append("----- Table(").append(name).append(") -----\n");
 
         // Header
+        content.append(pad("Row", colWidths[0]));
         for (int j = 0; j < colCount; j++) {
             content.append(pad(collation.get(j).name(), colWidths[j])).append(SPACING_STRING);
         }
         content.append(NEWLINE_CHARACTER);
 
         // Separator
+        content.append(pad("----", colWidths[0]));
         for (int j = 0; j < colCount; j++) {
             content.append(SEPARATOR_STRING.repeat(colWidths[j])).append(SPACING_STRING);
         }
@@ -116,6 +118,7 @@ public class OrderedFlatTable implements TableInterface{
 
         // Rows
         for (int i = 0; i < rowCount; i++) {
+            content.append(pad(String.valueOf(i + 1), colWidths[0]));
             for (int j = 0; j < colCount; j++) {
                 Object cell = rows.get(i).get(j);
                 content.append(pad(cell != null ? cell.toString() : NULL_KEYWORD, colWidths[j])).append(SPACING_STRING);

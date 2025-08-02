@@ -1,6 +1,6 @@
-package DataTools.DataToolsCLI;
+package Bookkeeping.BookkeepingCLIApp;
 
-import DataTools.Tables.TableInterface;
+import Bookkeeping.Tables.TableInterface;
 
 public final class ViewCommand implements CommandInterface{
     private static final String NO_ARGUMENTS_ACCEPTED_PROBLEM_FORMAT = "PROBLEM: No arguments are accepted to view command! Number of arguments: %d";

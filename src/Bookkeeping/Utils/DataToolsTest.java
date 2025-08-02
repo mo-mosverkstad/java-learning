@@ -1,10 +1,10 @@
-package DataTools.Utils;
+package Bookkeeping.Utils;
 
 import java.util.ArrayList;
 
-import DataTools.Tables.CollationEntry;
-import DataTools.Tables.CollationTypes;
-import DataTools.Tables.OrderedFlatTable;
+import Bookkeeping.Tables.CollationEntry;
+import Bookkeeping.Tables.CollationTypes;
+import Bookkeeping.Tables.OrderedFlatTable;
 
 public class DataToolsTest {
     public static OrderedFlatTable createTable(){

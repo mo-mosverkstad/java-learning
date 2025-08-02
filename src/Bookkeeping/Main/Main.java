@@ -1,11 +1,11 @@
-package DataTools.DataToolsMain;
+package Bookkeeping.Main;
 
 import java.util.ArrayList;
 
-import DataTools.Tables.OrderedFlatTable;
-import DataTools.Utils.DataToolsTest;
+import Bookkeeping.Tables.OrderedFlatTable;
+import Bookkeeping.Utils.DataToolsTest;
 
-public class DataTools {
+public class Main {
     public static void main(String[] args) {
         OrderedFlatTable table = DataToolsTest.createTable();
 

@@ -1,4 +1,4 @@
-package DataTools.Tables;
+package Bookkeeping.Tables;
 
 public enum CollationTypes {
     BOOLEAN,
