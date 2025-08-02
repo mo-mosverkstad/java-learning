@@ -2,8 +2,9 @@ package Bookkeeping.Tables;
 
 import java.util.ArrayList;
 import java.util.List;
+import Bookkeeping.Layout.Layout;
 
-public class OrderedFlatTable implements TableInterface{
+public class OrderedFlatTable extends Layout implements TableInterface{
     private static final char NEWLINE_CHARACTER = '\n';
 
     private static final String NULL_KEYWORD = "null";
