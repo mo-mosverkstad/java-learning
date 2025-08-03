@@ -2,12 +2,17 @@ package Bookkeeping.Main;
 
 import java.util.ArrayList;
 
+import Bookkeeping.Element.Element;
+import Bookkeeping.ElementRegistry.ElementRegistry;
+import Bookkeeping.Graphs.Graph;
 import Bookkeeping.Tables.OrderedFlatTable;
 import Bookkeeping.Utils.DataToolsTest;
 
 public class Main {
     public static void main(String[] args) {
+        ElementRegistry dataManager = new ElementRegistry();
         OrderedFlatTable table = DataToolsTest.createTable();
+        dataManager.add(table);
 
         System.out.println(table);
 
@@ -18,7 +23,39 @@ public class Main {
         
         System.out.println(table);
 
+        Element table2 = dataManager.get(0);
+        if (table2 instanceof OrderedFlatTable obj){
+            obj.appendRow(new ArrayList<>() {{add("John"); add(24); add(true); add("New York"); add(50000); add(10000); }});
+        }
+        
+        System.out.println(table);
+
+        Graph graph = new Graph("My Graph");
+
+        dataManager.add(graph);
+
+        graph.updateVertex(0, "A");
+        graph.updateVertex(1, "B");
+        graph.updateVertex(2, "C");
+        graph.updateVertex(3, "D");
+        graph.updateVertex(4, "E");
+
+        graph.addEdge(0, 1);
+        graph.addEdge(0, 2);
+        graph.addEdge(1, 3);
+        graph.addEdge(2, 3);
+        graph.addBidirectionalEdge(3, 4);
+
+        System.out.println(graph);
+
+        graph.removeEdge(1, 3);
+
+        System.out.println(graph);
+
         System.out.println(mapIndexUnordered(5, 3));
+        System.out.println(mapIndexOrdered(5, 3));
+
+        System.out.println(dataManager);
     }
 
     public static int mapIndexOrdered(int a, int b){
