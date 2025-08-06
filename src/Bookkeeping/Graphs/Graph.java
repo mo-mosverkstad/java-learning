@@ -47,12 +47,10 @@ public class Graph extends Element {
     private static final String RIGHT_PARENTHESIS_SPACE = ") ";
     private static final String COLON_SPACE = ": ";
 
-
-    private String name;
     private final List<Vertex> adjacencyList = new ArrayList<>();
     
     public Graph(String name) {
-        this.name = name;
+        super(name);
     }
 
     public void updateVertex(int vertexIndex, String vertexName){

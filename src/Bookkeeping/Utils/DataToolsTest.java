@@ -4,11 +4,11 @@ import java.util.ArrayList;
 
 import Bookkeeping.Tables.CollationEntry;
 import Bookkeeping.Tables.CollationTypes;
-import Bookkeeping.Tables.OrderedFlatTable;
+import Bookkeeping.Tables.OrderedTable;
 
 public class DataToolsTest {
-    public static OrderedFlatTable createTable(){
-        OrderedFlatTable table = new OrderedFlatTable("Employees");
+    public static OrderedTable createTable(){
+        OrderedTable table = new OrderedTable("Employees");
         table.addColumn(new CollationEntry("name", CollationTypes.STRING));
         table.addColumn(new CollationEntry("age", CollationTypes.INTEGER)); // age in years
         table.addColumn(new CollationEntry("gender", CollationTypes.BOOLEAN)); // true = male, false = female

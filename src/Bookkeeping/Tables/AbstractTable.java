@@ -5,7 +5,7 @@ import java.util.List;
 
 import Bookkeeping.Element.Element;
 
-public class OrderedFlatTable extends Element implements TableInterface{
+public abstract class AbstractTable extends Element {
     private static final char NEWLINE_CHARACTER = '\n';
 
     private static final String NULL_KEYWORD = "null";
@@ -16,40 +16,32 @@ public class OrderedFlatTable extends Element implements TableInterface{
     private static final String INVALID_ROW_DATA_ERROR = "Row data is not valid for this table";
     private static final String NEGATIVE_ROW_INDEX_ERROR = "Row index cannot be negative";
 
-    private String name;
-    private final List<List<Object>> rows = new ArrayList<>();
-    private final List<CollationEntry> collation = new ArrayList<>();
-    public OrderedFlatTable(String name){
-        this.name = name;
+    protected final List<List<Object>> rows = new ArrayList<>();
+    protected final List<CollationEntry> collation = new ArrayList<>();
+
+    protected AbstractTable(String name){
+        super(name);
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int rowSize(){
+    public final int rowSize(){
         if (rows.isEmpty()) return 0;
         return rows.size();
     }
 
-    public int columnSize(){
+    public final int columnSize(){
         if (collation.isEmpty()) return 0;
         return collation.size();
     }
 
-    public void addColumn(CollationEntry collationEntry){
+    public final void addColumn(CollationEntry collationEntry){
         collation.add(collationEntry);
     }
 
-    public List<CollationEntry> getCollation(){
+    public final List<CollationEntry> getCollation(){
         return collation;
     }
 
-    public boolean isValidRow(List<Object> rowData){
+    public final boolean isValidRow(List<Object> rowData){
         if (rowData.size() != columnSize()) return false;
         for (int i = 0; i < columnSize(); i++){
             if (!collation.get(i).validate(rowData.get(i))) return false;
@@ -57,30 +49,15 @@ public class OrderedFlatTable extends Element implements TableInterface{
         return true;
     }
 
-    public void appendRow(List<Object> rowData) throws IllegalArgumentException{
+    public final void appendRow(List<Object> rowData) throws IllegalArgumentException{
         if (!isValidRow(rowData)) throw new IllegalArgumentException(INVALID_ROW_DATA_ERROR);
         rows.add(rowData);
     }
 
-    public void updateRow(int index, List<Object> rowData) throws IllegalArgumentException {
-        if (index < 0) throw new IllegalArgumentException(NEGATIVE_ROW_INDEX_ERROR);
-        if (!isValidRow(rowData)) throw new IllegalArgumentException(INVALID_ROW_DATA_ERROR);
-
-        while (index >= rows.size()) {
-            // Fill with nulls to match column size
-            List<Object> emptyRow = new ArrayList<>();
-            for (int i = 0; i < columnSize(); i++) {
-                emptyRow.add(null);
-            }
-            rows.add(emptyRow);
-        }
-
-        rows.set(index, rowData);
-    }
-
+    abstract public void updateRow(int index, List<Object> rowData) throws IllegalArgumentException;
 
     @Override
-    public String toString() {
+    public final String toString() {
         if (rows.isEmpty()) {
             return String.format(EMPTY_TABLE_DISPLAY_FORMAT, name);
         }

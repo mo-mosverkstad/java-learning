@@ -5,13 +5,14 @@ import java.util.ArrayList;
 import Bookkeeping.Element.Element;
 import Bookkeeping.ElementRegistry.ElementRegistry;
 import Bookkeeping.Graphs.Graph;
-import Bookkeeping.Tables.OrderedFlatTable;
+import Bookkeeping.Tables.AbstractTable;
+import Bookkeeping.Tables.OrderedTable;
 import Bookkeeping.Utils.DataToolsTest;
 
 public class Main {
     public static void main(String[] args) {
         ElementRegistry dataManager = new ElementRegistry();
-        OrderedFlatTable table = DataToolsTest.createTable();
+        OrderedTable table = DataToolsTest.createTable();
         dataManager.add(table);
 
         System.out.println(table);
@@ -24,7 +25,7 @@ public class Main {
         System.out.println(table);
 
         Element table2 = dataManager.get(0);
-        if (table2 instanceof OrderedFlatTable obj){
+        if (table2 instanceof OrderedTable obj){
             obj.appendRow(new ArrayList<>() {{add("John"); add(24); add(true); add("New York"); add(50000); add(10000); }});
         }
         
