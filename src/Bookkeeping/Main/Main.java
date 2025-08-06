@@ -1,17 +1,32 @@
 package Bookkeeping.Main;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import Bookkeeping.Element.Element;
 import Bookkeeping.ElementRegistry.ElementRegistry;
 import Bookkeeping.Graphs.Graph;
 import Bookkeeping.Tables.AbstractTable;
+import Bookkeeping.Tables.CollationEntry;
+import Bookkeeping.Tables.CollationTypes;
 import Bookkeeping.Tables.OrderedTable;
+import Bookkeeping.Tables.UnorderedTable;
 import Bookkeeping.Utils.DataToolsTest;
 
 public class Main {
+    public static ElementRegistry dataManager = new ElementRegistry();
     public static void main(String[] args) {
-        ElementRegistry dataManager = new ElementRegistry();
+        orderedTableTest();
+        unorderedTableTest();
+        graphTest();
+    }
+
+    public static void printSeparator(){
+        System.out.println("=".repeat(64));
+    }
+
+    public static void orderedTableTest(){
+        printSeparator();
         OrderedTable table = DataToolsTest.createTable();
         dataManager.add(table);
 
@@ -30,7 +45,39 @@ public class Main {
         }
         
         System.out.println(table);
+    }
 
+    public static void unorderedTableTest(){
+        printSeparator();
+        UnorderedTable unorderedTable = new UnorderedTable("Technical reports");
+        unorderedTable.addColumn(new CollationEntry("name", CollationTypes.STRING));
+        unorderedTable.addColumn(new CollationEntry("importancy", CollationTypes.INTEGER));
+        unorderedTable.addColumn(new CollationEntry("urgency", CollationTypes.INTEGER));
+        unorderedTable.addColumn(new CollationEntry("priority", CollationTypes.INTEGER));
+
+        
+        
+        unorderedTable.appendRow(new ArrayList<>(Arrays.asList("Network Security Audit", 8, 7, 9)));
+        unorderedTable.appendRow(new ArrayList<>(Arrays.asList("Database Optimization", 6, 5, 6)));
+        unorderedTable.appendRow(new ArrayList<>(Arrays.asList("Cloud Migration Plan", 9, 8, 10)));
+        unorderedTable.appendRow(new ArrayList<>(Arrays.asList("Legacy System Review", 4, 3, 4)));
+        unorderedTable.appendRow(new ArrayList<>(Arrays.asList("AI Integration Proposal", 7, 9, 8)));
+        unorderedTable.appendRow(new ArrayList<>(Arrays.asList("Compliance Update", 5, 6, 5)));
+        unorderedTable.appendRow(new ArrayList<>(Arrays.asList("Incident Response Report", 10, 10, 10)));
+
+        System.out.println(unorderedTable);
+
+        System.out.println("New TR is coming.");
+        unorderedTable.insertRow(3, new ArrayList<>(Arrays.asList("RANS Security problem", 2, 3, 2)));
+        System.out.println(unorderedTable);
+
+        System.out.println("Updating some TR status");
+        unorderedTable.updateRow(4, new ArrayList<>(Arrays.asList("Legacy System Review", 5, 1, 2)));
+        System.out.println(unorderedTable);
+    }
+
+    public static void graphTest(){
+        printSeparator();
         Graph graph = new Graph("My Graph");
 
         dataManager.add(graph);

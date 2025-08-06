@@ -13,19 +13,19 @@ public abstract class AbstractTable extends Element {
     private static final String SEPARATOR_STRING = "-";
     private static final String EMPTY_TABLE_DISPLAY_FORMAT = "<Empty Table(%s)>";
 
-    private static final String INVALID_ROW_DATA_ERROR = "Row data is not valid for this table";
-    private static final String NEGATIVE_ROW_INDEX_ERROR = "Row index cannot be negative";
+    public static final String INVALID_ROW_DATA_ERROR = "Row data is not valid for this table";
 
-    protected final List<List<Object>> rows = new ArrayList<>();
     protected final List<CollationEntry> collation = new ArrayList<>();
 
     protected AbstractTable(String name){
         super(name);
     }
 
+    abstract protected List<List<Object>> getRows();
+
     public final int rowSize(){
-        if (rows.isEmpty()) return 0;
-        return rows.size();
+        if (getRows().isEmpty()) return 0;
+        return getRows().size();
     }
 
     public final int columnSize(){
@@ -51,14 +51,14 @@ public abstract class AbstractTable extends Element {
 
     public final void appendRow(List<Object> rowData) throws IllegalArgumentException{
         if (!isValidRow(rowData)) throw new IllegalArgumentException(INVALID_ROW_DATA_ERROR);
-        rows.add(rowData);
+        getRows().add(rowData);
     }
 
     abstract public void updateRow(int index, List<Object> rowData) throws IllegalArgumentException;
 
     @Override
     public final String toString() {
-        if (rows.isEmpty()) {
+        if (getRows().isEmpty()) {
             return String.format(EMPTY_TABLE_DISPLAY_FORMAT, name);
         }
 
@@ -70,7 +70,7 @@ public abstract class AbstractTable extends Element {
             String header = collation.get(j).name();
             colWidths[j] = header.length();
             for (int i = 0; i < rowCount; i++) {
-                Object cell = rows.get(i).get(j);
+                Object cell = getRows().get(i).get(j);
                 int len = (cell != null ? cell.toString() : NULL_KEYWORD).length();
                 if (len > colWidths[j]) {
                     colWidths[j] = len;
@@ -82,14 +82,14 @@ public abstract class AbstractTable extends Element {
         content.append("----- Table(").append(name).append(") -----\n");
 
         // Header
-        content.append(pad("Row", colWidths[0]));
+        content.append(pad("Row index", 10));
         for (int j = 0; j < colCount; j++) {
             content.append(pad(collation.get(j).name(), colWidths[j])).append(SPACING_STRING);
         }
         content.append(NEWLINE_CHARACTER);
 
         // Separator
-        content.append(pad("----", colWidths[0]));
+        content.append(pad("---------", 10));
         for (int j = 0; j < colCount; j++) {
             content.append(SEPARATOR_STRING.repeat(colWidths[j])).append(SPACING_STRING);
         }
@@ -97,9 +97,9 @@ public abstract class AbstractTable extends Element {
 
         // Rows
         for (int i = 0; i < rowCount; i++) {
-            content.append(pad(String.valueOf(i + 1), colWidths[0]));
+            content.append(pad(String.valueOf(i), 10));
             for (int j = 0; j < colCount; j++) {
-                Object cell = rows.get(i).get(j);
+                Object cell = getRows().get(i).get(j);
                 content.append(pad(cell != null ? cell.toString() : NULL_KEYWORD, colWidths[j])).append(SPACING_STRING);
             }
             content.append(NEWLINE_CHARACTER);

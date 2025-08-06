@@ -7,8 +7,15 @@ public final class OrderedTable extends AbstractTable{
     private static final String INVALID_ROW_DATA_ERROR = "Row data is not valid for this table";
     private static final String NEGATIVE_ROW_INDEX_ERROR = "Row index cannot be negative";
 
+    private final List<List<Object>> rows = new ArrayList<>();
+
     public OrderedTable(String name){
         super(name);
+    }
+
+    @Override
+    protected List<List<Object>> getRows() {
+        return rows;
     }
 
     @Override
@@ -27,5 +34,4 @@ public final class OrderedTable extends AbstractTable{
 
         rows.set(index, rowData);
     }
-
 }

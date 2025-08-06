@@ -24,6 +24,7 @@ public class ElementRegistry {
             content.append(layouts.get(i).getClass().getSimpleName()).append("[").append(i).append("]");
             content.append(", ");
         }
+        content.append("/end");
         content.append("]");
         return content.toString();
     }
