@@ -6,7 +6,7 @@ import java.util.Arrays;
 import Bookkeeping.Element.Element;
 import Bookkeeping.ElementRegistry.ElementRegistry;
 import Bookkeeping.Graphs.Graph;
-import Bookkeeping.Tables.AbstractTable;
+import Bookkeeping.System.BookkeepingSystem;
 import Bookkeeping.Tables.CollationEntry;
 import Bookkeeping.Tables.CollationTypes;
 import Bookkeeping.Tables.OrderedTable;
@@ -16,9 +16,13 @@ import Bookkeeping.Utils.DataToolsTest;
 public class Main {
     public static ElementRegistry dataManager = new ElementRegistry();
     public static void main(String[] args) {
+        /*
         orderedTableTest();
         unorderedTableTest();
         graphTest();
+        */
+        BookkeepingSystem bookkeepingSystem = new BookkeepingSystem();
+        bookkeepingSystem.execute(bookkeepingSystem.VIEW_COMMAND);
     }
 
     public static void printSeparator(){
@@ -28,7 +32,7 @@ public class Main {
     public static void orderedTableTest(){
         printSeparator();
         OrderedTable table = DataToolsTest.createTable();
-        dataManager.add(table);
+        dataManager.append(table);
 
         System.out.println(table);
 
@@ -80,7 +84,7 @@ public class Main {
         printSeparator();
         Graph graph = new Graph("My Graph");
 
-        dataManager.add(graph);
+        dataManager.append(graph);
 
         graph.updateVertex(0, "A");
         graph.updateVertex(1, "B");

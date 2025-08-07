@@ -13,7 +13,7 @@ public class ElementRegistry {
         return layouts.get(index);
     }
 
-    public void add(Element layout){
+    public void append(Element layout){
         layouts.add(layout);
     }
 
