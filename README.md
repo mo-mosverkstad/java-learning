@@ -7,9 +7,27 @@
 - **Bookkeeping/** - Bookkeeping system with CLI, graphs, tables, and element registry
 - **Callback/** - Callback pattern examples
 - **DesignPatterns/** - Design pattern implementations
-  - **BehavioralPatterns/** - Chain, Command, Iterator, Mediator, Memento
-  - **CreationalPatterns/** - AbstractFactory, Builder, Factory, Prototype, Singleton
-  - **StructuralPatterns/** - Adapter, Bridge, Composite, Decorator, Facade, Flyweight, Proxy
+  - **BehavioralPatterns/**
+    - **Chain/** - Chain of Responsibility with a support request system routing by priority (Basic, Intermediate, Critical)
+    - **Command/** - Command pattern with an editor supporting copy, cut, paste and undo via command history
+    - **Command2/** - Command pattern with a remote control operating TV and stereo devices (turn on/off, volume, channel)
+    - **Iterator/** - Custom iterator over a radio channel collection
+    - **Mediator/** - Air traffic control tower mediating takeoff/landing requests between airplanes
+    - **Memento/** - Document state snapshots with undo/restore via history stack
+  - **CreationalPatterns/**
+    - **AbstractFactory/** - Cross-platform GUI factory producing Windows/macOS buttons and checkboxes
+    - **Builder/** - Vehicle builder with director constructing cars and trucks step by step
+    - **Factory/** - Road vehicle factory using a registry map to create Car/Truck by type name
+    - **Prototype/** - Cloneable shapes (Circle, Rectangle) via a prototype base class
+    - **Singleton/** - Multiple singleton variants (eager, file-based, volatile double-checked locking)
+  - **StructuralPatterns/**
+    - **Adapter/** - Adapts a square peg to fit a round hole interface
+    - **Bridge/** - Decouples remote controls from devices (TV, Radio) so they can vary independently
+    - **Composite/** - Tree structure of boxes and products with recursive display
+    - **Decorator/** - Wraps a file data source with compression and encryption decorators
+    - **Facade/** - Video conversion facade hiding codec, bitrate reader, and audio mixer complexity
+    - **Flyweight/** - Forest rendering that shares tree type objects to save memory
+    - **Proxy/** - Lazy-loading proxy for images that defers creation until display
 - **ElectricBikeRepair/** - Maven project (see its own [README](src/ElectricBikeRepair/README.md))
 - **Enum/** - Enum usage examples
 - **Exception/** - Custom exception handling
@@ -19,7 +37,12 @@
 - **Lambda/** - Lambda expressions and functional interfaces
 - **List/** - List operations
 - **OodPrinciples/** - OOD/SOLID principles
-  - DependencyInversionPrinciple, InterfaceSegregationPrinciple, LawOfDemeter, LiskovSubstitutionPrinciple, OpenClosedPrinciples, SingleResponsibilityPrinciple
+  - **SingleResponsibilityPrinciple/** - Separates Customer data from printing logic into a dedicated CustomerPrinting class
+  - **OpenClosedPrinciples/** - Shape hierarchy (Circle, Rectangle, Ellipse) extensible via polymorphism without modifying Drawing class
+  - **LiskovSubstitutionPrinciple/** - MatrixProperty extends MatrixConfig, substitutable by loading config from a properties file
+  - **InterfaceSegregationPrinciple/** - Splits a fat Equipment interface into Electrifable, Displayable, and Osable so Lamp only implements what it needs
+  - **DependencyInversionPrinciple/** - MatrixMain depends on MatrixConfigable interface, not the concrete MatrixConfig implementation
+  - **LawOfDemeter/** - PC composition (Hardware, Peripherals, Software) where each component only talks to its direct collaborators
 - **SimpleCypher/** - Caesar and mapping cypher implementations
 - **Sorting/** - Sorting examples with custom comparators
 - **Stream/** - Java Stream API examples
