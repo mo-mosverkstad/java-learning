@@ -68,3 +68,44 @@ mvn test
 - `mvn package` — build a JAR/WAR
 - `mvn clean` — remove the `target/` directory
 - `mvn clean install` — clean, compile, test, and install to local repo
+
+
+# Java version in pom.xml
+
+In current Java version defined in pom.xml is as below:
+
+```xml
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+```
+
+So the default Java version is 11, which has been installed by the ubuntu command:
+
+```bash
+sudo apt install default-jdk -y
+```
+
+If you want to use Java 17 new feature, it should be do as below:
+
+1, Install Java 17 in wsl ubuntu using:
+
+```bash
+sudo apt install openjdk-17-jdk
+```
+
+2, update pom.xml to version 17:
+
+```xml
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+```
+
+# Disabled java problem visibility
+In VS Code, press Ctrl+, to open Settings, then search for "problems visibility" and uncheck the option to disable it.
+
