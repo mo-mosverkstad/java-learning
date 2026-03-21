@@ -5,15 +5,15 @@ import java.util.List;
 
 import Bookkeeping.Element.Element;
 
-public class ElementRegistry {
-    private final List<Element> layouts = new ArrayList<>();
+public class ElementRegistry<T extends Element> {
+    private final List<T> layouts = new ArrayList<>();
     public ElementRegistry(){}
 
-    public Element get(int index){
+    public T get(int index){
         return layouts.get(index);
     }
 
-    public void append(Element layout){
+    public void append(T layout){
         layouts.add(layout);
     }
 
