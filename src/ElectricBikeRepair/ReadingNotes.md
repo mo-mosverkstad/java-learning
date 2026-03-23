@@ -155,7 +155,7 @@ The **DTO** (Data Transfer Object) Design Pattern:  a long parameter list means 
 A DTO, on the other hand, is read-only, it has **only get methods**. This means it is **immutable**, none of its fields can ever change value. Also, since it can’t change state, it has no history. It’s just **a snapshot** of what something looked like at a particular instance in time.
 
 ----
-Customer -> Bike vs CustomerDTO
+Customer -> Bike vs CustomerDTO -> BikeDTO
 
 ----
 
@@ -176,34 +176,279 @@ Customer -> Bike vs CustomerDTO
    * The system operations are designed in the order they are executed according to the SSD, ***figure 5.22***.
    * The first operation in the SSD is searchMatchingCar. The first step is to create an **interaction diagram**. 
 3. Step 3, Strive for encapsulation with a small, well-defined public interface, high cohesion and low coupling
-   * Thequestion, which is the type of the parameter searchedCar and the return value foundCar, is the first of a large number of design decisions. The answer shall be guided by the concepts encapsulation, cohesion and coupling.
+   * The question, which is the type of the parameter searchedCar and the return value foundCar, is the first of a large number of design decisions. The answer shall be guided by the concepts encapsulation, cohesion and coupling. -> **both a DTO and an entity?** searchedCarDTO only getter methods without business logic, located in dbhandler layer.
    * The fact that the **same name** is used implies that it is in fact the very same object in all three places, which is important information for the reader.
-   * Data can not appear out of nothing, since searchedCar is a parameter in method call two, it must be clear from where this object comes.
-   *  For now, we just choose the simplest solution, namely to let Car be a DTO, place it in dbhandler, and not add an entity. This decision might have to be changed later.
-   *  Figure 5.27 Call to dbhandler layer is added.
+   * Data can **not appear out of nothing**, since searchedCar is a parameter in method call two, it must be clear from where this object comes.
+   *  For now, we just choose the simplest solution, namely to let Car be a **DTO**, place it in dbhandler, and not add an entity. This decision might have to be changed later.
+   *  Here instead, since there is no database, CarRegistry will just look in **an array** of available cars.
+   *  Figure 5.27 Call to dbhandler layer is added. (loop is not part of program, just decided by casher)
    *  Figure 5.28 The start sequence in the main method.
 4. Step 4, Maintain a Class Diagram With All Classes.  Note that it is **not mandatory** to include all attributes, methods and references if they do not add any important information, but only obscure the diagram. For example, it is common not to include references to **DTOs**, since they are used in many different layers and are considered as data types.
+5. Before leaving searchMatchingCar, we **evaluate** it according to the criteria encapsula tion, cohesion and coupling.
+   * Encapsulation
+     * All methods in searchMatchingCar are public ― not ideal but acceptable early in design.
+     * Public methods are necessary because layers must communicate and the system still has few methods.
+     * All fields are private, which is considered good encapsulation practice.
+   * Cohesion
+     * Each class performs exactly its intended responsibility:
+       * Main: starts the program.
+       * View: delegates calls to the controller.
+       * Controller: executes a system operation that triggers the search in CarRegistry.
+       * CarRegistry: contains only the search method.
+       * CarDTO: contains no methods (pure data holder).
+   * Coupling
+     * Dependencies follow the expected layer structure: View → Controller → DBHandler.
+     * This unidirectional dependency chain matches the layer pattern design.
+     * Main is allowed to depend on classes in other layers because its role is to initialize the system.
+     * Coupling in Main is low since it references only one class per layer.
+     * Excessive references within the same layer would indicate too high coupling, but that is not the case here.
+     * Overall cohesion is high: every class focuses on one task.
 
-Before leaving searchMatchingCar, we evaluate it according to the criteria encapsula tion, cohesion and coupling.
-* To start with encapsulation, all methods are public. ... page 79-80
+## 5.6 Another system operations
+### Notes
+Note that the CarRegistry method that marks the car as being booked is called **setStateOfBookedCar**, and not bookCar. The reason is that booking the car is business logic, which belongs in the model.
 
-printer page 87-88 -> create a new layer or to extend (and rename) dbhandler to handle interaction with any other system, so far databases and printers.
+It is a quite interesting decision to **let Rental**, instead of Controller **call setStateOfBookedCar**. The motive is that the controller should not have detailed knowledge about all details of all system operations. That would lead towards spider-in-the-web design, with the controller as spider.
 
-Why is the CashRegister object created by Controller, when all other objects are created by main and sent to Controller? This is a **trade-off** between two contradicting arguments. On one hand, coupling is lowered if main is not associated to all other objects created during startup. On the other hand, cohesion of the Controller constructor is increased if it does not create loads of other objects, besides controller.
+Main creates two objects in the dbhandler layer. This is a warning sign that it might be getting unnecessarily high coupling to that layer. Also, the dbhandler layer might have a bit bad encapsulation, since it has to reveal the existence of CarRegistry and RentalRegistry to main. These problems can be solved by changing that startup design to the one in figure 5.35, where the class **RegistryCreator** is responsible for creating the registries, thus hiding their existence to main.
+
+The design class diagram, figure 5.36, is now becoming quite big. In order to reduce it, the **DTOs are omitted**. Another option would have been to **split it into more, smaller diagrams**. 
+
+Generally, it is a bit dangerous to force an **amount** to have a specific primitive type. For ex ample it is not clear whether an amount can have decimals or not. By introducing the **Amount class**, the primitive type of the amount is encapsulated inside that class, and can thus easily be changed.
+
+**CashPayment class**: Figure 5.38 Payment and CashRegister handling the pay system operation. (With both Amount and CashPayment classes, think about class Cost in assignment).
+
+printer page 87-88 -> create a new layer or to extend (and rename) dbhandler to handle interaction with any other system, so far databases and printers. -> **intergation**
+
+Let’s not include **Printer** in RegistryCreator, since, after all, a printer connection is completely different from a database connection. The RegistryCreator will be responsible only for connecting to the database. -> ***Figure 5.40 The complete startup design.***
+
+Page 89, Figure 5.40: Why is the CashRegister object created by Controller, when all other objects are created by main and sent to Controller? This is a **trade-off** between two contradicting arguments. On one hand, coupling is lowered if main is not associated to all other objects created during startup. On the other hand, cohesion of the Controller constructor is increased if it does not create loads of other objects, besides controller.
+
+### Evaluate the Completed RentCar Design page 89
+* **Encapsulation**
+  * No method, class, package, or layer currently has *lowerable* visibility — everything that is public must be public for now.
+  * However, the design still exposes many public methods, which is **not ideal** for good encapsulation.
+  * Adjusting responsibilities can reduce public exposure — e.g., moving operations from Controller into lower layers. (*when saving to db, it should be done in the module, instead of controller*)
+
+* **Coupling**
+  * Coupling is relatively high:
+    * **Controller is associated with nearly all classes in the model and integration layers.**
+  * This could be improved if:
+    * Model objects collaborated directly with each other. (*Controller only knows RepairOrder, no idea about DiagnosticOrder or ProposedRepairTask*)
+    * Model objects called integration classes without always going through Controller.
+  * Example improvement:
+    * Change `Receipt getReceipt()` in `Rental` to `void printReceipt(Printer printer)`.
+    * Move the printer call from **Controller → Rental**, so Rental handles its own printing.
+  * Benefits of this change:
+    * Removes Controller → Receipt dependency.
+    * Removes Controller → Printer dependency.
+    * Allows Receipt constructor to become **package‑private**.
+    * Overall reduced coupling and improved layering.
+  * Further possible refinements:
+    * Let `CashPayment` call `CashRegister` (or vice versa), removing another Controller dependency.
+  * Current design is acceptable but can still evolve toward lower coupling.
+
+* **Cohesion**
+  * No issues detected.
+  * All layers, classes, and methods perform their intended purposes and **nothing more**.
+  * Cohesion is considered **good** throughout the design.
+
+Page 90: RetalRegistry: saveRental(Rental)? Maybe saveRental(RentalDTO) is better? No, keep Rental. To controller, it could call some key module in module layer and call registry for data retrieve or saving.
+
+## Common mistakes
+1. **Spider‑in‑the‑web class**
+   *   A central class (often the Controller) becomes overly connected to many peripheral classes.
+   *   Fix by reducing its associations and letting peripheral classes communicate directly.
+   *   Example: redesigning receipt printing to remove unnecessary Controller links.
+2. **Too much primitive data**
+   *   Excessive use of primitive parameters instead of proper objects.
+   *   Long parameter lists or many attributes suggest missing abstractions.
+   *   Using primitives weakens encapsulation, cohesion, and coupling control.
+3. **Unwarranted static methods or fields**
+   *   Static members should only exist for strong, justified reasons.
+   *   Static data/methods are not tied to objects → reduces ability to use OO principles effectively.
+4. **Too few classes**
+   *   A model with only one or very few classes often has poor cohesion.
+   *   Each class should represent one responsibility; too few classes suggests overloaded classes.
+5. **Too few layers**
+   *   A missing layer (View, Controller, Model, Startup, Integration) requires justification.
+   *   Names may vary, but their *roles* must exist.
+   *   Missing layers makes responsibility separation unclear.
+6. **Too few methods**
+   *   Even if existing methods have high cohesion, some required system tasks may simply be missing.
+   *   If functionality isn’t implemented, new methods must be added.
+7. MVC or Layered Architecture used incorrectly**
+   *   **No I/O outside the View**.
+   *   **Model must not call databases or external systems**.
+   *   **Integration layer must only call external systems (no business logic)**.
+   *   **Calls must always flow from higher layers → lower layers**.
+8. **Data appears out of nothing**
+   *   Designs must be implementable: a method cannot be called with parameters the caller cannot possibly know.
+   *   Example: a controller method needing `paidAmt` even though the View never provides it.
+9. **Calling an object without a reference**
+   *   An object must have a reference to another before making a call to it.
+   *   The design must show how the reference was obtained.
+   *   Example: an object attempting to call a method on another object it never received.
+10. **Wrong message numbering**
+    *   Message numbers must follow dot‑notation:
+        *   Call 1 → calls 1.1 → calls 1.1.1, etc.
+    *   Using sequential unrelated numbers (1, 2, 3, 4) suggests unclear causality.
+11. **Objects not named when required**
+   *   Any object appearing more than once in a communication diagram needs a name.
+    *   Without a name, it is unclear that multiple appearances refer to the same instance.
+12. **Wrong return type**
+   *   Common mistake: making Controller methods `void` when they should return data to the View.
+13. **Erroneous constructor**
+   *   Constructor must:
+       *   Have the same name as the class.
+       *   Return the class type.
+       *   Have the «create» stereotype in design diagrams.
+14. **Too large class diagram**
+    *   Can become unreadable if overly detailed or too condensed.
+    *   Solutions:
+        *   Split into multiple smaller diagrams.
+        *   Remove unnecessary details (e.g., DTOs, private members).
+    *   Full class design must still exist somewhere for coding.
+15. **Too large communication diagram**
+   *   Becomes messy when:
+       *   Too many system operations are included.
+       *   Too many alternative flows are shown at once.
+    *   Solution: split into multiple diagrams for clarity.
 
 
-Evaluate the Completed RentCar Design page 89.
+# Questions
 
-Page 90: RetalRegistry: saveRental(Rental).
+## Page 83-84: Please carefully read the chapter 5 design in the attached object-oriented-development.pdf, and answer my question follow the attached pdf taste and principle:
+
+If I have the system operations to retrieve the rental and update the rental. To the system operation "retrieve the rental", the object of class RentalDTO would be retrieved from RentalRegistry, the attributes of this RentalDTO could not be changed in the view layer. If I want to continue the next system operation "Update the rental", should I create a new class Rental in the module layer? If yes, is it redundant of both RentalDTO and Rental?
+
+Great question, Sanders — and you’re asking it exactly the way **Chapter 5 (Design)** wants you to: from the perspective of **MVC + Layers**, **DTO vs Entity**, **immutability**, **cohesion/coupling**, and **where business logic lives**.
+
+Below is a crisp answer in the book’s “taste and principle”, with short citations to the attached PDF.
+
+***
+
+## Short answer
+
+**Yes, you should have both a `Rental` (entity) and a `RentalDTO` (data transfer object).**\
+They are **not redundant**: they serve **different purposes** in the architecture.
+
+*   **`RentalDTO`**: an **immutable snapshot** used only to **transfer data across layers** (e.g., controller ⇄ view). It carries values and **no business logic**; view must not mutate it. [\[object-ori...evelopment | PDF\]](https://ericsson-my.sharepoint.com/personal/sanders_wang_ericsson_com/Documents/jobs/RADIO_RTI/MyCCode/ood/object-oriented-development.pdf)
+*   **`Rental`**: a **model entity** that **encapsulates business rules and state changes** for a rental (approve/reject/update tasks, etc.). Updates must be made **on this entity**, not on the DTO. [\[object-ori...evelopment | PDF\]](https://ericsson-my.sharepoint.com/personal/sanders_wang_ericsson_com/Documents/jobs/RADIO_RTI/MyCCode/ood/object-oriented-development.pdf)
+
+***
+
+## Why both are needed (per Chapter 5)
+
+1.  **DTO pattern purpose**\
+    Chapter 5 introduces DTOs to **avoid long parameter lists**, keep the **public interface small and stable**, and **pass data through layers**. A DTO is a “just data container”, typically **read‑only/immutable**, and **exists only to carry data between layers**. The book explicitly distinguishes DTOs from entities: DTOs are **equal when all attributes are equal**, have **only getters**, and **no history**; entities have identity and **can change state**. [\[object-ori...evelopment | PDF\]](https://ericsson-my.sharepoint.com/personal/sanders_wang_ericsson_com/Documents/jobs/RADIO_RTI/MyCCode/ood/object-oriented-development.pdf)
+
+2.  **Where logic belongs**\
+    Business logic must live in **Model**, never in the integration layer or view. In the car‑rental case study, the book adds a `Rental` entity to **represent the whole rental transaction**, keep references to related objects, and perform actions like **approve/reject/print receipt** (after refactoring) — i.e., **methods that change state and enforce rules**. [\[object-ori...evelopment | PDF\]](https://ericsson-my.sharepoint.com/personal/sanders_wang_ericsson_com/Documents/jobs/RADIO_RTI/MyCCode/ood/object-oriented-development.pdf)
+
+3.  **Immutability at the boundaries**\
+    The text stresses making DTOs **immutable** precisely to prevent the view (or other layers) from changing them after passing them downstream. That is exactly your situation: the `RentalDTO` you “retrieve” for the view **shall not be mutated** in the view; instead, the next operation (“Update the rental”) must be expressed as **new input** that the controller sends to the model, which then updates the **`Rental` entity**. [\[object-ori...evelopment | PDF\]](https://ericsson-my.sharepoint.com/personal/sanders_wang_ericsson_com/Documents/jobs/RADIO_RTI/MyCCode/ood/object-oriented-development.pdf)
+
+4.  **Avoid spider‑in‑the‑web controllers**\
+    Chapter 5 warns against controllers that do all work. Your **update** operation should **delegate** to model services/entities, and those can talk to integration (`RentalRegistry`) to load/persist. This keeps cohesion high and coupling low. [\[object-ori...evelopment | PDF\]](https://ericsson-my.sharepoint.com/personal/sanders_wang_ericsson_com/Documents/jobs/RADIO_RTI/MyCCode/ood/object-oriented-development.pdf)
+
+***
+
+## How to flow the two operations (per book’s style)
+
+### 1) **retrieveRental(rentalId) → RentalDTO**
+
+*   **Controller** receives `rentalId`.
+*   **Model service** loads the **`Rental` entity** from **`RentalRegistry`** (integration).
+*   Convert the entity to **`RentalDTO`** and return to **Controller → View**.\
+    *DTO is immutable and cannot be changed in the view.* [\[object-ori...evelopment | PDF\]](https://ericsson-my.sharepoint.com/personal/sanders_wang_ericsson_com/Documents/jobs/RADIO_RTI/MyCCode/ood/object-oriented-development.pdf)
+
+### 2) **updateRental(rentalUpdateDTO)** (or a small set of verb‑first operations)
+
+*   **View** constructs a **new DTO** describing the requested changes (e.g., updated tasks/diagnostic/state).\
+    (The book prefers passing an **object parameter** rather than many primitives.) [\[object-ori...evelopment | PDF\]](https://ericsson-my.sharepoint.com/personal/sanders_wang_ericsson_com/Documents/jobs/RADIO_RTI/MyCCode/ood/object-oriented-development.pdf)
+*   **Controller** calls **Model**: load **`Rental`** by id → call **behavioral methods** on the entity (`updateDiagnostic(...)`, `addTask(...)`, `approve()`, `reject()`, etc.).
+*   **Model** persists via **`RentalRegistry`**, and if needed, returns a **fresh `RentalDTO` snapshot**. [\[object-ori...evelopment | PDF\]](https://ericsson-my.sharepoint.com/personal/sanders_wang_ericsson_com/Documents/jobs/RADIO_RTI/MyCCode/ood/object-oriented-development.pdf)
+
+> **Key point:** you **never mutate `RentalDTO`**; you **apply changes to `Rental`** and emit a **new snapshot DTO** after the update. This mirrors the book’s treatment of `CarDTO` vs. `Rental`/services and its insistence on **immutable DTOs** and **business logic in entities/services**. [\[object-ori...evelopment | PDF\]](https://ericsson-my.sharepoint.com/personal/sanders_wang_ericsson_com/Documents/jobs/RADIO_RTI/MyCCode/ood/object-oriented-development.pdf)
+
+***
+
+## Is having both “redundant”?
+
+**No.** Even if some fields look identical, **their responsibilities differ**:
+
+*   **`RentalDTO`** = *representation for transfer* (stable shape, read‑only, no rules).
+*   **`Rental`** = *domain object with identity + rules + state transitions* (logic lives here).
+
+The book explicitly discusses this confusion using the car‑rental example: sometimes early designs start with just a DTO, but as soon as **business logic or identity** appears, you **introduce/keep the entity**. It even shows where they **first treated `Car` as `CarDTO`** for simplicity, then brought in **entities and registries** as design matured. Same principle applies to `Rental`. [\[object-ori...evelopment | PDF\]](https://ericsson-my.sharepoint.com/personal/sanders_wang_ericsson_com/Documents/jobs/RADIO_RTI/MyCCode/ood/object-oriented-development.pdf)
+
+***
+
+## Common pitfalls to avoid (book’s “NO!” spirit)
+
+*   **Don’t put logic into `RentalDTO`** (e.g., `matches(...)` or `approve()` inside DTO). That’s a **common mistake** highlighted in the case study: **DTOs are not to contain business logic**. [\[object-ori...evelopment | PDF\]](https://ericsson-my.sharepoint.com/personal/sanders_wang_ericsson_com/Documents/jobs/RADIO_RTI/MyCCode/ood/object-oriented-development.pdf)
+*   **Don’t let Controller become spider‑in‑the‑web.** Move detail work to **`Rental`** or **model services**, and let entities call integration as needed (like the book’s refactoring that moved printing from controller to `Rental`). [\[object-ori...evelopment | PDF\]](https://ericsson-my.sharepoint.com/personal/sanders_wang_ericsson_com/Documents/jobs/RADIO_RTI/MyCCode/ood/object-oriented-development.pdf)
+*   **Don’t mutate DTOs in the view.** Make them **final/immutable**. Create a **new DTO** for each request or return value. [\[object-ori...evelopment | PDF\]](https://ericsson-my.sharepoint.com/personal/sanders_wang_ericsson_com/Documents/jobs/RADIO_RTI/MyCCode/ood/object-oriented-development.pdf)
+*   **Don’t mix layers.** Integration (`RentalRegistry`) should **persist/fetch**, not implement business rules; **Model** should **enforce rules**; **View** should only present/collect. [\[object-ori...evelopment | PDF\]](https://ericsson-my.sharepoint.com/personal/sanders_wang_ericsson_com/Documents/jobs/RADIO_RTI/MyCCode/ood/object-oriented-development.pdf)
+
+***
+
+## Optional: minimal interaction sketch (book-compliant)
+
+```mermaid
+sequenceDiagram
+    actor View
+    participant Controller
+    participant RentalService
+    participant RentalRegistry
+
+    %% Retrieve
+    View ->> Controller: retrieveRental(rentalId)
+    Controller ->> RentalService: getRental(rentalId)
+    RentalService ->> RentalRegistry: findById(rentalId)
+    RentalRegistry -->> RentalService: Rental (entity)
+    RentalService -->> Controller: RentalDTO (from entity)
+    Controller -->> View: RentalDTO
+
+    %% Update
+    View ->> Controller: updateRental(rentalUpdateDTO)
+    Controller ->> RentalService: update(rentalUpdateDTO)
+    RentalService ->> RentalRegistry: findById(rentalUpdateDTO.id)
+    RentalRegistry -->> RentalService: Rental (entity)
+    RentalService ->> RentalService: apply business rules on Rental
+    RentalService ->> RentalRegistry: save(Rental)
+    RentalRegistry -->> RentalService: ok
+    RentalService -->> Controller: updated RentalDTO
+    Controller -->> View: updated RentalDTO
+```
+
+*(Controller thin; DTO round-trips; entity handles rules; integration persists) — exactly as Chapter 5 recommends.* [\[object-ori...evelopment | PDF\]](https://ericsson-my.sharepoint.com/personal/sanders_wang_ericsson_com/Documents/jobs/RADIO_RTI/MyCCode/ood/object-oriented-development.pdf)
+
+***
+
+## Conclusion
+
+*   Keep **`RentalDTO`** for **data transfer** (immutable).
+*   Keep/introduce **`Rental`** for **business behavior and state**.
+*   Drive updates by **calling behavior on the entity**, then **map back** to a new DTO.\
+    This is the clean, **non‑redundant** design the book teaches throughout Chapter 5 and the car‑rental case study. [\[object-ori...evelopment | PDF\]](https://ericsson-my.sharepoint.com/personal/sanders_wang_ericsson_com/Documents/jobs/RADIO_RTI/MyCCode/ood/object-oriented-development.pdf)
+
+If you’d like, I can sketch the **package layout** (controller/model/integration) and a **tiny DTO↔entity assembler** the book implicitly relies on, still in the same style.
+
+
+
 
 https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax
 
 
 
 ----
-* TelephoneNumber: convert to string
+* TelephoneNumber: in view it is string as argument of searchCustomer(telephoneNumber:string), in model layer class TelephoneNumber to convert string to E164 international format for id in CustomerRegistry.
 * module layer: RepairOrder, DiagnosticOrder, ProposedRepairTask.
-* intergration layer: CustomerRegistry (CustomerDTO), RepairOrderRegistry (saveRepairOrder, getRepairOrder)
+* intergration layer: CustomerRegistry (function: retrieveCustomer; class: CustomerDTO, BikeDTO), RepairOrderRegistry (function: saveRepairOrder, retrieveRepairOrder???)
 
+Questions:
+1. The object retrieved from registry is DTO or entity? If it is entity with logic business, the view could directly call the functions to handle?
 
 ----
