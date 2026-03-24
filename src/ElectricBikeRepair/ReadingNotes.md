@@ -12,7 +12,7 @@ A **UML class diagram** is used to construct the **domain model**, but the eleme
 
 The DM is a very good tool for discussions about the program that is being developed. It can ensure that all parties (**developers**, **clients**, **users**, etc) share a **common view** of the tasks of the program. All parties develop a **common nomenclature**.
 
-The software should be quite similar to the DM to beanappropriate model of the reality. This will also make sure that **class names** in the software means something to domain experts.
+The software should be quite similar to the DM to be an appropriate model of the reality. This will also make sure that **class names** in the software means something to domain experts.
 
 The black triangular arrow in figure 4.2c shows in which direction the class-association class sequence shall be read, it does not tell anything about the association’s direction. It is up to the diagram author to decide if such black triangles shall be used or not. They are most commonly used if class-association-class shall be read from **right to left, or bottom up**.
 
@@ -57,7 +57,7 @@ A third rule is that when it is hard to decide if something is an attribute or a
 ----
 * The association **Customer takes Receipt** just tells what the customer is doing. Try to **avoid associations telling what users do**, that is instead showed in the **System Sequence Diagram**, which is explained in the next section.
 =>
-So the association between **Receptionist** and **RepairOrder** should be removed, similar as the association between **Technician** and **ProposedRepairTask**
+So the association between **Receptionist** and **RepairOrder** should be removed, similar as the association between **Technician** and **ProposedRepairTask** ???
 
 * The class **Address has no association**. This is OK for classes that exist just to group data, and do not have a specific meaning but are used in many places.
 => class **Date**, class **RepairOrderState**, class **TelephoneNumber** and so on.
@@ -96,7 +96,7 @@ System <-- getRepairOrder(RepairOrderId)-- Technician
 
 System --  foundRepairOrder -------------> Technician
 
-System <-- createDiagnosticReport(foundRepairOrder, diagnosticDescription) -- Technician
+System <-- createDiagnosticReport(diagnosticDescription) -- Technician
 
 System --- createConfirmed --------------> Technician
 
@@ -170,7 +170,7 @@ Customer -> Bike vs CustomerDTO -> BikeDTO
 5. **Implement the new design in code**.
 
 ## 5.5 Designing the RentCar Case Study
-1. Step 1, Use the Patterns MVC and Layer, the design looks as in ***figure 5.24***.
+1. Step 1, Use the Patterns MVC and Layer, the design looks as in ***figure 5.20*** and ***figure 5.24***.
 2. Step 2, Design One System Operation at a Time,
    * The view is not designed here, instead the view package contains a single class, View, which is a placeholder for a real view, that certainly would consist of more classes.
    * The system operations are designed in the order they are executed according to the SSD, ***figure 5.22***.
