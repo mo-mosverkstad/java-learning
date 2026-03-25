@@ -26,10 +26,10 @@ public class BikeDTO {
     
     @Override
     public String toString() {
-        return "BikeDTO{" +
-                "brand='" + brand + '\'' +
-                ", model='" + model + '\'' +
-                ", serialNumber='" + serialNumber + '\'' +
+        return "Bike Information: {" +
+                "brand: '" + brand + '\'' +
+                ", model: '" + model + '\'' +
+                ", serialNumber: '" + serialNumber + '\'' +
                 '}';
     }
 }

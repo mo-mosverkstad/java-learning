@@ -6,14 +6,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CustomerRegistry {
+public class CustomerRegistry{
     private final Map<String, CustomerDTO> customers = new HashMap<>();
     private final JsonFileHandler jsonFileHandler;
 
     public CustomerRegistry() {
         jsonFileHandler = new JsonFileHandler("customers.json");
-        for (CustomerDTO customer : jsonFileHandler.readList(CustomerDTO.class)) {
-            customers.put(customer.getTelephoneNumber(), customer);
+        for (CustomerDTO customerDTO : jsonFileHandler.readList(CustomerDTO.class)){
+            customers.put(customerDTO.getTelephoneNumber(), customerDTO);
         }
     }
 

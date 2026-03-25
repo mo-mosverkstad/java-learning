@@ -12,6 +12,18 @@ Cost as a separate class + calulate total cost, not as a value
 
 Telephone number -> class: cc, ac, sn (telephoneNumberDTO) + 
 
+DTO-policy
+1. DBHandler/Integration layer -> immutable during program -> directly as DTO (place in DBHandler/integration layer) e.g. customer and bike
+2. Changed during program -> create an immutable class in model layer e.g. RepairOrder
+3. Traversing from controller to view changes the entity class into a immutable DTO
+(Access security as primary target rather than performance)
+4. CreateDiagnosticReport, createProposedRepairTask takes DTO as argument, since contents of report and proposed repair tasks may change
+5. CreateRepairOrder takes argument ProblemDTO (with problemDescription and brokenBike). May include more attributes in future e.g. urgency, extra tasks
+
+Controller should be divided into two controllers: ReceptionistController and TechnicianController due to different authorization (a technician cannot deny a repair order by himself). Both controller classes are derived from an abstract base class called AbstractController or simply Controller since both authorization roles share same principles.
+
+Data read from JSON file. Data and code logic should be separated. (Encapsulation)
+
 Approach 1. RepairOrderDTO as immutable class without RepairOrder (in Model), model is unused
 Retrieving data: RepairOrderRegistry produces a RepairOrderDTO to controller and further to view
 Writing diagnostic: Create a new RepairOrderDTO with diagnostic and pass it to RepairOrderRegistry. The old RepairOrderDTO is invalid.
