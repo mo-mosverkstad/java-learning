@@ -452,3 +452,149 @@ Questions:
 1. The object retrieved from registry is DTO or entity? If it is entity with logic business, the view could directly call the functions to handle?
 
 ----
+
+# Chapter 6 Programming
+## 6.1 Dividing the Code in Packages
+* Structured package naming hierarchy
+
+* Some classes don’t belong to any specific layer because they provide general services used across multiple layers. These utility classes, such as those for string parsing or file handling, are placed in a separate package like util. In the car‑rental application, this package is named ***se.kth.iv1350.carRental.util***.
+
+## 6.2 Code Conventions
+*   **Package name**
+    *   Type: *package*
+    *   Description: Parts start lowercase; begin with reversed internet domain → product name → specific package.
+    *   Example: `se.kth.iv1350.rentCar.model` or `se.kth.iv1350.rentcar.model`
+
+*   **Class / Interface**
+    *   Type: *class, interface*
+    *   Description: Full descriptive name; each word starts with uppercase (PascalCase).
+    *   Example: `CashRegister`
+
+*   **Method**
+    *   Type: *method*
+    *   Description: Full description; starts lowercase; non-initial words start uppercase (camelCase).
+    *   Example: `calculateTotalCost`
+
+*   **Variable / Field / Parameter**
+    *   Type: *variable, field, parameter*
+    *   Description: Same rules as methods (camelCase).
+    *   Example: `paidRental`
+
+*   **Constant**
+    *   Type: *constant (final static field)*
+    *   Description: All uppercase letters; words separated by underscores.
+    *   Example: `MILES_PER_KM`
+
+## 6.3 Comments
+Public interfaces must include **Javadoc** comments to generate API documentation.
+
+Javadoc should state what a unit does — **not how** — and must document **method behavior, parameters, and return values** using proper tags.
+
+**Avoid comments inside methods** — use them as a signal to refactor long methods instead.
+
+## 6.4 Code Smell and Refactoring
+**Code smells** signal poor design and should be removed through refactoring to improve code quality without changing behavior.
+
+* **Duplicated Code**: Duplicated code is a severe code smell that must be eliminated because even a single repeated statement can lead to errors, inefficiency, and maintenance disasters.
+* **Long Method**:
+  * A method is too long if its name cannot fully explain it — use **smaller, well‑named** methods instead of comments to make code clearer.
+  * Reducing method calls does **not meaningfully improve performance**, so optimizing by avoiding them is pointless.
+* **Large Class**: A class is too large when its cohesion is low — splitting related fields into a new class improves clarity and design.
+* **Long Parameter List**:
+  * Long parameter lists are a code smell — **replace primitive parameters with objects** to improve cohesion, encapsulation, and maintainable design. Sometimes the object itself has already contains the paramter, use **this** to get it.
+  * Remove unnecessary parameters by letting the method obtain the needed data itself instead of passing it in.
+* **Excessive Use of Primitive Variables**: Primitive Obsession is a code smell—use objects instead of excessive primitive fields to improve cohesion, encapsulation, and overall design quality.
+  * **Group** closely related fields and methods into a new class to improve cohesion and ensure data is always valid.
+  * Never use arrays to store unrelated primitive values—replace them with objects so each piece of data has a clear, meaningful name.
+  * Use **enumerations** instead of strings or integers to avoid errors and make code meanings explicit.
+* **Meaningless Names**: All declared program elements must have meaningful names. (packages, classes, interfaces, methods, fields, parameters, local variables, etc.).
+  * **Avoid one‑letter identifiers**
+      *   Prefer `Person person = new Person();` over `Person p = new Person();`.
+      *   **Exceptions:**
+          *   When the abstraction is naturally one letter (e.g., coordinate `x`).
+          *   Loop variables (`i`, `j`, `k`, …) in nested loops.
+  *   **Do not use meaningless temporary names like `tmp` or `temp`**
+        *   Use descriptive names even for short‑lived variables (e.g., during swaps).
+  *   **Never distinguish identifiers by adding numbers**
+        *   Use meaningful names such as `fromAccount` and `toAccount`, **not** `account1` and `account2`.
+  *   **Do not fear long names**
+        *   What matters is clarity.
+        *   Example: `firstCustomerBuyingCampaignItem` is acceptable if it clearly explains the variable’s purpose.
+* **Anonymous Values**:
+  *   **Always give every value an explaining name**
+      *   Unnamed values (literals) make code hard to understand and maintain.
+      *   Named values are safer than comments because the compiler enforces correctness, while comments can become outdated.
+  *   **Do not place raw numeric values directly in method calls**
+      *   Example: avoid `connect(10000)`.
+      *   Prefer meaningful named constants like:
+          *   `private static final int MILLIS_PER_SECOND = 1000;`
+          *   `private static final int CONNECT_TIMEOUT_SECS = 10;`
+      *   Use them in expressions such as:
+          *   `connect(CONNECT_TIMEOUT_SECS * MILLIS_PER_SECOND);`
+  *   **This naming practice applies to all primitive values—including strings**
+      *   Example: avoid raw string values like `"\""` when building file paths.
+      *   Use a constant:
+          *   `private static final String PATH_SEPARATOR = "\\";`
+      *   Then write:
+          *   `openFile(dirName + PATH_SEPARATOR + fileName);`
+  *   **Sometimes a method provides the clearest name for a value**
+      *   Especially useful in conditional expressions (`if` statements).
+      *   Example: instead of checking `if (c == 10)` for Unix end‑of‑line, create:
+          *   `boolean isUnixEol(char c)`
+      *   Use it as:
+          *   `if (isUnixEol(ch))`
+* **Complicated Flow Control**: Poorly structured **if‑statements and loops** become confusing when deeply nested or filled with unnecessary flags, making the logic hard to understand.
+
+## 6.5 Coding Case Study
+Even with a complete upfront design, you should implement system operations one at a time in execution order so each part can be tested and understood as soon as it is written.
+
+### The searchMatchingCar system operation
+Implementing the first system operation requires careful handling of test data, search criteria, and output generation, since some design details—like where to store cars and how to display results—must be decided during coding.
+
+DTO: final field variables.
+
+### The registerCustomer system operation
+Registering a customer is simple, but the CustomerDTO must be safely stored because its immutability ensures Rental cannot be affected by external changes.
+
+DTOs stored in Rental are safe only as long as they remain pure data holders without logic, but if they gain business behavior they must be treated as entity objects rather than DTOs.
+
+**A DTO may be used in the view, but an entity object may not.**
+
+### The bookCar system operation
+Implementing the bookCar operation exposes that CarRegistry **cannot store immutable DTOs** and must instead maintain mutable CarData objects that reflect a real datastore.
+
+The matches method belongs in CarRegistry, not in CarDTO, because matching logic is business logic and should not be placed inside a DTO.
+
+Once cars can be marked as booked, the search must exclude booked cars, so findCar is renamed findAvailableCar to reflect the new behavior.
+
+Parameter order and constructor signatures were refactored for clearer logic and to support booking behavior, but the case of booking an already booked car still remains unresolved.
+
+### The pay system operation
+To generate the receipt text in the pay operation, Receipt creates a formatted string by querying complete objects from Rental — preferring to return whole objects rather than primitive data.
+
+The total rental cost is simply taken from the car’s price for now, but cost calculation is delegated to CashPayment so it can later incorporate more data and logic as the system grows.
+
+## 6.6 Common Mistakes
+*   **Incomplete comments**
+    *   Every public class, method, etc. must have a Javadoc comment.
+    *   Method Javadocs must document parameters and return values using `@param` and `@return`.
+    *   Even getters/setters should have brief comments to avoid accidentally missing documentation.
+
+*   **Excessive comments**
+    *   Only Javadoc comments should be used.
+    *   If extra comments seem necessary, the code is likely too complex or has low cohesion.
+
+*   **Comments written too late**
+    *   Write comments together with the code (or before).
+    *   Early commenting clarifies intent and ensures comments remain useful and accurate.
+    *   Writing comments last makes it burdensome and more likely to be skipped.
+
+*   **Design mistakes introduced during coding**
+    *   Even if avoided in design, mistakes can reappear in implementation.
+    *   Common issues include:
+        *   Using primitives where objects should be used.
+        *   Overuse of `static`.
+        *   Placing input/output outside the view layer.
+
+*   **Code smells from Section 6.4**
+    *   Many problems come from **meaningless names** and **unnamed values**, which must be avoided.
