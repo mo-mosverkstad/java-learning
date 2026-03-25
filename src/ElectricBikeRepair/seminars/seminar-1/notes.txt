@@ -1,0 +1,36 @@
+Analysis
+
+Customer name, phoneNumber, emailAdress
+Bike brand, model
+-> primitive type or class?
+
+Diagnostic report currently only description. +  owner + latest update date
+
+Proposed repair tasks: + owner + latest update
+
+Cost as a separate class + calulate total cost, not as a value
+
+Telephone number -> class: cc, ac, sn (telephoneNumberDTO) + 
+
+Approach 1. RepairOrderDTO as immutable class without RepairOrder (in Model), model is unused
+Retrieving data: RepairOrderRegistry produces a RepairOrderDTO to controller and further to view
+Writing diagnostic: Create a new RepairOrderDTO with diagnostic and pass it to RepairOrderRegistry. The old RepairOrderDTO is invalid.
+
+Approach 2. RepairOrderRegistry still produces a RepairOrderDTO but uses RepairOrder as a model putting together RepairOrderDTO and DiagnosticReport (no mutable class objects).
+Retrieving data: RepairOrderRegistry produces a RepairOrderDTO to controller and further to view
+Writing diagnostic: RepairOrderDTO inside RepairOrder make a copy with diagnostic as well as writing it to RepairOrderRegistry during same operation.
+
+Approach 3. RepairOrder as a mutable object of RepairOrderDTO. It can be used for controller, model and integration. For connecting to view, a RepairOrderDTO is created for view.
+
+
+-> Customer and Bike as Approach 2 (only DTO, similar to Approach 1)
+-> Repair order as Approach 3
+
+1. Get: from RepairOrderRegistry -> RepairOrderDTO for view
+create diagnostic, dto cannot be mutated, diagnosticReport DTO + diagnostic uses the created DTO and  to save Diagnotic desriptions
+All operatios happen at Controller level, heavy workload of cotntroller
+2. 
+
+Design:
+
+...
