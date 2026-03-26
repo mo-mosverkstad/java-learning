@@ -5,7 +5,7 @@ import java.util.List;
 
 public class CallbackMain {
 
-    private static final String[] users = {"CallbackMyUser"};
+    private static final String[] users = {"Callback.CallbackMyUser"};
 
     public static void main(String[] args) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ClassNotFoundException {
         play(registerCallbackObject(users));

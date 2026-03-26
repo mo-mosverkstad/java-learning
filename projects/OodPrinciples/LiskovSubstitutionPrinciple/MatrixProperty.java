@@ -10,7 +10,7 @@ public class MatrixProperty extends MatrixConfig {
 
     public MatrixProperty() {
 
-        try (InputStream inputStream = new FileInputStream("./src/OodPrinciples/LiskovSubstitutionPrinciple/matrix.property")) {
+        try (InputStream inputStream = new FileInputStream("./projects/OodPrinciples/LiskovSubstitutionPrinciple/matrix.property")) {
             Properties properties = new Properties();
             properties.load(inputStream);
 

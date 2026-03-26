@@ -2,6 +2,12 @@
 
 ## Project Structure
 
+### maven-projects/ — Maven-based projects (build with `mvn`)
+
+- **ElectricBikeRepair/** - Electric bike repair system with customer and bike registration, repair order management, and role-based controllers for receptionists and technicians. Built with Java 11, Gson for JSON persistence, and JUnit 5 for testing. (see its own [README](maven-projects/ElectricBikeRepair/README.md))
+
+### projects/ — Plain Java examples (run directly in VS Code)
+
 - **Basic/** - Basic Java examples (ArrayList, etc.)
 - **BinarySearch/** - Binary search algorithm
 - **Bookkeeping/** - Bookkeeping system with CLI, graphs, tables, and element registry
@@ -28,8 +34,7 @@
     - **Facade/** - Video conversion facade hiding codec, bitrate reader, and audio mixer complexity
     - **Flyweight/** - Forest rendering that shares tree type objects to save memory
     - **Proxy/** - Lazy-loading proxy for images that defers creation until display
-- **ElectricBikeRepair/** - Maven project (see its own [README](src/ElectricBikeRepair/README.md))
-- **Enum/** - Enum usage examples
+- **EnumExample/** - Enum usage examples
 - **Exception/** - Custom exception handling
 - **File/** - File I/O operations
 - **Generic/** - Generics, HashMap, and generic collections

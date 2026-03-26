@@ -1,4 +1,4 @@
-package Enum;
+package EnumExample;
 public class ColorTest {
     public static void main(String[] rgs) {
         // It is illegal to create an instance with private constructor

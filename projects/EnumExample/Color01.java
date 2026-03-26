@@ -1,4 +1,4 @@
-package Enum;
+package EnumExample;
 public class Color01 {
     public static final Color01 Red = new Color01("Red", 0xFF0000);
     public static final Color01 Blue = new Color01("Blue", 0x0000FF);

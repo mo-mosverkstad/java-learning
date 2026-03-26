@@ -31,4 +31,8 @@ public class BookkeepingController {
     BookkeepingController(){
         
     }
+
+    public Element getCurrent() {
+        return elementRegistryMap.get(currentLayoutType).get(currentIndex);
+    }
 }

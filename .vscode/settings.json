@@ -1,6 +1,13 @@
 {
     "java.project.sourcePaths": [
-        "src"
+        "projects"
     ],
-    "java.project.referencedLibraries": []
+    "java.project.referencedLibraries": [],
+    "java.import.exclusions": [
+        "**/maven-projects/**",
+        "**/node_modules/**",
+        "**/.metadata/**",
+        "**/archetype-resources/**",
+        "**/META-INF/maven/**"
+    ]
 }

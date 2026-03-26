@@ -5,7 +5,7 @@ import java.util.List;
 
 import Bookkeeping.Element.Element;
 
-public abstract class AbstractTable extends Element {
+public abstract class AbstractTable extends Element implements TableInterface {
     private static final char NEWLINE_CHARACTER = '\n';
 
     private static final String NULL_KEYWORD = "null";
