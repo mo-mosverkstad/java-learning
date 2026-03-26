@@ -13,6 +13,6 @@ public class TelephoneNumber {
         if (telephoneNumber.startsWith("+")) return telephoneNumber;
         if (telephoneNumber.startsWith("00")) return "+" + telephoneNumber.substring(2);
         if (telephoneNumber.startsWith("0")) return "+46" + telephoneNumber.substring(1);
-        throw new Error("Telephone number format problem");
+        throw new IllegalArgumentException("Telephone number format problem");
     }
 }

@@ -24,6 +24,22 @@ Controller should be divided into two controllers: ReceptionistController and Te
 
 Data read from JSON file. Data and code logic should be separated. (Encapsulation)
 
+Record usage as DTO since it is immutable. RepairOrderDTO and RepairOrder share logic (toString) but the DTO version has final.
+Record / Immutable DTO + Mutable Model — Keep RepairOrderDTO as a Java record (or immutable class with final fields) for data transfer, and RepairOrder as the mutable domain model. Use a factory method or converter to map between them .toDTO
+The solution is to extract a static method that does not require an object instance (toString method since it is redundant and repeated in the two classes). The visibility modifier is default so other directory than model cannot access it.
+
+
+Thrown exceptions: Don't catch it in the controller — let it propagate to the View, and handle it there. The View is where user interaction happens, so it's the right place to display error messages.
+Controller/Model - throw exceptions to signal problems (which you already do)
+View - catch exceptions and present user-friendly messages
+Don't catch exceptions in the middle layers unless you can actually recover from them
+
+
+Id as id = UUID.randomUUID().toString() instead of milliseconds
+
+2 controllers and 2 registor in controllercreator and registorycreator are implemented as final for static instead of non-static (for encapsulation)
+
+
 Approach 1. RepairOrderDTO as immutable class without RepairOrder (in Model), model is unused
 Retrieving data: RepairOrderRegistry produces a RepairOrderDTO to controller and further to view
 Writing diagnostic: Create a new RepairOrderDTO with diagnostic and pass it to RepairOrderRegistry. The old RepairOrderDTO is invalid.

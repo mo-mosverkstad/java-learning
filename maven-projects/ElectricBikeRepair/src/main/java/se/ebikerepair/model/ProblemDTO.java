@@ -21,6 +21,7 @@ public class ProblemDTO {
     }
 
     public String toString(){
-        return String.format(PrintoutFormat.PROBLEM_PRINTOUT_FORMAT, description, brokenBike);
+        String bike = brokenBike == null? "no bike" : String.format("%s %s (S/N: %s)", brokenBike.getBrand(), brokenBike.getModel(), brokenBike.getSerialNumber());
+        return String.format(PrintoutFormat.PROBLEM_PRINTOUT_FORMAT, description, bike);
     }
 }

@@ -3,8 +3,8 @@ package se.ebikerepair.controller;
 import se.ebikerepair.integration.RegistryCreator;
 
 public class ControllerCreator {
-    ReceptionistController receptionistController;
-    TechnicianController technicianController;
+    private final ReceptionistController receptionistController;
+    private final TechnicianController technicianController;
 
     public ControllerCreator(RegistryCreator registryCreator){
         receptionistController = new ReceptionistController(registryCreator);

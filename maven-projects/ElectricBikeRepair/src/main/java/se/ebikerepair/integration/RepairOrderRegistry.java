@@ -6,10 +6,14 @@ import java.util.Map;
 import se.ebikerepair.model.RepairOrder;
 
 public class RepairOrderRegistry{
-    private Map repairOrderMap;
+    private Map<String, RepairOrder> repairOrderMap;
 
     public RepairOrderRegistry(){
-        repairOrderMap = new HashMap<String, RepairOrder>();
+        repairOrderMap = new HashMap<>();
+    }
+
+    public RepairOrder find(String id){
+        return repairOrderMap.get(id);
     }
 
     public void save(RepairOrder repairOrder){

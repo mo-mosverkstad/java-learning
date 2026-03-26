@@ -1,8 +1,8 @@
 package se.ebikerepair.integration;
 
 public class RegistryCreator {
-    private CustomerRegistry customerRegistry;
-    private RepairOrderRegistry repairOrderRegistry;
+    private final CustomerRegistry customerRegistry;
+    private final RepairOrderRegistry repairOrderRegistry;
 
     public RegistryCreator(){
         customerRegistry = new CustomerRegistry();

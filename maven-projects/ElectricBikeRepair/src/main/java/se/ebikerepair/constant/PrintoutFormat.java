@@ -21,5 +21,18 @@ public final class PrintoutFormat {
             "=================================";
 
     public static final String PROBLEM_PRINTOUT_FORMAT =
-            "  Problem description: %s (brokenBike: %s)%n";
+            "    - Description: %s (broken bike: %s)%n";
+
+    public static final String REPAIR_ORDER_PRINTOUT_FORMAT =
+            "=================================%n" +
+            "  Repair Order%n" +
+            "=================================%n" +
+            "  Order ID:       %s%n" +
+            "  Status:         %s%n" +
+            "  Created:        %s%n" +
+            "  Est. Complete:  %s%n" +
+            "  Total Cost:     %s%n" +
+            "  Customer:       %s%n" +
+            "  Problem:%n%s" +
+            "=================================";
 }
