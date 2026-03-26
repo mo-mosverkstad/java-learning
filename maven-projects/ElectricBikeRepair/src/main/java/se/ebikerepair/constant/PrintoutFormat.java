@@ -19,4 +19,7 @@ public final class PrintoutFormat {
             "  Email:     %s%n" +
             "  Bikes:%n%s" +
             "=================================";
+
+    public static final String PROBLEM_PRINTOUT_FORMAT =
+            "  Problem description: %s (brokenBike: %s)%n";
 }
