@@ -1,8 +1,9 @@
 package se.ebikerepair.integration;
 
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
+
+import se.ebikerepair.constant.PrintoutFormat;
 
 public class CustomerDTO {
     private final String name;
@@ -35,10 +36,10 @@ public class CustomerDTO {
 
     @Override
     public String toString() {
-        return "Customer Information: {" +
-                "name: '" + name + '\'' +
-                ", telephoneNumber:'" + telephoneNumber + '\'' +
-                ", emailAddress: '" + emailAddress + '\'' + "\n  " +
-                bikes.stream().map(String::valueOf).collect(Collectors.joining("\n  ", "", ""));
+        String bikesStr = bikes == null || bikes.isEmpty() ? PrintoutFormat.BIKE_PRINTOUT_EMPTY :
+                bikes.stream().map(b -> String.format(PrintoutFormat.BIKE_PRINTOUT_FORMAT,
+                        b.getBrand(), b.getModel(), b.getSerialNumber()))
+                        .collect(Collectors.joining());
+        return String.format(PrintoutFormat.CUSTOMER_PRINTOUT_FORMAT, name, telephoneNumber, emailAddress, bikesStr);
     }
 }

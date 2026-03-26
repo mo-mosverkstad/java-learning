@@ -1,5 +1,7 @@
 package se.ebikerepair.integration;
 
+import se.ebikerepair.constant.PrintoutFormat;
+
 public class BikeDTO {
     private final String brand;
     private final String model;
@@ -26,10 +28,6 @@ public class BikeDTO {
     
     @Override
     public String toString() {
-        return "Bike Information: {" +
-                "brand: '" + brand + '\'' +
-                ", model: '" + model + '\'' +
-                ", serialNumber: '" + serialNumber + '\'' +
-                '}';
+        return String.format(PrintoutFormat.BIKE_PRINTOUT_FORMAT, brand, model, serialNumber);
     }
 }
