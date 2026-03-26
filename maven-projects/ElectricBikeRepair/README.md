@@ -106,6 +106,31 @@ sudo apt install openjdk-17-jdk
     </properties>
 ```
 
+If you want to use Java 21 new feature, it should be do as below:
+
+1, Install Java 21 in wsl ubuntu using:
+
+```bash
+sudo apt update
+sudo apt install openjdk-21-jdk -y
+```
+
+2, update pom.xml to version 21:
+
+```xml
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+```
+
+To switch between multiple installed Java versions:
+
+```bash
+sudo update-alternatives --config java
+```
+
 # Disabled java problem visibility
 In VS Code, press Ctrl+, to open Settings, then search for "problems visibility" and uncheck the option to disable it.
 
