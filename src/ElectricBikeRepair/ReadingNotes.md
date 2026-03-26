@@ -598,3 +598,153 @@ The total rental cost is simply taken from the car’s price for now, but cost c
 
 *   **Code smells from Section 6.4**
     *   Many problems come from **meaningless names** and **unnamed values**, which must be avoided.
+
+
+# Chapter 7 Testing
+## 7.1 Unit Tests and The JUnit Framework
+Unit tests verify that individual pieces of code — typically single methods — work as intended by checking their behavior in isolation, as illustrated by testing the equals method in **JUnit**.
+
+### Framework
+A framework like JUnit provides **reusable functionality** and **controls program flow** — calling application code at the correct times — so developers don’t have to manage crucial tasks such as testing or security themselves.
+
+Using a framework is beneficial because it is **well‑tested**, **widely supported**, **ensures correct flow control**, and **prevents bugs** by avoiding the need to write new code.
+
+### JUnit
+#### **JUnit Annotation Summary**
+
+*   **`@Test`**
+    *   Marks a method as a test method.
+    *   The method will run when the test suite is executed.
+
+*   **`@Disabled("reason")`**
+    *   Skips the annotated test method.
+    *   Useful for tests not yet implemented or temporarily turned off.
+
+*   **`@BeforeEach`**
+    *   Runs *before every test method*.
+    *   Used to prepare or reset test state.
+
+*   **`@AfterEach`**
+    *   Runs *after every test method*.
+    *   Used for cleanup tasks.
+
+*   **`@BeforeAll`**
+    *   Runs *once before all tests* in the class.
+    *   Typically used for expensive setup (requires static method in JUnit 5 unless using special test instance settings).
+
+*   **`@AfterAll`**
+    *   Runs *once after all tests* in the class.
+    *   Used for global cleanup (also usually static).
+
+### **JUnit Assertion Summary**
+
+*   **`fail("explanation")`**
+    *   Forces the test to fail unconditionally.
+    *   Useful at code locations that should never be reached.
+
+*   **`assertTrue(condition, "explanation")`**
+    *   Passes if the condition is **true**.
+
+*   **`assertFalse(condition, "explanation")`**
+    *   Passes if the condition is **false**.
+
+*   **`assertEquals(expected, actual, "explanation")`**
+    *   Passes if **expected** and **actual** are equal.
+    *   Works for any Java type.
+
+*   **`assertNull(object, "explanation")`**
+    *   Passes if the object is **null**.
+
+*   **`assertNotNull(object, "explanation")`**
+    *   Passes if the object is **not null**.
+
+Each test method runs with fresh setup and cleanup, and JUnit executes them by following a standard pattern: prepare objects, define the expected result, call the method under test, and compare expected with actual.
+
+## 7.2 Unit Testing Best Practices
+Start writing unit tests early — any test is better than none — and improve them over time rather than delaying until they become too burdensome to write.
+
+* **Write lots of tests** — never rely on manual testing—and keep all tests (disable them instead of deleting) so your test suite continuously grows and remains useful over time.
+* **Tests for every known bug** - When a bug is discovered, immediately create a failing test for it before fixing the code, ensuring every known failure condition is permanently covered by a test.
+* **Test code should not be over‑designed** — feel free to write simpler, more flexible code and small hacks in tests, since they don’t require the same level of structure as production code.
+* **Organization** - Place test classes in the same package as the code they test, but keep them in a parallel test directory so package‑private methods are accessible while production code and tests remain cleanly separated. Each class should have a corresponding test class named with “Test” appended, with test methods starting with “test” and containing only a few assertions to keep results clear and easy to interpret.
+* **Testing takes time, but it is worth that time** - Writing tests takes time, but that investment quickly pays off by making future code changes safer, faster, and more confident thanks to easy, reliable verification.
+* **Independent and self-evaluating** - Tests should run with a single command, evaluate themselves automatically, and never depend on execution order so they always produce the same results.
+* **What to test?** - Test all externally accessible code (public, protected, and package‑private), skip private and trivial methods, and ensure tests cover branches, boundary cases, invalid inputs, and correct failure behavior.
+
+## 7.3 When Testing is Difficult
+* **Hard to give input**: Even when input comes from files, databases, or complex object structures, tests must create all needed inputs themselves and clean everything up afterward so they remain fully independent and repeatable.
+* **Hard to read output**: Even when a method’s output is hard to access, you should not break encapsulation with new getters; instead, test observable effects through related operations to verify correct behavior.
+* **Complex dependencies**: When higher‑layer classes depend on lower‑layer components, simply test through the entire stack and identify the lowest failing class, allowing bug localization without modifying the system under test.
+
+You should **never** change the SUT just to make testing easier — there is always a way to test without harming its design.
+
+## 7.4 Unit Testing Case Study
+
+NetBeans Support for Unit Testing
+
+IntelliJ Support for Unit Testing
+
+***Maven Support for Unit Testing*** (It is used by us)
+
+### Writing the Tests
+
+Tests should be written bottom‑up, starting with classes that have no dependencies and moving upward, so each new test can run immediately and confirm that the tested class works as intended.
+
+This unusual workflow — writing the whole program before writing tests—is only used here to mix theory and practice, whereas normally tests are written **before or immediately** after the methods they verify.
+
+Because the entire program was written before testing, the first step is to find **a class with no dependencies** — making Amount the natural starting point for unit tests. (DM or PD should be checked)
+
+### The First Tested Class, Amount
+
+Only **public, protected, and package‑private methods** need testing, while private methods and trivial constructors (like those in Amount) are skipped since they contain no logic.
+
+Testing the ***equals*** method requires covering all branches — **null input**, **wrong type**, **equal amounts**, and **unequal amounts** — ensuring every execution path in the method is exercised.
+
+Although edge cases like null are already covered, an extra test is added for comparing Amount objects representing zero, even though no special behavior is expected for other extreme numeric values.
+
+The equals method has no illegal parameter values or required preconditions, so once all parameter cases are tested and pass, testing is complete.
+
+***
+
+The remaining Amount methods ***(minus, plus, and toString)*** do not depend on each other, so their tests can be written in any order, starting with minus.
+
+Since ***minus*** has only one execution path and unchecked overflow, a few straightforward tests — verifying positive, negative, and zero results — are enough, especially now that equals is confirmed to work correctly.
+
+The tests for ***plus*** mirror those for minus, and toString is tested with positive, negative, and zero values — concluding the fully successful 15‑test suite for the Amount class.
+
+### The First Problematic Test, a void Method
+
+Testing ***CarRegistry*** requires checking the effect of ***setBookedStateOfCar*** (a void method) through ***findAvailableCar***, and adding an equals method to CarDTO becomes necessary — and justified — because it improves the class design rather than harming it.
+
+(CustomerRegistry: save is a void method)
+
+### More Difficult Tests
+
+***CustomerDTO, AddressDTO, and DrivingLicenseDTO*** require **no** tests because they only store values, while ***CashRegister and RentalRegistry*** cannot yet be meaningfully tested due to incomplete functionality, so their methods can only be invoked without verification.
+
+Since no fully independent classes remain, tests must now be written for all remaining model and integration classes, but missing error handling makes it impossible to meaningfully test invalid inputs until that functionality is added later.
+
+Even complex methods like createReceiptString can be fully tested with enough setup work, as long as the expected result is constructed independently so the test cannot share the same bug as the SUT.
+
+### Testing User Interface
+
+The void method printReceipt can still be tested by redirecting System.out to an in‑memory stream, allowing the test to compare the captured output with the expected result.
+
+This is the only user‑interface test included, but command‑line input can be tested by redirecting System.in, and graphical or web UIs can also be tested using specialized UI‑testing frameworks.
+
+### The last classes, Controller and Main
+
+Testing the final classes revealed missing read operations in the design, leading to adding methods like ***findRentalByCustomerName*** and ***getRentingCustomer*** — changes that improve the system rather than harm it, since stored data must be retrievable to be testable and meaningful.
+
+Testing the ***controller*** is complex because it sits high in the layer stack, requiring extensive setup and indirect verification — such as checking printed receipts — since private or package ‑ private methods cannot be exposed just to simplify testing.
+
+Testing ***Main*** is difficult because it only creates objects and no UI exists yet, but minimal verification is still possible by checking for expected output or inspecting the program state.
+
+## 7.5 Common Mistakes
+
+* **Too few tests**: Having too few tests is the most serious mistake — aim to cover all branches, as well as extreme and illegal parameter values, to thoroughly verify behavior.
+* **Too many assertions in the same test method**: Place as few assertions as possible in each test method—ideally one—because clearer, smaller tests are easier to name and understand, and they allow more assertions to run before a failure stops execution.
+* **Not self-evaluating**: Tests must evaluate results with assertions — not with if statements or manual inspection — to remain fully self‑evaluating and reliable.
+* **Producing output**: A test should never print to System.out, because output from many tests quickly becomes confusing and hides real results.
+* **Worsen SUT design**: **Never compromise or weaken the SUT’s design** just to make testing easier — there is almost always a way to test it without modifying the SUT.
+
