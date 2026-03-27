@@ -21,7 +21,8 @@ public class Cost {
         return currency;
     }
 
-    public void calculate(Cost another) {
+    public void calculate(Cost another) throws NullPointerException{
+        if (another == null) throw new NullPointerException();
         this.amount += another.amount;
     }
 
