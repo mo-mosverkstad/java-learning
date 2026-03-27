@@ -9,9 +9,9 @@ public class Main {
     public static void main(String[] args) {
         RegistryCreator registryCreator = new RegistryCreator();
         Printer printer = new Printer();
-        ControllerCreator controllerCreator = new ControllerCreator(registryCreator);
+        ControllerCreator controllerCreator = new ControllerCreator(registryCreator, printer);
         View view = new View(controllerCreator);
-        // System.out.println("Hello World!");
+        view.proceedReceptionActions();
     }
 
     /*

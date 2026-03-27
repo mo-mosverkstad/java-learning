@@ -8,6 +8,7 @@ import se.ebikerepair.integration.RepairOrderRegistry;
 import se.ebikerepair.util.TelephoneNumber;
 import se.ebikerepair.model.ProblemDTO;
 import se.ebikerepair.model.RepairOrderDTO;
+import se.ebikerepair.printer.Printer;
 
 public class ReceptionistController {
     private final CustomerRegistry customerRegistry;
@@ -15,10 +16,12 @@ public class ReceptionistController {
 
     private CustomerDTO foundCustomer;
     private RepairOrder repairOrder;
+    private Printer printer;
     
-    public ReceptionistController(RegistryCreator registryCreator){
+    public ReceptionistController(RegistryCreator registryCreator, Printer printer){
         customerRegistry = registryCreator.getCustomerRegistry();
         repairOrderRegistry = registryCreator.getRepairOrderRegistry();
+        this.printer = printer;
     }
 
     public CustomerDTO searchCustomer(String telephoneNumber){

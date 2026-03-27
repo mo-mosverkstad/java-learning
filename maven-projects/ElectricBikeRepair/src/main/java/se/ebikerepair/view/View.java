@@ -8,9 +8,13 @@ import se.ebikerepair.model.RepairOrderDTO;
 
 public class View {
     private static final String ERROR_PREFIX = "Error: ";
+    private final ReceptionistController receptionistController;
 
     public View(ControllerCreator controllerCreator){
-        ReceptionistController receptionistController = controllerCreator.getReceptionistController();
+        receptionistController = controllerCreator.getReceptionistController();
+    }
+
+    public void proceedReceptionActions() {
         try {
             CustomerDTO foundCustomer = receptionistController.searchCustomer("0707654321");
             System.out.println(foundCustomer);
