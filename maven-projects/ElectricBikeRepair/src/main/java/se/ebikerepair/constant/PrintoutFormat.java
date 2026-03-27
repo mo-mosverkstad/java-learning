@@ -34,5 +34,6 @@ public final class PrintoutFormat {
             "  Total Cost:     %s%n" +
             "  Customer:       %s%n" +
             "  Problem:%n%s" +
+            "  Diagnostic report: %s%n" +
             "=================================";
 }

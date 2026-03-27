@@ -15,19 +15,20 @@ public record RepairOrderDTO(
         Date estimatedCompleteDate,
         Cost totalCost,
         RepairOrderState repairOrderState,
+        DiagnosticReportDTO diagnosticReportDTO,
         String id
     ) {
 
     @Override
     public String toString() {
         return format(id, repairOrderState, createdDate, estimatedCompleteDate,
-                totalCost, customerDTO.getName(), problemDTO);
+                totalCost, customerDTO.getName(), problemDTO, diagnosticReportDTO);
     }
 
     static String format(String id, RepairOrderState state, Date created,
-            Date estComplete, Cost cost, String customerName, ProblemDTO problem) {
+            Date estComplete, Cost cost, String customerName, ProblemDTO problem, DiagnosticReportDTO diagnosticReportDTO) {
         String estCompleteStr = estComplete != null ? estComplete.toString() : "N/A";
         return String.format(PrintoutFormat.REPAIR_ORDER_PRINTOUT_FORMAT,
-                id, state, created, estCompleteStr, cost, customerName, problem);
+                id, state, created, estCompleteStr, cost, customerName, problem, diagnosticReportDTO);
     }
 }

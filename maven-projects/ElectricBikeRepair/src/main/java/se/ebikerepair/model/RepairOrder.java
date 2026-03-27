@@ -8,6 +8,7 @@ import se.ebikerepair.model.ProblemDTO;
 import se.ebikerepair.model.RepairOrderState;
 import se.ebikerepair.model.Cost;
 import se.ebikerepair.model.RepairOrderDTO;
+import se.ebikerepair.model.DiagnosticReportDTO;
 
 public class RepairOrder {
     private CustomerDTO customerDTO;
@@ -16,6 +17,7 @@ public class RepairOrder {
     private Date estimatedCompleteDate;
     private Cost totalCost;
     private RepairOrderState repairOrderState;
+    private DiagnosticReportDTO diagnosticReportDTO;
     private String id;
 
     public RepairOrder(CustomerDTO customerDTO, ProblemDTO problemDTO){
@@ -51,6 +53,14 @@ public class RepairOrder {
         return repairOrderState;
     }
 
+    public void setDiagnosticReportDTO(DiagnosticReportDTO diagnosticReportDTO){
+        this.diagnosticReportDTO = diagnosticReportDTO;
+    }
+
+    public DiagnosticReportDTO getDiagnosticReportDTO(){
+        return diagnosticReportDTO;
+    }
+
     public String getId(){
         return id;
     }
@@ -63,6 +73,7 @@ public class RepairOrder {
             estimatedCompleteDate,
             totalCost,
             repairOrderState,
+            diagnosticReportDTO,
             id
         );
     }
@@ -70,6 +81,6 @@ public class RepairOrder {
     @Override
     public String toString() {
         return RepairOrderDTO.format(id, repairOrderState, createdDate,
-                estimatedCompleteDate, totalCost, customerDTO.getName(), problemDTO);
+                estimatedCompleteDate, totalCost, customerDTO.getName(), problemDTO, diagnosticReportDTO);
     }
 }
