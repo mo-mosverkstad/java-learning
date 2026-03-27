@@ -7,20 +7,9 @@ import se.ebikerepair.model.ProposedRepairTaskDTO;
 import se.ebikerepair.model.RepairOrder;
 import se.ebikerepair.model.RepairOrderDTO;
 
-public class TechnicianController {
-    private final RepairOrderRegistry repairOrderRegistry;
-    private RepairOrder repairOrder;
-
+public class TechnicianController extends Controller {
     public TechnicianController(RegistryCreator registryCreator){
-        repairOrderRegistry = registryCreator.getRepairOrderRegistry();
-    }
-
-    public RepairOrderDTO requestRepairOrder(String id) throws IllegalArgumentException{
-        repairOrder = repairOrderRegistry.find(id);
-        if (repairOrder == null) {
-            throw new IllegalArgumentException("Repair order not found for id: " + id);
-        }
-        return repairOrder.toDTO();
+        super(registryCreator.getRepairOrderRegistry());
     }
 
     public void createDiagnosticReport(DiagnosticReportDTO diagnosticReportDTO){

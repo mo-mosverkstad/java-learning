@@ -10,17 +10,15 @@ import se.ebikerepair.model.ProblemDTO;
 import se.ebikerepair.model.RepairOrderDTO;
 import se.ebikerepair.printer.Printer;
 
-public class ReceptionistController {
+public class ReceptionistController extends Controller{
     private final CustomerRegistry customerRegistry;
-    private final RepairOrderRegistry repairOrderRegistry;
 
     private CustomerDTO foundCustomer;
-    private RepairOrder repairOrder;
     private Printer printer;
     
     public ReceptionistController(RegistryCreator registryCreator, Printer printer){
+        super(registryCreator.getRepairOrderRegistry());
         customerRegistry = registryCreator.getCustomerRegistry();
-        repairOrderRegistry = registryCreator.getRepairOrderRegistry();
         this.printer = printer;
     }
 
@@ -37,14 +35,6 @@ public class ReceptionistController {
         repairOrder = new RepairOrder(foundCustomer, problemDTO);
         repairOrderRegistry.save(repairOrder);
         return repairOrder.getId();
-    }
-
-    public RepairOrderDTO requestRepairOrder(String id) throws IllegalArgumentException{
-        repairOrder = repairOrderRegistry.find(id);
-        if (repairOrder == null) {
-            throw new IllegalArgumentException("Repair order not found for id: " + id);
-        }
-        return repairOrder.toDTO();
     }
 
     public void acceptOrder(){
