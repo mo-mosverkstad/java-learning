@@ -50,16 +50,16 @@ public class TelephoneNumberTest {
 
     @Test
     void testNonZeroPrefix() {
-        TelephoneNumber number = new TelephoneNumber("1234567");
         assertThrows(IllegalArgumentException.class, () -> {
+            TelephoneNumber number = new TelephoneNumber("1234567");
             number.toE164();
         });
     }
 
     @Test
     void testWrongPrefix() {
-        TelephoneNumber number = new TelephoneNumber("0001234567");
         assertThrows(IllegalArgumentException.class, () -> {
+            TelephoneNumber number = new TelephoneNumber("0001234567");
             number.toE164();
         });
     }

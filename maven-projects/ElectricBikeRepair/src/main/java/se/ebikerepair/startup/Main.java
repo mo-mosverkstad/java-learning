@@ -11,7 +11,10 @@ public class Main {
         Printer printer = new Printer();
         ControllerCreator controllerCreator = new ControllerCreator(registryCreator, printer);
         View view = new View(controllerCreator);
-        view.proceedReceptionActions();
+        String repairOrderId = view.proceedReceptionPreparationActions();
+        view.proceedTechnicianDiagnosticActions(repairOrderId);
+        view.proceedReceptionConfirmationActions(repairOrderId);
+        
     }
 
     /*
