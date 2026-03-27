@@ -1,6 +1,8 @@
 package se.ebikerepair.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import se.ebikerepair.integration.CustomerDTO;
@@ -18,6 +20,7 @@ public class RepairOrder {
     private Cost totalCost;
     private RepairOrderState repairOrderState;
     private DiagnosticReportDTO diagnosticReportDTO;
+    private List<ProposedRepairTaskDTO> proposedRepairTasks;
     private String id;
 
     public RepairOrder(CustomerDTO customerDTO, ProblemDTO problemDTO){
@@ -26,6 +29,7 @@ public class RepairOrder {
         this.createdDate = new Date();
         this.totalCost = new Cost();
         this.repairOrderState = RepairOrderState.NewlyCreated;
+        this.proposedRepairTasks = new ArrayList<>();
         this.id = UUID.randomUUID().toString();
     }
 
@@ -61,8 +65,21 @@ public class RepairOrder {
         return diagnosticReportDTO;
     }
 
+    public void addProposedRepairTask(ProposedRepairTaskDTO proposedRepairTask){
+        proposedRepairTasks.add(proposedRepairTask);
+        totalCost.calculate(proposedRepairTask.getCost());
+    }
+
     public String getId(){
         return id;
+    }
+
+    public void accept(){
+        repairOrderState = RepairOrderState.Accepted;
+    }
+
+    public void reject(){
+        repairOrderState = RepairOrderState.Rejected;
     }
 
     public RepairOrderDTO toDTO(){
@@ -74,6 +91,7 @@ public class RepairOrder {
             totalCost,
             repairOrderState,
             diagnosticReportDTO,
+            proposedRepairTasks,
             id
         );
     }
@@ -81,6 +99,6 @@ public class RepairOrder {
     @Override
     public String toString() {
         return RepairOrderDTO.format(id, repairOrderState, createdDate,
-                estimatedCompleteDate, totalCost, customerDTO.getName(), problemDTO, diagnosticReportDTO);
+                estimatedCompleteDate, totalCost, customerDTO.getName(), problemDTO, diagnosticReportDTO, proposedRepairTasks);
     }
 }

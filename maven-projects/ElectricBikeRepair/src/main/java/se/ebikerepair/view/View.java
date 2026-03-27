@@ -6,7 +6,9 @@ import se.ebikerepair.controller.TechnicianController;
 import se.ebikerepair.integration.CustomerDTO;
 import se.ebikerepair.model.DiagnosticReportDTO;
 import se.ebikerepair.model.ProblemDTO;
+import se.ebikerepair.model.ProposedRepairTaskDTO;
 import se.ebikerepair.model.RepairOrderDTO;
+import se.ebikerepair.model.Cost;
 
 public class View {
     private static final String ERROR_PREFIX = "Error: ";
@@ -42,6 +44,15 @@ public class View {
             DiagnosticReportDTO diagnosticReportDTO = new DiagnosticReportDTO("Rusty bike chain");
             technicianController.createDiagnosticReport(diagnosticReportDTO);
 
+            ProposedRepairTaskDTO proposedRepairTaskDTO1 = new ProposedRepairTaskDTO("Replace chain", new Cost(500, "SEK"));
+            ProposedRepairTaskDTO proposedRepairTaskDTO2 = new ProposedRepairTaskDTO("Replace gears", new Cost(400, "SEK"));
+
+            technicianController.createProposedRepairTask(proposedRepairTaskDTO1);
+            technicianController.createProposedRepairTask(proposedRepairTaskDTO2);
+
+            RepairOrderDTO repairOrderDTO2 = receptionistController.requestRepairOrder(repairOrderId);
+            System.err.println(repairOrderDTO2);
+
         } catch (IllegalArgumentException | IllegalStateException e) {
             System.out.println(ERROR_PREFIX + e.getMessage());
         }
@@ -51,6 +62,9 @@ public class View {
         try {
             RepairOrderDTO repairOrderDTO = receptionistController.requestRepairOrder(repairOrderId);
             System.out.println(repairOrderDTO);
+
+            System.out.println("----- Printout the order -----");
+            receptionistController.acceptOrder();
             
         } catch (IllegalArgumentException | IllegalStateException e) {
             System.out.println(ERROR_PREFIX + e.getMessage());

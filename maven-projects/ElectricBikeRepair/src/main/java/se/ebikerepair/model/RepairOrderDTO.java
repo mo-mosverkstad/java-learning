@@ -1,12 +1,14 @@
 package se.ebikerepair.model;
 
 import java.util.Date;
+import java.util.List;
 
 import se.ebikerepair.constant.PrintoutFormat;
 import se.ebikerepair.integration.CustomerDTO;
 import se.ebikerepair.model.ProblemDTO;
 import se.ebikerepair.model.RepairOrderState;
 import se.ebikerepair.model.Cost;
+import se.ebikerepair.model.DiagnosticReportDTO;
 
 public record RepairOrderDTO(
         CustomerDTO customerDTO,
@@ -16,19 +18,20 @@ public record RepairOrderDTO(
         Cost totalCost,
         RepairOrderState repairOrderState,
         DiagnosticReportDTO diagnosticReportDTO,
+        List<ProposedRepairTaskDTO> proposedRepairTasks,
         String id
     ) {
 
     @Override
     public String toString() {
         return format(id, repairOrderState, createdDate, estimatedCompleteDate,
-                totalCost, customerDTO.getName(), problemDTO, diagnosticReportDTO);
+                totalCost, customerDTO.getName(), problemDTO, diagnosticReportDTO, proposedRepairTasks);
     }
 
     static String format(String id, RepairOrderState state, Date created,
-            Date estComplete, Cost cost, String customerName, ProblemDTO problem, DiagnosticReportDTO diagnosticReportDTO) {
+            Date estComplete, Cost cost, String customerName, ProblemDTO problem, DiagnosticReportDTO diagnosticReportDTO, List<ProposedRepairTaskDTO> proposedRepairTasks) {
         String estCompleteStr = estComplete != null ? estComplete.toString() : "N/A";
         return String.format(PrintoutFormat.REPAIR_ORDER_PRINTOUT_FORMAT,
-                id, state, created, estCompleteStr, cost, customerName, problem, diagnosticReportDTO);
+                id, state, created, estCompleteStr, cost, customerName, problem, diagnosticReportDTO, proposedRepairTasks);
     }
 }

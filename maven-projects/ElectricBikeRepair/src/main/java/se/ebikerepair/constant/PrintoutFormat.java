@@ -35,5 +35,6 @@ public final class PrintoutFormat {
             "  Customer:       %s%n" +
             "  Problem:%n%s" +
             "  Diagnostic report: %s%n" +
+            "  Proposed repair tasks: %s%n" +
             "=================================";
 }

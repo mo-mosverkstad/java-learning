@@ -46,4 +46,15 @@ public class ReceptionistController {
         }
         return repairOrder.toDTO();
     }
+
+    public void acceptOrder(){
+        repairOrder.accept();
+        repairOrderRegistry.save(repairOrder);
+        printer.print(repairOrder);
+    }
+
+    public void rejectOrder(){
+        repairOrder.reject();
+        repairOrderRegistry.save(repairOrder);
+    }
 }

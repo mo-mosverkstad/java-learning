@@ -1,5 +1,9 @@
 package se.ebikerepair.printer;
 
-public class Printer {
+import se.ebikerepair.model.RepairOrder;
 
+public class Printer {
+    public void print(RepairOrder repairOrder){
+        System.out.println(repairOrder);
+    }
 }
