@@ -23,34 +23,30 @@ public class View {
     }
 
     public void proceedActions(String telephoneNumber) {
-        String repairOrderId = proceedReceptionPreparationActions(telephoneNumber);
+        proceedReceptionPreparationActions(telephoneNumber);
         proceedTechnicianDiagnosticActions(telephoneNumber);
         proceedReceptionConfirmationActions(telephoneNumber);
     }
 
-    private String proceedReceptionPreparationActions(String telephoneNumber) {
-        String repairOrderId = null;
+    private void proceedReceptionPreparationActions(String telephoneNumber) {
         try {
             CustomerDTO foundCustomer = receptionistController.searchCustomer(telephoneNumber);
             printout("1. Reception - Found customer:", foundCustomer);
 
-            repairOrderId = receptionistController.createRepairOrder(telephoneNumber, new ProblemDTO("Broken bike chain", foundCustomer.getBikes().get(0)));
+            String repairOrderId = receptionistController.createRepairOrder(telephoneNumber, new ProblemDTO("Broken bike chain", foundCustomer.getBikes().get(0)));
             printout("2. Reception - Created repair order with id: ", repairOrderId);
 
         } catch (IllegalArgumentException | IllegalStateException e) {
             System.out.println(ERROR_PREFIX + e.getMessage());
         }
-        return repairOrderId;
     }
 
     private void proceedTechnicianDiagnosticActions(String telephoneNumber){
         try {
-            List<String> repairOrderIds = technicianController.findRepairOrderIds(telephoneNumber);
-            if (repairOrderIds.isEmpty()) return;
-            String repairOrderId = repairOrderIds.get(0);
-            RepairOrderDTO repairOrderDTO = technicianController.requestRepairOrder(repairOrderId);
+            RepairOrderDTO repairOrderDTO = technicianController.findRepairOrder(telephoneNumber);
             printout("3. Technician - Requested repair order: ", repairOrderDTO);
 
+            String repairOrderId = repairOrderDTO.id();
             DiagnosticReportDTO diagnosticReportDTO = new DiagnosticReportDTO("Rusty bike chain");
             technicianController.createDiagnosticReport(repairOrderId, diagnosticReportDTO);
             printout("4. Technician - Created diagnostic report: ", diagnosticReportDTO);
@@ -68,13 +64,11 @@ public class View {
 
     private void proceedReceptionConfirmationActions(String telephoneNumber) {
         try {
-            List<String> repairOrderIds = technicianController.findRepairOrderIds(telephoneNumber);
-            if (repairOrderIds.isEmpty()) return;
-            String repairOrderId = repairOrderIds.get(0);
-            RepairOrderDTO repairOrderDTO = receptionistController.requestRepairOrder(repairOrderId);
+            RepairOrderDTO repairOrderDTO = receptionistController.findRepairOrder(telephoneNumber);
             printout("7. Reception - found repair order: ", repairOrderDTO);
             
             printout("8. Reception - Accepted order");
+            String repairOrderId = repairOrderDTO.id();
             receptionistController.acceptOrder(repairOrderId);
             
             

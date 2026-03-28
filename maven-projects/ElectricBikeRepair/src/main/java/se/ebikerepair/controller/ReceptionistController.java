@@ -28,10 +28,10 @@ public class ReceptionistController extends Controller{
         return foundCustomer;
     }
 
-    public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws IllegalStateException{
+    public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws IllegalArgumentException{
         CustomerDTO foundCustomer = searchCustomer(telephoneNumber);
         if (foundCustomer == null) {
-            throw new IllegalStateException("No customer found. Call searchCustomer() first.");
+            throw new IllegalArgumentException("No customer found for telephone number: " + telephoneNumber);
         }
         RepairOrder repairOrder = new RepairOrder(foundCustomer, problemDTO);
         repairOrderRegistry.save(repairOrder);
@@ -40,6 +40,9 @@ public class ReceptionistController extends Controller{
 
     public void acceptOrder(String repairOrderId){
         RepairOrder repairOrder = repairOrderRegistry.findByRepairOrderId(repairOrderId);
+        if (repairOrder == null) {
+            throw new IllegalStateException("Repair order not found for id: " + repairOrderId);
+        }
         repairOrder.accept();
         repairOrderRegistry.save(repairOrder);
         printer.print(repairOrder);
@@ -47,6 +50,9 @@ public class ReceptionistController extends Controller{
 
     public void rejectOrder(String repairOrderId){
         RepairOrder repairOrder = repairOrderRegistry.findByRepairOrderId(repairOrderId);
+        if (repairOrder == null) {
+            throw new IllegalStateException("Repair order not found for id: " + repairOrderId);
+        }
         repairOrder.reject();
         repairOrderRegistry.save(repairOrder);
     }

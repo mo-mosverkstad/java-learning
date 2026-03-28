@@ -1,4 +1,3 @@
-- Stateless system (controllers)
 - Serial number for broken bikes
 - Proposed tasks -> modifications + DiagnosticReport + DiagnosticTasks
 - Estimated date should be updated in diagnostic period.

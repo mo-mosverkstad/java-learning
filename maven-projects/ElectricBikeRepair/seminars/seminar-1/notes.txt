@@ -39,6 +39,37 @@ Id as id = UUID.randomUUID().toString() instead of milliseconds
 
 2 controllers and 2 registor in controllercreator and registorycreator are implemented as final for static instead of non-static (for encapsulation)
 
+Exception handlings:
+IllegalArgumentException — "you gave me bad input". The caller passed an invalid argument. The fix is on the caller's side.
+Example: invalid phone number, customer not found for given phone number
+IllegalStateException — "something is wrong internally". The object/system is in a state that shouldn't be possible. The fix is in the code itself.
+Example: an ID exists in one map but not another (data inconsistency), or a method is called in the wrong order
+In your project:
+User types a wrong phone number → IllegalArgumentException (user's fault, View catches and shows error)
+Registry has an ID but no matching object → IllegalStateException (code bug, should be investigated)
+
+User wrong behavior (should be IllegalArgumentException, caught in View):
+* TelephoneNumber — invalid phone format ✅ already correct
+* Controller.findRepairOrder — no repair order for customer ✅ already correct
+* ReceptionistController.createRepairOrder — customer not found. Currently IllegalStateException, but this is user input error → should be IllegalArgumentException
+
+Code bug (should be NullPointerException or IllegalStateException, propagated):
+* TechnicianController.createDiagnosticReport — findByRepairOrderId returns null, then repairOrder.setDiagnosticReportDTO throws NPE. This is a code bug (invalid ID passed internally).
+* TechnicianController.createProposedRepairTask — same issue
+* ReceptionistController.acceptOrder — same issue
+* ReceptionistController.rejectOrder — same issue
+
+IllegalArgumentException — user wrong behavior (caught in View):
+* TelephoneNumber — invalid phone number format
+* ReceptionistController.createRepairOrder — customer not found for given phone number
+* Controller.findRepairOrder — no repair order for customer
+
+IllegalStateException — code bug (propagated, should never happen in correct flow):
+* ReceptionistController.acceptOrder/rejectOrder — repair order ID doesn't exist
+* TechnicianController.createDiagnosticReport/createProposedRepairTask — repair order ID doesn't exist
+
+The View already catches both IllegalArgumentException | IllegalStateException, so if an IllegalStateException does occur, it will still show an error message rather than crashing — but it signals a programming error that should be investigated.
+
 
 Approach 1. RepairOrderDTO as immutable class without RepairOrder (in Model), model is unused
 Retrieving data: RepairOrderRegistry produces a RepairOrderDTO to controller and further to view

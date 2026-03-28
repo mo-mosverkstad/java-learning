@@ -14,12 +14,18 @@ public class TechnicianController extends Controller {
 
     public void createDiagnosticReport(String repairOrderId, DiagnosticReportDTO diagnosticReportDTO){
         RepairOrder repairOrder = repairOrderRegistry.findByRepairOrderId(repairOrderId);
+        if (repairOrder == null) {
+            throw new IllegalStateException("Repair order not found for id: " + repairOrderId);
+        }
         repairOrder.setDiagnosticReportDTO(diagnosticReportDTO);
         repairOrderRegistry.save(repairOrder);
     }
 
     public void createProposedRepairTask(String repairOrderId, ProposedRepairTaskDTO proposedRepairTaskDTO){
         RepairOrder repairOrder = repairOrderRegistry.findByRepairOrderId(repairOrderId);
+        if (repairOrder == null) {
+            throw new IllegalStateException("Repair order not found for id: " + repairOrderId);
+        }
         repairOrder.addProposedRepairTask(proposedRepairTaskDTO);
         repairOrderRegistry.save(repairOrder);
     }
