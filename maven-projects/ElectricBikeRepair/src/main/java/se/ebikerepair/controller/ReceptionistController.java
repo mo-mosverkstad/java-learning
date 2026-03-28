@@ -22,17 +22,17 @@ public class ReceptionistController extends Controller{
         this.printer = printer;
     }
 
-    public CustomerDTO searchCustomer(String telephoneNumber){
+    public CustomerDTO searchCustomer(String telephoneNumber) throws IllegalArgumentException{
         String phoneNumberE164 = new TelephoneNumber(telephoneNumber).toE164();
         CustomerDTO foundCustomer = customerRegistry.find(phoneNumberE164);
+        if (foundCustomer == null) {
+            throw new IllegalArgumentException("No customer found for telephone number: " + telephoneNumber);
+        }
         return foundCustomer;
     }
 
     public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws IllegalArgumentException{
         CustomerDTO foundCustomer = searchCustomer(telephoneNumber);
-        if (foundCustomer == null) {
-            throw new IllegalArgumentException("No customer found for telephone number: " + telephoneNumber);
-        }
         RepairOrder repairOrder = new RepairOrder(foundCustomer, problemDTO);
         repairOrderRegistry.save(repairOrder);
         return repairOrder.getId();

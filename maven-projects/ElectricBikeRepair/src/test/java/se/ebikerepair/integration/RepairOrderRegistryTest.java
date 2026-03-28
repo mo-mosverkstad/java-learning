@@ -1,53 +1,64 @@
 package se.ebikerepair.integration;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import se.ebikerepair.integration.BikeDTO;
-import se.ebikerepair.integration.CustomerDTO;
-import se.ebikerepair.integration.CustomerRegistry;
-import se.ebikerepair.integration.RepairOrderRegistry;
 import se.ebikerepair.model.ProblemDTO;
 import se.ebikerepair.model.RepairOrder;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RepairOrderRegistryTest {
+class RepairOrderRegistryTest {
     private RepairOrderRegistry registry;
+    private RepairOrder order1;
+    private RepairOrder order2;
 
-    /*
     @BeforeEach
     void setUp() {
         registry = new RepairOrderRegistry();
+        BikeDTO bike1 = new BikeDTO("Monark", "E-Karin", "MO-001");
+        CustomerDTO customer1 = new CustomerDTO("Alice", "+46701234567", "alice@example.com", List.of(bike1));
+        order1 = new RepairOrder(customer1, new ProblemDTO("Flat tire", bike1));
+        registry.save(order1);
 
-        List<BikeDTO> bikes1 = new ArrayList<>();
-        BikeDTO brokenBike1 = new BikeDTO("Brand", "Model", "SerialNumber");
-        bikes1.add(brokenBike1);
-        CustomerDTO customer1 = new CustomerDTO("Alice", "0721312125", "alice@example.com", bikes1);
-        ProblemDTO problem1 = new ProblemDTO("Flat tire", brokenBike1);
-        registry.save(new RepairOrder(customer1, problem1));
-
-        List<BikeDTO> bikes2 = new ArrayList<>();
-        BikeDTO brokenBike2 = new BikeDTO("Brand", "Model", "SerialNumber");
-        bikes2.add(brokenBike2);
-        CustomerDTO customer = new CustomerDTO("Bob", "0722382175", "bob@example.com", bikes2);
-        ProblemDTO problem = new ProblemDTO("Broken chain", brokenBike2);
-        registry.save(new RepairOrder(customer2, problem2));
-    }
-
-    @AfterEach
-    void cleanUp(){
-        registry = null;
+        BikeDTO bike2 = new BikeDTO("Crescent", "Elda", "CR-001");
+        CustomerDTO customer2 = new CustomerDTO("Bob", "+46707654321", "bob@example.com", List.of(bike2));
+        order2 = new RepairOrder(customer2, new ProblemDTO("Broken chain", bike2));
+        registry.save(order2);
     }
 
     @Test
-    void testGetExistingRepairOrder(){
-        RepairOrder repairOrder = registry.find();
+    void testFindByRepairOrderId() {
+        RepairOrder found = registry.findByRepairOrderId(order1.getId());
+        assertNotNull(found);
+        assertEquals(order1.getId(), found.getId());
     }
-         */
 
+    @Test
+    void testFindByRepairOrderIdNotFound() {
+        assertNull(registry.findByRepairOrderId("nonexistent-id"));
+    }
+
+    @Test
+    void testFindByTelephoneNumber() {
+        List<RepairOrder> orders = registry.findRepairOrdersByTelephoneNumber("+46701234567");
+        assertEquals(1, orders.size());
+        assertEquals(order1.getId(), orders.get(0).getId());
+    }
+
+    @Test
+    void testFindByTelephoneNumberNotFound() {
+        List<RepairOrder> orders = registry.findRepairOrdersByTelephoneNumber("+46700000000");
+        assertTrue(orders.isEmpty());
+    }
+
+    @Test
+    void testSaveUpdatesExisting() {
+        order1.accept();
+        registry.save(order1);
+        RepairOrder found = registry.findByRepairOrderId(order1.getId());
+        assertEquals(se.ebikerepair.model.RepairOrderState.Accepted, found.getRepairOrderState());
+    }
 }
