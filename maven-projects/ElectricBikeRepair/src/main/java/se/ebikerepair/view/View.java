@@ -6,6 +6,7 @@ import se.ebikerepair.controller.ControllerCreator;
 import se.ebikerepair.controller.ReceptionistController;
 import se.ebikerepair.controller.TechnicianController;
 import se.ebikerepair.integration.CustomerDTO;
+import se.ebikerepair.integration.BikeDTO;
 import se.ebikerepair.model.DiagnosticReportDTO;
 import se.ebikerepair.model.ProblemDTO;
 import se.ebikerepair.model.ProposedRepairTaskDTO;
@@ -22,18 +23,19 @@ public class View {
         technicianController = controllerCreator.getTechnicianController();
     }
 
-    public void proceedActions(String telephoneNumber) {
-        proceedReceptionPreparationActions(telephoneNumber);
+    public void proceedActions(String telephoneNumber, String bikeSerialNumber) {
+        proceedReceptionPreparationActions(telephoneNumber, bikeSerialNumber);
         proceedTechnicianDiagnosticActions(telephoneNumber);
         proceedReceptionConfirmationActions(telephoneNumber);
     }
 
-    private void proceedReceptionPreparationActions(String telephoneNumber) {
+    private void proceedReceptionPreparationActions(String telephoneNumber, String bikeSerialNumber) {
         try {
             CustomerDTO foundCustomer = receptionistController.searchCustomer(telephoneNumber);
             printout("1. Reception - Found customer:", foundCustomer);
 
-            String repairOrderId = receptionistController.createRepairOrder(telephoneNumber, new ProblemDTO("Broken bike chain", foundCustomer.getBikes().get(0)));
+            BikeDTO foundBike = foundCustomer.getBikeBySerialNumber(bikeSerialNumber);
+            String repairOrderId = receptionistController.createRepairOrder(telephoneNumber, new ProblemDTO("Broken bike chain", foundBike));
             printout("2. Reception - Created repair order with id: ", repairOrderId);
 
         } catch (IllegalArgumentException | IllegalStateException e) {
@@ -70,7 +72,6 @@ public class View {
             printout("8. Reception - Accepted order");
             String repairOrderId = repairOrderDTO.id();
             receptionistController.acceptOrder(repairOrderId);
-            
             
         } catch (IllegalArgumentException | IllegalStateException e) {
             System.out.println(ERROR_PREFIX + e.getMessage());

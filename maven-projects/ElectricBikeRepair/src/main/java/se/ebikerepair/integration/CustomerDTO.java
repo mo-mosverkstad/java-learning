@@ -34,6 +34,15 @@ public class CustomerDTO {
         return bikes;
     }
 
+    public BikeDTO getBikeBySerialNumber(String serialNumber){
+        for (BikeDTO bike : bikes) {
+            if (bike.getSerialNumber().equals(serialNumber)) {
+                return bike;
+            }
+        }
+        return null;
+    }
+
     @Override
     public String toString() {
         String bikesStr = bikes == null || bikes.isEmpty() ? PrintoutFormat.BIKE_PRINTOUT_EMPTY :
