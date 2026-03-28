@@ -12,10 +12,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Utility for reading and writing JSON files from the classpath resources.
+ */
 public class JsonFileHandler {
     private final File jsonFile;
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
+    /**
+     * Creates a JSON file handler for the given resource file.
+     *
+     * @param resourceName the name of the JSON resource file on the classpath
+     */
     public JsonFileHandler(String resourceName) {
         URL resource = getClass().getClassLoader().getResource(resourceName);
         if (resource == null) {
@@ -33,6 +41,13 @@ public class JsonFileHandler {
         jsonFile = file;
     }
 
+    /**
+     * Reads a list of objects from the JSON file.
+     *
+     * @param <T> the type of objects to deserialize
+     * @param clazz the class of the objects
+     * @return the list of deserialized objects, or empty list if file is missing or empty
+     */
     public <T> List<T> readList(Class<T> clazz) {
         if (jsonFile == null) return Collections.emptyList();
         try (Reader reader = new InputStreamReader(new FileInputStream(jsonFile), StandardCharsets.UTF_8)) {
@@ -45,6 +60,12 @@ public class JsonFileHandler {
         }
     }
 
+    /**
+     * Writes a list of objects to the JSON file.
+     *
+     * @param <T> the type of objects to serialize
+     * @param list the list of objects to write
+     */
     public <T> void writeList(List<T> list) {
         if (jsonFile == null) {
             System.err.println("JSON file path not available");

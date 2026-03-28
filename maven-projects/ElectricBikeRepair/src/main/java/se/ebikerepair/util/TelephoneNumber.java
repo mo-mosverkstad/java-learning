@@ -1,10 +1,20 @@
 package se.ebikerepair.util;
 
+/**
+ * Parses and normalizes Swedish telephone numbers to E.164 format.
+ * Supports formats: +46..., 0046..., 0..., and numbers with spaces/dashes/parentheses.
+ */
 public class TelephoneNumber {
     private String cc;
     private String ac;
     private String sn;
 
+    /**
+     * Parses a telephone number string into country code, area code, and subscriber number.
+     *
+     * @param telephoneNumber the telephone number in any supported Swedish format
+     * @throws IllegalArgumentException if the telephone number is null, empty, or has an invalid format
+     */
     public TelephoneNumber(String telephoneNumber) {
         if (telephoneNumber == null || telephoneNumber.trim().isEmpty()) {
             throw new IllegalArgumentException("Telephone number format problem");
@@ -110,18 +120,26 @@ public class TelephoneNumber {
         return false;
     }
 
+    /** @return the country code (e.g. "46" for Sweden) */
     public String getCc() {
         return cc;
     }
 
+    /** @return the area code (e.g. "70" for mobile) */
     public String getAc() {
         return ac;
     }
 
+    /** @return the subscriber number */
     public String getSn() {
         return sn;
     }
 
+    /**
+     * Returns the telephone number in E.164 format (e.g. "+46701234567").
+     *
+     * @return the E.164 formatted telephone number
+     */
     public String toE164() {
         return "+" + cc + ac + sn;
     }

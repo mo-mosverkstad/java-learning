@@ -1,5 +1,9 @@
 package se.ebikerepair.constant;
 
+/**
+ * Constants class containing format strings for printout of various entities.
+ * This class cannot be instantiated.
+ */
 public final class PrintoutFormat {
 
     private PrintoutFormat() {}

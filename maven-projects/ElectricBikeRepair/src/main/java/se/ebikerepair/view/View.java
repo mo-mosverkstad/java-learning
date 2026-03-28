@@ -14,16 +14,31 @@ import se.ebikerepair.model.RepairOrderDTO;
 import se.ebikerepair.model.Cost;
 import se.ebikerepair.model.ResultDTO;
 
+/**
+ * View layer that orchestrates the repair workflow: reception preparation, technician diagnostics,
+ * and reception confirmation. Catches and displays user-facing errors.
+ */
 public class View {
     private static final String ERROR_PREFIX = "Error: ";
     private final ReceptionistController receptionistController;
     private final TechnicianController technicianController;
 
+    /**
+     * Creates a view with controllers from the given controller creator.
+     *
+     * @param controllerCreator the factory providing access to controllers
+     */
     public View(ControllerCreator controllerCreator){
         receptionistController = controllerCreator.getReceptionistController();
         technicianController = controllerCreator.getTechnicianController();
     }
 
+    /**
+     * Runs the full repair workflow: reception preparation, technician diagnostics, and reception confirmation.
+     *
+     * @param telephoneNumber the customer's telephone number
+     * @param bikeSerialNumber the serial number of the broken bike
+     */
     public void proceedActions(String telephoneNumber, String bikeSerialNumber) {
         proceedReceptionPreparationActions(telephoneNumber, bikeSerialNumber);
         proceedTechnicianDiagnosticActions(telephoneNumber);
@@ -73,7 +88,7 @@ public class View {
             
             printout("8. Reception - Accepted order");
             String repairOrderId = repairOrderDTO.id();
-            receptionistController.acceptOrder(repairOrderId);
+            receptionistController.acceptRepairOrder(repairOrderId);
             
         } catch (IllegalArgumentException | IllegalStateException e) {
             System.out.println(ERROR_PREFIX + e.getMessage());

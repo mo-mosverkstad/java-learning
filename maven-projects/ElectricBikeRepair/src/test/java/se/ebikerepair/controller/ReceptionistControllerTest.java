@@ -55,12 +55,12 @@ class ReceptionistControllerTest {
     }
 
     @Test
-    void testAcceptOrder() {
+    void testAcceptRepairOrder() {
         CustomerDTO customer = controller.searchCustomer("0707654321");
         BikeDTO bike = customer.getBikes().get(0);
         String id = controller.createRepairOrder("0707654321", new ProblemDTO("Broken chain", bike));
 
-        controller.acceptOrder(id);
+        controller.acceptRepairOrder(id);
 
         RepairOrderDTO dto = controller.findRepairOrder("0707654321");
         assertEquals(RepairOrderState.Accepted, dto.repairOrderState());
@@ -68,16 +68,16 @@ class ReceptionistControllerTest {
 
     @Test
     void testAcceptOrderNotFound() {
-        assertThrows(IllegalStateException.class, () -> controller.acceptOrder("nonexistent-id"));
+        assertThrows(IllegalStateException.class, () -> controller.acceptRepairOrder("nonexistent-id"));
     }
 
     @Test
-    void testRejectOrder() {
+    void testRejectRepairOrder() {
         CustomerDTO customer = controller.searchCustomer("0707654321");
         BikeDTO bike = customer.getBikes().get(0);
         String id = controller.createRepairOrder("0707654321", new ProblemDTO("Broken chain", bike));
 
-        controller.rejectOrder(id);
+        controller.rejectRepairOrder(id);
 
         RepairOrderDTO dto = controller.findRepairOrder("0707654321");
         assertEquals(RepairOrderState.Rejected, dto.repairOrderState());

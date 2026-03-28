@@ -2,7 +2,7 @@ Done:
 - Serial number for broken bikes
 - Proposed tasks -> modifications + DiagnosticReport + DiagnosticTasks
 - Estimated date should be updated in diagnostic period.
+- JUnit test cases.
+- Javadoc.
 
 Ongoing:
-- Repair order registry JSON
-- Java doc

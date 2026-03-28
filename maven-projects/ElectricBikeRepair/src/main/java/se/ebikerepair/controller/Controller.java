@@ -8,10 +8,18 @@ import java.util.List;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
+/**
+ * Base controller providing shared repair order lookup functionality.
+ */
 public class Controller {
     protected final RepairOrderRegistry repairOrderRegistry;
     // protected RepairOrder repairOrder;
 
+    /**
+     * Creates a controller with the given repair order registry.
+     *
+     * @param repairOrderRegistry the registry for storing and retrieving repair orders
+     */
     public Controller(RepairOrderRegistry repairOrderRegistry){
         this.repairOrderRegistry = repairOrderRegistry;
         // this.repairOrder = null;
@@ -26,7 +34,15 @@ public class Controller {
                 .collect(Collectors.toList());
     }
 
-    public RepairOrderDTO findRepairOrder(String telephoneNumber) throws IllegalArgumentException{
+    /**
+     * Finds the most recent repair order for the given telephone number.
+     *
+     * @param telephoneNumber the customer's telephone number (any Swedish format)
+     * @return the most recent repair order as a DTO
+     * @throws IllegalArgumentException if no repair orders exist for the customer or phone format is invalid
+     * @throws IllegalStateException if the repair order ID exists but the order cannot be found (data inconsistency)
+     */
+    public RepairOrderDTO findRepairOrder(String telephoneNumber) throws IllegalArgumentException, IllegalStateException{
         List<String> repairOrderIds = findRepairOrderIds(telephoneNumber);
         if (repairOrderIds.isEmpty()) {
             throw new IllegalArgumentException("There is no repair order created for this customer.");
