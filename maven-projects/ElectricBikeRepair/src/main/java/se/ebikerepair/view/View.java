@@ -20,54 +20,65 @@ public class View {
         technicianController = controllerCreator.getTechnicianController();
     }
 
-    public String proceedReceptionPreparationActions() {
+    public void proceedActions(String telephoneNumber) {
+        String repairOrderId = proceedReceptionPreparationActions(telephoneNumber);
+        proceedTechnicianDiagnosticActions(repairOrderId);
+        proceedReceptionConfirmationActions(repairOrderId);
+    }
+
+    private String proceedReceptionPreparationActions(String telephoneNumber) {
         String repairOrderId = null;
         try {
-            CustomerDTO foundCustomer = receptionistController.searchCustomer("0707654321");
-            System.out.println(foundCustomer);
+            CustomerDTO foundCustomer = receptionistController.searchCustomer(telephoneNumber);
+            printout("1. Reception - Found customer:", foundCustomer);
 
             repairOrderId = receptionistController.createRepairOrder(new ProblemDTO("Broken bike chain", foundCustomer.getBikes().get(0)));
-            System.out.println(repairOrderId);
+            printout("2. Reception - Created repair order with id: ", repairOrderId);
 
-            RepairOrderDTO repairOrderDTO = receptionistController.requestRepairOrder(repairOrderId);
-            System.out.println(repairOrderDTO);
-            return repairOrderId;
         } catch (IllegalArgumentException | IllegalStateException e) {
             System.out.println(ERROR_PREFIX + e.getMessage());
         }
         return repairOrderId;
     }
 
-    public void proceedTechnicianDiagnosticActions(String repairOrderId){
+    private void proceedTechnicianDiagnosticActions(String repairOrderId){
         try {
             RepairOrderDTO repairOrderDTO = technicianController.requestRepairOrder(repairOrderId);
+            printout("3. Technician - Requested repair order: ", repairOrderDTO);
+
             DiagnosticReportDTO diagnosticReportDTO = new DiagnosticReportDTO("Rusty bike chain");
             technicianController.createDiagnosticReport(diagnosticReportDTO);
+            printout("4. Technician - Created diagnostic report: ", diagnosticReportDTO);
 
             ProposedRepairTaskDTO proposedRepairTaskDTO1 = new ProposedRepairTaskDTO("Replace chain", new Cost(500, "SEK"));
             ProposedRepairTaskDTO proposedRepairTaskDTO2 = new ProposedRepairTaskDTO("Replace gears", new Cost(400, "SEK"));
-
             technicianController.createProposedRepairTask(proposedRepairTaskDTO1);
             technicianController.createProposedRepairTask(proposedRepairTaskDTO2);
-
-            RepairOrderDTO repairOrderDTO2 = receptionistController.requestRepairOrder(repairOrderId);
-            System.err.println(repairOrderDTO2);
-
+            printout("5. Technician - Created proposed repair tasks 01: ", proposedRepairTaskDTO1);
+            printout("6. Technician - Created proposed repair tasks 02: ", proposedRepairTaskDTO2);
         } catch (IllegalArgumentException | IllegalStateException e) {
             System.out.println(ERROR_PREFIX + e.getMessage());
         }
     }
 
-    public void proceedReceptionConfirmationActions(String repairOrderId) {
+    private void proceedReceptionConfirmationActions(String repairOrderId) {
         try {
             RepairOrderDTO repairOrderDTO = receptionistController.requestRepairOrder(repairOrderId);
-            System.out.println(repairOrderDTO);
-
-            System.out.println("----- Printout the order -----");
+            printout("7. Reception - found repair order: ", repairOrderDTO);
+            
+            printout("8. Reception - Accepted order");
             receptionistController.acceptOrder();
+            
             
         } catch (IllegalArgumentException | IllegalStateException e) {
             System.out.println(ERROR_PREFIX + e.getMessage());
         }
+    }
+
+    private void printout(Object... objects) {
+        for (Object object : objects) {
+            System.out.println(object);
+        }
+        System.out.println();
     }
 }
