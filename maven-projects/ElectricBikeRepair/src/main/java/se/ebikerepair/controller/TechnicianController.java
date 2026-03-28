@@ -12,12 +12,14 @@ public class TechnicianController extends Controller {
         super(registryCreator.getRepairOrderRegistry());
     }
 
-    public void createDiagnosticReport(DiagnosticReportDTO diagnosticReportDTO){
+    public void createDiagnosticReport(String repairOrderId, DiagnosticReportDTO diagnosticReportDTO){
+        RepairOrder repairOrder = repairOrderRegistry.findByRepairOrderId(repairOrderId);
         repairOrder.setDiagnosticReportDTO(diagnosticReportDTO);
         repairOrderRegistry.save(repairOrder);
     }
 
-    public void createProposedRepairTask(ProposedRepairTaskDTO proposedRepairTaskDTO){
+    public void createProposedRepairTask(String repairOrderId, ProposedRepairTaskDTO proposedRepairTaskDTO){
+        RepairOrder repairOrder = repairOrderRegistry.findByRepairOrderId(repairOrderId);
         repairOrder.addProposedRepairTask(proposedRepairTaskDTO);
         repairOrderRegistry.save(repairOrder);
     }

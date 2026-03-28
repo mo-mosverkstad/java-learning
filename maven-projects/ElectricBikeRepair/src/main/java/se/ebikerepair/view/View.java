@@ -1,5 +1,7 @@
 package se.ebikerepair.view;
 
+import java.util.List;
+
 import se.ebikerepair.controller.ControllerCreator;
 import se.ebikerepair.controller.ReceptionistController;
 import se.ebikerepair.controller.TechnicianController;
@@ -22,8 +24,8 @@ public class View {
 
     public void proceedActions(String telephoneNumber) {
         String repairOrderId = proceedReceptionPreparationActions(telephoneNumber);
-        proceedTechnicianDiagnosticActions(repairOrderId);
-        proceedReceptionConfirmationActions(repairOrderId);
+        proceedTechnicianDiagnosticActions(telephoneNumber);
+        proceedReceptionConfirmationActions(telephoneNumber);
     }
 
     private String proceedReceptionPreparationActions(String telephoneNumber) {
@@ -32,7 +34,7 @@ public class View {
             CustomerDTO foundCustomer = receptionistController.searchCustomer(telephoneNumber);
             printout("1. Reception - Found customer:", foundCustomer);
 
-            repairOrderId = receptionistController.createRepairOrder(new ProblemDTO("Broken bike chain", foundCustomer.getBikes().get(0)));
+            repairOrderId = receptionistController.createRepairOrder(telephoneNumber, new ProblemDTO("Broken bike chain", foundCustomer.getBikes().get(0)));
             printout("2. Reception - Created repair order with id: ", repairOrderId);
 
         } catch (IllegalArgumentException | IllegalStateException e) {
@@ -41,19 +43,22 @@ public class View {
         return repairOrderId;
     }
 
-    private void proceedTechnicianDiagnosticActions(String repairOrderId){
+    private void proceedTechnicianDiagnosticActions(String telephoneNumber){
         try {
+            List<String> repairOrderIds = technicianController.findRepairOrderIds(telephoneNumber);
+            if (repairOrderIds.isEmpty()) return;
+            String repairOrderId = repairOrderIds.get(0);
             RepairOrderDTO repairOrderDTO = technicianController.requestRepairOrder(repairOrderId);
             printout("3. Technician - Requested repair order: ", repairOrderDTO);
 
             DiagnosticReportDTO diagnosticReportDTO = new DiagnosticReportDTO("Rusty bike chain");
-            technicianController.createDiagnosticReport(diagnosticReportDTO);
+            technicianController.createDiagnosticReport(repairOrderId, diagnosticReportDTO);
             printout("4. Technician - Created diagnostic report: ", diagnosticReportDTO);
 
             ProposedRepairTaskDTO proposedRepairTaskDTO1 = new ProposedRepairTaskDTO("Replace chain", new Cost(500, "SEK"));
             ProposedRepairTaskDTO proposedRepairTaskDTO2 = new ProposedRepairTaskDTO("Replace gears", new Cost(400, "SEK"));
-            technicianController.createProposedRepairTask(proposedRepairTaskDTO1);
-            technicianController.createProposedRepairTask(proposedRepairTaskDTO2);
+            technicianController.createProposedRepairTask(repairOrderId, proposedRepairTaskDTO1);
+            technicianController.createProposedRepairTask(repairOrderId, proposedRepairTaskDTO2);
             printout("5. Technician - Created proposed repair tasks 01: ", proposedRepairTaskDTO1);
             printout("6. Technician - Created proposed repair tasks 02: ", proposedRepairTaskDTO2);
         } catch (IllegalArgumentException | IllegalStateException e) {
@@ -61,13 +66,16 @@ public class View {
         }
     }
 
-    private void proceedReceptionConfirmationActions(String repairOrderId) {
+    private void proceedReceptionConfirmationActions(String telephoneNumber) {
         try {
+            List<String> repairOrderIds = technicianController.findRepairOrderIds(telephoneNumber);
+            if (repairOrderIds.isEmpty()) return;
+            String repairOrderId = repairOrderIds.get(0);
             RepairOrderDTO repairOrderDTO = receptionistController.requestRepairOrder(repairOrderId);
             printout("7. Reception - found repair order: ", repairOrderDTO);
             
             printout("8. Reception - Accepted order");
-            receptionistController.acceptOrder();
+            receptionistController.acceptOrder(repairOrderId);
             
             
         } catch (IllegalArgumentException | IllegalStateException e) {

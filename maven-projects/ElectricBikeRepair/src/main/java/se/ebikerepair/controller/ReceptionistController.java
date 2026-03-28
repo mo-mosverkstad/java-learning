@@ -13,7 +13,7 @@ import se.ebikerepair.printer.Printer;
 public class ReceptionistController extends Controller{
     private final CustomerRegistry customerRegistry;
 
-    private CustomerDTO foundCustomer;
+    // private CustomerDTO foundCustomer;
     private Printer printer;
     
     public ReceptionistController(RegistryCreator registryCreator, Printer printer){
@@ -24,26 +24,29 @@ public class ReceptionistController extends Controller{
 
     public CustomerDTO searchCustomer(String telephoneNumber){
         String phoneNumberE164 = new TelephoneNumber(telephoneNumber).toE164();
-        foundCustomer = customerRegistry.find(phoneNumberE164);
+        CustomerDTO foundCustomer = customerRegistry.find(phoneNumberE164);
         return foundCustomer;
     }
 
-    public String createRepairOrder(ProblemDTO problemDTO) throws IllegalStateException{
+    public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws IllegalStateException{
+        CustomerDTO foundCustomer = searchCustomer(telephoneNumber);
         if (foundCustomer == null) {
             throw new IllegalStateException("No customer found. Call searchCustomer() first.");
         }
-        repairOrder = new RepairOrder(foundCustomer, problemDTO);
+        RepairOrder repairOrder = new RepairOrder(foundCustomer, problemDTO);
         repairOrderRegistry.save(repairOrder);
         return repairOrder.getId();
     }
 
-    public void acceptOrder(){
+    public void acceptOrder(String repairOrderId){
+        RepairOrder repairOrder = repairOrderRegistry.findByRepairOrderId(repairOrderId);
         repairOrder.accept();
         repairOrderRegistry.save(repairOrder);
         printer.print(repairOrder);
     }
 
-    public void rejectOrder(){
+    public void rejectOrder(String repairOrderId){
+        RepairOrder repairOrder = repairOrderRegistry.findByRepairOrderId(repairOrderId);
         repairOrder.reject();
         repairOrderRegistry.save(repairOrder);
     }
