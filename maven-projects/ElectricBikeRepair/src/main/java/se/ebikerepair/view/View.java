@@ -12,6 +12,7 @@ import se.ebikerepair.model.ProblemDTO;
 import se.ebikerepair.model.ProposedRepairTaskDTO;
 import se.ebikerepair.model.RepairOrderDTO;
 import se.ebikerepair.model.Cost;
+import se.ebikerepair.model.ResultDTO;
 
 public class View {
     private static final String ERROR_PREFIX = "Error: ";
@@ -49,14 +50,15 @@ public class View {
             printout("3. Technician - Requested repair order: ", repairOrderDTO);
 
             String repairOrderId = repairOrderDTO.id();
-            DiagnosticReportDTO diagnosticReportDTO = new DiagnosticReportDTO("Rusty bike chain");
-            technicianController.createDiagnosticReport(repairOrderId, diagnosticReportDTO);
-            printout("4. Technician - Created diagnostic report: ", diagnosticReportDTO);
+            int diagnosticTaskIndex = 4;
+            ResultDTO result = new ResultDTO(true, true, "Chain and gears should be replaced.");
+            technicianController.addDiagnosticResult(repairOrderId, diagnosticTaskIndex, result);
+            printout("4. Technician - Created diagnostic report: ", repairOrderDTO.diagnosticReport().getDiagnosticTasks().get(diagnosticTaskIndex));
 
-            ProposedRepairTaskDTO proposedRepairTaskDTO1 = new ProposedRepairTaskDTO("Replace chain", new Cost(500, "SEK"));
-            ProposedRepairTaskDTO proposedRepairTaskDTO2 = new ProposedRepairTaskDTO("Replace gears", new Cost(400, "SEK"));
-            technicianController.createProposedRepairTask(repairOrderId, proposedRepairTaskDTO1);
-            technicianController.createProposedRepairTask(repairOrderId, proposedRepairTaskDTO2);
+            ProposedRepairTaskDTO proposedRepairTaskDTO1 = new ProposedRepairTaskDTO("Replace Chain", "Removal of worn or stretched chain and installation of a new compatible e‑bike chain. Includes lubrication, tension adjustment, and drivetrain alignment check.", new Cost(500, "SEK"), 1);
+            ProposedRepairTaskDTO proposedRepairTaskDTO2 = new ProposedRepairTaskDTO("Replace gears", "Replacement of worn or damaged rear cassette/freewheel or front chainrings. Includes removal of old components, installation of new gear set, indexing and tuning of derailleur(s).", new Cost(400, "SEK"), 2);
+            technicianController.addProposedRepairTask(repairOrderId, proposedRepairTaskDTO1);
+            technicianController.addProposedRepairTask(repairOrderId, proposedRepairTaskDTO2);
             printout("5. Technician - Created proposed repair tasks 01: ", proposedRepairTaskDTO1);
             printout("6. Technician - Created proposed repair tasks 02: ", proposedRepairTaskDTO2);
         } catch (IllegalArgumentException | IllegalStateException e) {

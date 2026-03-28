@@ -23,6 +23,21 @@ public final class PrintoutFormat {
     public static final String PROBLEM_PRINTOUT_FORMAT =
             "    - Description: %s (broken bike: %s)%n";
 
+    public static final String DIAGNOSTIC_TASK_PRINTOUT_FORMAT =
+            "      --------------------------------%n" +
+            "      [%s] %s%n" +
+            "            %s%n" +
+            "      [%s] Cost: %s | Result: %s%n";
+
+    public static final String DIAGNOSTIC_REPORT_PRINTOUT_FORMAT =
+            "    Date: %s%n%s";
+
+    public static final String PROPOSED_REPAIR_TASK_PRINTOUT_FORMAT =
+            "      --------------------------------%n" +
+            "      [%s] %s%n" +
+            "          %s%n" +
+            "           Cost: %s | Est. days: %d%n";
+
     public static final String REPAIR_ORDER_PRINTOUT_FORMAT =
             "=================================%n" +
             "  Repair Order%n" +
@@ -34,7 +49,9 @@ public final class PrintoutFormat {
             "  Total Cost:     %s%n" +
             "  Customer:       %s%n" +
             "  Problem:%n%s" +
-            "  Diagnostic report: %s%n" +
-            "  Proposed repair tasks: %s%n" +
+            "********************************%n" +
+            "  Diagnostic Report:%n%s" +
+            "********************************%n" +
+            "  Proposed Repair Tasks:%n%s" +
             "=================================";
 }

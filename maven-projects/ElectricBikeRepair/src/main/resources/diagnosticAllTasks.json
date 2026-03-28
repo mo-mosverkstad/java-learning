@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Basic Electrical System Check",
+    "description": "A general inspection of the e-bike's electrical components, including wiring, connectors, sensors, and display functionality. Checks for loose connections, corrosion, and obvious cable damage.",
+    "cost": { "amount": 300, "currency": "SEK" },
+    "result": { "checked": false, "toBeRepaired": false, "description": "have not checked yet" }
+  },
+  {
+    "name": "Battery Health & Capacity Test",
+    "description": "Tests the battery's remaining capacity, charge cycles, internal resistance, and voltage output under load. Identifies early signs of cell degradation.",
+    "cost": { "amount": 425, "currency": "SEK" },
+    "result": { "checked": false, "toBeRepaired": false, "description": "have not checked yet" }
+  },
+  {
+    "name": "Motor Diagnostic & Noise Analysis",
+    "description": "Evaluates motor performance, noise levels, internal resistance, torque output, error codes, and abnormal vibration. Includes hub motors or mid-drive systems.",
+    "cost": { "amount": 500, "currency": "SEK" },
+    "result": { "checked": false, "toBeRepaired": false, "description": "have not checked yet" }
+  },
+  {
+    "name": "Controller/ECU Diagnostic Scan",
+    "description": "Reads fault/error codes from the motor controller (ECU), checks MOSFET condition and voltage output, and verifies throttle and PAS (pedal-assist sensor) signals.",
+    "cost": { "amount": 375, "currency": "SEK" },
+    "result": { "checked": false, "toBeRepaired": false, "description": "have not checked yet" }
+  },
+  {
+    "name": "Charger Functionality Test",
+    "description": "Measures charger voltage, consistency, output under load, and connector integrity to ensure safe and stable charging.",
+    "cost": { "amount": 200, "currency": "SEK" },
+    "result": { "checked": false, "toBeRepaired": false, "description": "have not checked yet" }
+  },
+  {
+    "name": "Sensor Calibration & Testing",
+    "description": "Tests and calibrates speed sensor, torque sensor, cadence (PAS) sensor, and brake cutoff sensors. Fixes alignment issues.",
+    "cost": { "amount": 325, "currency": "SEK" },
+    "result": { "checked": false, "toBeRepaired": false, "description": "have not checked yet" }
+  },
+  {
+    "name": "Drivetrain & Mechanical Safety Check",
+    "description": "Ensures gears, chain, brakes, bearings, and frame components work correctly with the electric assist system. Identifies mechanical issues affecting motor load.",
+    "cost": { "amount": 275, "currency": "SEK" },
+    "result": { "checked": false, "toBeRepaired": false, "description": "have not checked yet" }
+  },
+  {
+    "name": "Firmware/Software Diagnostic & Update",
+    "description": "Runs diagnostics through brand-specific tools (Bosch, Shimano STEPS, Yamaha, Bafang, etc.). Updates firmware for motor, display, and battery.",
+    "cost": { "amount": 425, "currency": "SEK" },
+    "result": { "checked": false, "toBeRepaired": false, "description": "have not checked yet" }
+  },
+  {
+    "name": "Range & Performance Evaluation",
+    "description": "Measures real-world range using controlled load testing. Evaluates assist levels, battery drains, and how mechanical issues impact power consumption.",
+    "cost": { "amount": 575, "currency": "SEK" },
+    "result": { "checked": false, "toBeRepaired": false, "description": "have not checked yet" }
+  },
+  {
+    "name": "Full E-Bike Diagnostic Package",
+    "description": "Includes complete electrical inspection, battery test, motor test, sensor calibration, and mechanical safety check. Provides a diagnostic report with repair suggestions.",
+    "cost": { "amount": 1000, "currency": "SEK" },
+    "result": { "checked": false, "toBeRepaired": false, "description": "have not checked yet" }
+  }
+]

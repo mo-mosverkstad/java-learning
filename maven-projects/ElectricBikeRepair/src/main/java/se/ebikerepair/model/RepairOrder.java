@@ -19,7 +19,7 @@ public class RepairOrder {
     private Date estimatedCompleteDate;
     private Cost totalCost;
     private RepairOrderState repairOrderState;
-    private DiagnosticReportDTO diagnosticReportDTO;
+    private DiagnosticReportDTO diagnosticReport;
     private List<ProposedRepairTaskDTO> proposedRepairTasks;
     private String id;
 
@@ -29,6 +29,7 @@ public class RepairOrder {
         this.createdDate = new Date();
         this.totalCost = new Cost();
         this.repairOrderState = RepairOrderState.NewlyCreated;
+        this.diagnosticReport = new DiagnosticReportDTO();
         this.proposedRepairTasks = new ArrayList<>();
         this.id = UUID.randomUUID().toString();
     }
@@ -57,17 +58,25 @@ public class RepairOrder {
         return repairOrderState;
     }
 
-    public void setDiagnosticReportDTO(DiagnosticReportDTO diagnosticReportDTO){
-        this.diagnosticReportDTO = diagnosticReportDTO;
+    public void setDiagnosticReport(DiagnosticReportDTO diagnosticReport){
+        this.diagnosticReport = diagnosticReport;
     }
 
-    public DiagnosticReportDTO getDiagnosticReportDTO(){
-        return diagnosticReportDTO;
+    public DiagnosticReportDTO getDiagnosticReport(){
+        return diagnosticReport;
     }
 
     public void addProposedRepairTask(ProposedRepairTaskDTO proposedRepairTask){
         proposedRepairTasks.add(proposedRepairTask);
         totalCost.calculate(proposedRepairTask.getCost());
+        if (estimatedCompleteDate == null) {
+            estimatedCompleteDate = createdDate;
+        }
+        estimatedCompleteDate = new Date(estimatedCompleteDate.getTime() + (long)proposedRepairTask.getEstimatedDays() * 24 * 60 * 60 * 1000);
+    }
+
+    public void calculateCostByDiagnosticTask(int diagnosticTaskIndex) {
+        totalCost.calculate(diagnosticReport.getDiagnosticTasks().get(diagnosticTaskIndex).getCost());
     }
 
     public String getId(){
@@ -90,7 +99,7 @@ public class RepairOrder {
             estimatedCompleteDate,
             totalCost,
             repairOrderState,
-            diagnosticReportDTO,
+            diagnosticReport,
             proposedRepairTasks,
             id
         );
@@ -99,6 +108,6 @@ public class RepairOrder {
     @Override
     public String toString() {
         return RepairOrderDTO.format(id, repairOrderState, createdDate,
-                estimatedCompleteDate, totalCost, customerDTO.getName(), problemDTO, diagnosticReportDTO, proposedRepairTasks);
+                estimatedCompleteDate, totalCost, customerDTO.getName(), problemDTO, diagnosticReport, proposedRepairTasks);
     }
 }

@@ -5,7 +5,8 @@ import se.ebikerepair.model.RepairOrderDTO;
 import se.ebikerepair.integration.RepairOrderRegistry;
 import se.ebikerepair.util.TelephoneNumber;
 import java.util.List;
-import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
 public class Controller {
     protected final RepairOrderRegistry repairOrderRegistry;
@@ -19,11 +20,10 @@ public class Controller {
     private List<String> findRepairOrderIds(String telephoneNumber){
         String phoneNumberE164 = new TelephoneNumber(telephoneNumber).toE164();
         List<RepairOrder> repairOrders = repairOrderRegistry.findRepairOrdersByTelephoneNumber(phoneNumberE164);
-        List<String> repairOrderIds = new ArrayList<>();
-        for (RepairOrder repairOrder : repairOrders){
-            repairOrderIds.add(repairOrder.getId());
-        }
-        return repairOrderIds;
+        return repairOrders.stream()
+                .sorted(Comparator.comparing(RepairOrder::getCreatedDate).reversed())
+                .map(RepairOrder::getId)
+                .collect(Collectors.toList());
     }
 
     public RepairOrderDTO findRepairOrder(String telephoneNumber) throws IllegalArgumentException{
