@@ -16,8 +16,7 @@ import se.ebikerepair.printer.Printer;
 public class ReceptionistController extends Controller{
     private final CustomerRegistry customerRegistry;
 
-    // private CustomerDTO foundCustomer;
-    private Printer printer;
+    private final Printer printer;
     
     /**
      * Creates a receptionist controller with access to registries and a printer.

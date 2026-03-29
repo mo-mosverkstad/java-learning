@@ -40,9 +40,13 @@ public class Cost {
      *
      * @param another the cost to add
      * @throws NullPointerException if another is null
+     * @throws IllegalArgumentException if the currencies don't match
      */
-    public void calculate(Cost another) throws NullPointerException{
+    public void calculate(Cost another) throws NullPointerException, IllegalArgumentException{
         if (another == null) throw new NullPointerException();
+        if (!this.currency.equals(another.currency)){
+            throw new IllegalArgumentException(String.format("Currency mismatch between %s and %s", this.currency, another.currency));
+        }
         this.amount += another.amount;
     }
 

@@ -21,10 +21,4 @@ public class Main {
         View view = new View(controllerCreator);
         view.proceedActions("0707654321", "SK-2024-055");
     }
-
-    /*
-    public int add(int x, int y) {
-        return x + y;
-    }
-    */
 }

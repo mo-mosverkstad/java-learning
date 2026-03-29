@@ -1,16 +1,14 @@
 package se.ebikerepair.model;
 
-import se.ebikerepair.model.Cost;
-import se.ebikerepair.model.Result;
-
+import se.ebikerepair.constant.PrintoutFormat;
 /**
  * Data transfer object representing a diagnostic task with name, description, cost, and result.
  */
 public class DiagnosticTaskDTO {
-    public final String name;
-    public final String description;
-    public final Cost cost;
-    public final Result result;
+    private final String name;
+    private final String description;
+    private final Cost cost;
+    private final Result result;
 
     /**
      * Creates a diagnostic task with a default unchecked result.
@@ -49,7 +47,7 @@ public class DiagnosticTaskDTO {
     public String toString(){
         String status = result.getChecked() ? "X" : " ";
         String repairStatus = result.getToBeRepaired() ? "TO BE REPAIRED" : " ";
-        return String.format(se.ebikerepair.constant.PrintoutFormat.DIAGNOSTIC_TASK_PRINTOUT_FORMAT,
+        return String.format(PrintoutFormat.DIAGNOSTIC_TASK_PRINTOUT_FORMAT,
                 status, name, description, repairStatus, cost, result.getDescription());
     }
 }

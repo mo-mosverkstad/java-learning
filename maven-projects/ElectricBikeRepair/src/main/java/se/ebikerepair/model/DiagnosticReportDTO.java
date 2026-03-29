@@ -1,6 +1,7 @@
 package se.ebikerepair.model;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.stream.Collectors;
 
@@ -14,13 +15,17 @@ import se.ebikerepair.util.JsonFileHandler;
 public class DiagnosticReportDTO {
     private final Date date;
     private final List<DiagnosticTaskDTO> diagnosticTasks;
+    private static final List<DiagnosticTaskDTO> DIAGNOSTIC_TASKS = new JsonFileHandler("diagnosticTasks.json").readList(DiagnosticTaskDTO.class);
     
     /**
      * Creates a diagnostic report with the current date and loads diagnostic tasks from JSON.
      */
     public DiagnosticReportDTO(){
         this.date = new Date();
-        this.diagnosticTasks = new JsonFileHandler("diagnosticTasks.json").readList(DiagnosticTaskDTO.class);
+        this.diagnosticTasks = DIAGNOSTIC_TASKS.stream()
+                .map(t -> new DiagnosticTaskDTO(t.getName(), t.getDescription(),
+                        new Cost(t.getCost().getAmount(), t.getCost().getCurrency())))
+                .collect(Collectors.toList());
     }
 
     /** @return the date the report was created */

@@ -72,4 +72,42 @@ class TechnicianControllerTest {
         assertThrows(IllegalStateException.class, () ->
                 techController.addProposedRepairTask("nonexistent", new ProposedRepairTaskDTO("Fix", "Fix it", new Cost(100, "SEK"), 1)));
     }
+
+    @Test
+    void testAddDiagnosticResultInvalidIndex() {
+        assertThrows(IndexOutOfBoundsException.class, () ->
+                techController.addDiagnosticResult(repairOrderId, 999, new ResultDTO(true, true, "Test")));
+    }
+
+    @Test
+    void testAddDiagnosticResultOrderNotFound() {
+        assertThrows(IllegalStateException.class, () ->
+                techController.addDiagnosticResult("nonexistent", 0, new ResultDTO(true, true, "Test")));
+    }
+
+    @Test
+    void testAddMultipleProposedRepairTasks() {
+        ProposedRepairTaskDTO task1 = new ProposedRepairTaskDTO("Task1", "Desc1", new Cost(300, "SEK"), 1);
+        ProposedRepairTaskDTO task2 = new ProposedRepairTaskDTO("Task2", "Desc2", new Cost(200, "SEK"), 2);
+        techController.addProposedRepairTask(repairOrderId, task1);
+        techController.addProposedRepairTask(repairOrderId, task2);
+
+        RepairOrderDTO dto = techController.findRepairOrder("0707654321");
+        assertEquals(2, dto.proposedRepairTasks().size());
+        assertEquals(500.0F, dto.totalCost().getAmount());
+    }
+
+    @Test
+    void testFindRepairOrderByName() {
+        RepairOrderDTO dto = techController.findRepairOrder("0707654321");
+        int index = dto.findTaskIndexByName("Electrical");
+        assertTrue(index >= 0);
+    }
+
+    @Test
+    void testFindRepairOrderByNameNotFound() {
+        RepairOrderDTO dto = techController.findRepairOrder("0707654321");
+        int index = dto.findTaskIndexByName("NonExistentTask");
+        assertEquals(-1, index);
+    }
 }

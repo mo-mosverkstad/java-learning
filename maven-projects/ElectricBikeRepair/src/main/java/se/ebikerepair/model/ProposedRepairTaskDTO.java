@@ -1,7 +1,5 @@
 package se.ebikerepair.model;
 
-import se.ebikerepair.model.Cost;
-
 /**
  * Data transfer object representing a proposed repair task with name, description, cost, and estimated days.
  */

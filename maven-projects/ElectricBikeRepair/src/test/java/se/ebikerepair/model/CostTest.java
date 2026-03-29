@@ -10,6 +10,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class CostTest {
     @Test
+    void testDefaultConstructor(){
+        Cost cost = new Cost();
+        assertEquals(0, cost.getAmount());
+        assertEquals("SEK", cost.getCurrency());
+    }
+
+    @Test
     void addTwo(){
         Cost cost1 = new Cost(120.0F, "SEK");
         Cost cost2 = new Cost(530.0F, "SEK");
@@ -51,5 +58,20 @@ public class CostTest {
         cost1.calculate(cost2);
 
         assertEquals(cost1.getAmount(), Float.MAX_VALUE);
+    }
+
+    @Test
+    void addCurrencyMismatch(){
+        Cost sek = new Cost(500.0F, "SEK");
+        Cost eur = new Cost(100.0F, "EUR");
+        assertThrows(IllegalArgumentException.class, () -> sek.calculate(eur));
+        assertEquals(500.0F, sek.getAmount());
+    }
+
+    @Test
+    void testToString(){
+        Cost cost = new Cost(123.456F, "SEK");
+        assertTrue(cost.toString().contains("SEK"));
+        assertTrue(cost.toString().contains("123"));
     }
 }

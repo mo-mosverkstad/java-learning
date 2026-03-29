@@ -12,8 +12,8 @@ import se.ebikerepair.model.RepairOrder;
  * Registry for storing and retrieving repair orders, indexed by order ID and customer telephone number.
  */
 public class RepairOrderRegistry{
-    private Map<String, RepairOrder> repairOrdersByRepairOrderId;
-    private Map<String, List<RepairOrder>> repairOrdersByTelephoneNumber;
+    private final Map<String, RepairOrder> repairOrdersByRepairOrderId;
+    private final Map<String, List<RepairOrder>> repairOrdersByTelephoneNumber;
 
     /**
      * Creates an empty repair order registry.
@@ -61,6 +61,7 @@ public class RepairOrderRegistry{
             if (repairOrders.get(i).getId().equals(repairOrder.getId())){
                 repairOrders.set(i, repairOrder);
                 addNew = false;
+                break;
             }
         }
         if (addNew){

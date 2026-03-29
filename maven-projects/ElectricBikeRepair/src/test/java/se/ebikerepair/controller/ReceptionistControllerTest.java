@@ -82,4 +82,28 @@ class ReceptionistControllerTest {
         RepairOrderDTO dto = controller.findRepairOrder("0707654321");
         assertEquals(RepairOrderState.Rejected, dto.repairOrderState());
     }
+
+    @Test
+    void testRejectOrderNotFound() {
+        assertThrows(IllegalStateException.class, () -> controller.rejectRepairOrder("nonexistent-id"));
+    }
+
+    @Test
+    void testSearchCustomerWithSpaces() {
+        CustomerDTO customer = controller.searchCustomer("070-765 43 21");
+        assertNotNull(customer);
+        assertEquals("Astrid Johansson", customer.getName());
+    }
+
+    @Test
+    void testCreateAndFindRepairOrder() {
+        CustomerDTO customer = controller.searchCustomer("0707654321");
+        BikeDTO bike = customer.getBikes().get(0);
+        controller.createRepairOrder("0707654321", new ProblemDTO("Broken chain", bike));
+
+        RepairOrderDTO dto = controller.findRepairOrder("0707654321");
+        assertNotNull(dto);
+        assertEquals("Astrid Johansson", dto.customerDTO().getName());
+        assertEquals(RepairOrderState.NewlyCreated, dto.repairOrderState());
+    }
 }

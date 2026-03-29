@@ -51,7 +51,7 @@ public class TechnicianController extends Controller {
         if (repairOrder == null) {
             throw new IllegalStateException("Repair order not found for id: " + repairOrderId);
         }
-        repairOrder.getDiagnosticReport().getDiagnosticTasks().get(diagnosticTaskIndex).getResult().update(result);
+        repairOrder.updateDiagnosticResult(diagnosticTaskIndex, result);
         repairOrder.calculateCostByDiagnosticTask(diagnosticTaskIndex);
         repairOrderRegistry.save(repairOrder);
     }

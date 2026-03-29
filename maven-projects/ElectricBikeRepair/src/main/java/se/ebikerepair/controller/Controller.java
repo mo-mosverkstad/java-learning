@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
  */
 public class Controller {
     protected final RepairOrderRegistry repairOrderRegistry;
-    // protected RepairOrder repairOrder;
 
     /**
      * Creates a controller with the given repair order registry.
@@ -22,7 +21,6 @@ public class Controller {
      */
     public Controller(RepairOrderRegistry repairOrderRegistry){
         this.repairOrderRegistry = repairOrderRegistry;
-        // this.repairOrder = null;
     }
 
     private List<String> findRepairOrderIds(String telephoneNumber){

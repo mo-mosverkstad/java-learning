@@ -54,14 +54,15 @@ public class CustomerDTO {
      *
      * @param serialNumber the serial number to search for
      * @return the matching bike, or null if not found
+     * @throws IllegalArgumentException if the serial number is not found
      */
-    public BikeDTO getBikeBySerialNumber(String serialNumber){
+    public BikeDTO getBikeBySerialNumber(String serialNumber) throws IllegalArgumentException{
         for (BikeDTO bike : bikes) {
             if (bike.getSerialNumber().equals(serialNumber)) {
                 return bike;
             }
         }
-        return null;
+        throw new IllegalArgumentException(String.format("No bike found with serial number %s", serialNumber));
     }
 
     @Override

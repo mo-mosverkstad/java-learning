@@ -6,11 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import se.ebikerepair.integration.CustomerDTO;
-import se.ebikerepair.model.ProblemDTO;
-import se.ebikerepair.model.RepairOrderState;
-import se.ebikerepair.model.Cost;
-import se.ebikerepair.model.RepairOrderDTO;
-import se.ebikerepair.model.DiagnosticReportDTO;
+
 
 /**
  * Represents a repair order with customer, problem, diagnostic report, proposed tasks, and lifecycle state.
@@ -99,6 +95,16 @@ public class RepairOrder {
             estimatedCompleteDate = createdDate;
         }
         estimatedCompleteDate = new Date(estimatedCompleteDate.getTime() + (long)proposedRepairTask.getEstimatedDays() * 24 * 60 * 60 * 1000);
+    }
+
+    /**
+     * Updates the diagnostic task
+     *
+     * @param index the index of the diagnostic task to update
+     * @param result the result to update with
+     */
+    public void updateDiagnosticResult(int index, ResultDTO result){
+        diagnosticReport.getDiagnosticTasks().get(index).getResult().update(result);
     }
 
     /**
