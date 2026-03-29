@@ -3,7 +3,7 @@ package se.ebikerepair.controller;
 import org.junit.jupiter.api.Test;
 
 import se.ebikerepair.integration.RegistryCreator;
-import se.ebikerepair.printer.Printer;
+import se.ebikerepair.integration.Printer;
 
 import static org.junit.jupiter.api.Assertions.*;
 

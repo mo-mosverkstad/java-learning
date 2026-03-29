@@ -157,6 +157,6 @@ public class RepairOrder {
     @Override
     public String toString() {
         return RepairOrderDTO.format(id, repairOrderState, createdDate,
-                estimatedCompleteDate, totalCost, customerDTO.getName(), problemDTO, diagnosticReport, proposedRepairTasks);
+                estimatedCompleteDate, totalCost, customerDTO, problemDTO, diagnosticReport, proposedRepairTasks);
     }
 }

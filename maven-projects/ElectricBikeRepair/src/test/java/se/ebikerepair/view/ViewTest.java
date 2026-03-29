@@ -8,7 +8,7 @@ import se.ebikerepair.controller.ControllerCreator;
 import se.ebikerepair.integration.RegistryCreator;
 import se.ebikerepair.model.RepairOrderDTO;
 import se.ebikerepair.model.RepairOrderState;
-import se.ebikerepair.printer.Printer;
+import se.ebikerepair.integration.Printer;
 
 import static org.junit.jupiter.api.Assertions.*;
 

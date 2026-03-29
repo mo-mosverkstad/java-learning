@@ -8,7 +8,7 @@ import se.ebikerepair.integration.RepairOrderRegistry;
 import se.ebikerepair.util.TelephoneNumber;
 import se.ebikerepair.model.ProblemDTO;
 import se.ebikerepair.model.RepairOrderDTO;
-import se.ebikerepair.printer.Printer;
+import se.ebikerepair.integration.Printer;
 
 /**
  * Controller handling receptionist operations: customer search, repair order creation, acceptance and rejection.

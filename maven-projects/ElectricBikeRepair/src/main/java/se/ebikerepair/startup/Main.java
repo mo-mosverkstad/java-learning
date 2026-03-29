@@ -2,7 +2,7 @@ package se.ebikerepair.startup;
 
 import se.ebikerepair.controller.ControllerCreator;
 import se.ebikerepair.integration.RegistryCreator;
-import se.ebikerepair.printer.Printer;
+import se.ebikerepair.integration.Printer;
 import se.ebikerepair.view.View;
 
 /**

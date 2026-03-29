@@ -66,10 +66,6 @@ public class View {
 
             String repairOrderId = repairOrderDTO.id();
             int diagnosticTaskIndex = repairOrderDTO.findTaskIndexByName("Mechanical Safety Check");
-            if (diagnosticTaskIndex < 0) {
-                System.out.println(ERROR_PREFIX + "Diagnostic task 'Mechanical Safety Check' not found");
-                return;
-            }
             ResultDTO result = new ResultDTO(true, true, "Chain and gears should be replaced.");
             technicianController.addDiagnosticResult(repairOrderId, diagnosticTaskIndex, result);
             printout("4. Technician - Created diagnostic report: ", repairOrderDTO.diagnosticReport().getDiagnosticTasks().get(diagnosticTaskIndex));

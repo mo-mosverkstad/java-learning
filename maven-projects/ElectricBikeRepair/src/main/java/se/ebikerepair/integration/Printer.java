@@ -1,4 +1,4 @@
-package se.ebikerepair.printer;
+package se.ebikerepair.integration;
 
 import se.ebikerepair.model.RepairOrder;
 

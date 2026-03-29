@@ -1,7 +1,7 @@
 package se.ebikerepair.controller;
 
 import se.ebikerepair.integration.RegistryCreator;
-import se.ebikerepair.printer.Printer;
+import se.ebikerepair.integration.Printer;
 
 /**
  * Factory class that creates and provides access to all controllers.

@@ -59,10 +59,20 @@ class DiagnosticReportDTOTest {
     }
 
     @Test
+    void testDescriptionIsSet() {
+        DiagnosticReportDTO report = new DiagnosticReportDTO();
+        assertNotNull(report.getDescription());
+        assertTrue(report.getDescription().contains("pre-defined diagnostic tasks"));
+        assertTrue(report.getDescription().contains("Please check"));
+    }
+
+    @Test
     void testToString() {
         DiagnosticReportDTO report = new DiagnosticReportDTO();
         String str = report.toString();
         assertNotNull(str);
         assertTrue(str.contains("Date:"));
+        assertTrue(str.contains("Description:"));
+        assertTrue(str.contains("pre-defined diagnostic tasks"));
     }
 }

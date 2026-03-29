@@ -22,17 +22,23 @@ public record RepairOrderDTO(
     @Override
     public String toString() {
         return format(id, repairOrderState, createdDate, estimatedCompleteDate,
-                totalCost, customerDTO.getName(), problemDTO, diagnosticReport, proposedRepairTasks);
+                totalCost, customerDTO, problemDTO, diagnosticReport, proposedRepairTasks);
     }
 
     /**
      * Finds diagnostic task index by a search name.
      * @param name Search name (partial match)
-     * @return the index of the task if found, otherwise -1
+     * @return the index of the task
+     * @throws IllegalArgumentException if no task matches the given name
      */
     public int findTaskIndexByName(String name){
         List<DiagnosticTaskDTO> tasks = diagnosticReport.getDiagnosticTasks();
-        return tasks.indexOf(tasks.stream().filter(t -> t.getName().contains(name)).findFirst().orElse(null));
+        for (int i = 0; i < tasks.size(); i++) {
+            if (tasks.get(i).getName().contains(name)) {
+                return i;
+            }
+        }
+        throw new IllegalArgumentException("Diagnostic task not found: " + name);
     }
 
     /**
@@ -44,19 +50,19 @@ public record RepairOrderDTO(
      * @param created the creation date
      * @param estComplete the estimated completion date, or null
      * @param cost the total cost
-     * @param customerName the customer's name
+     * @param customer the customer DTO
      * @param problem the problem description
      * @param diagnosticReport the diagnostic report, or null
      * @param proposedRepairTasks the list of proposed repair tasks, or null/empty
      * @return the formatted printout string
      */
     static String format(String id, RepairOrderState state, Date created,
-            Date estComplete, Cost cost, String customerName, ProblemDTO problem, DiagnosticReportDTO diagnosticReport, List<ProposedRepairTaskDTO> proposedRepairTasks) {
+            Date estComplete, Cost cost, CustomerDTO customer, ProblemDTO problem, DiagnosticReportDTO diagnosticReport, List<ProposedRepairTaskDTO> proposedRepairTasks) {
         String estCompleteStr = estComplete != null ? estComplete.toString() : "N/A";
         String diagStr = diagnosticReport != null ? diagnosticReport.toString() : "      (none)\n";
         String tasksStr = proposedRepairTasks == null || proposedRepairTasks.isEmpty() ? "      (none)\n" :
                 proposedRepairTasks.stream().map(ProposedRepairTaskDTO::toString).collect(Collectors.joining());
         return String.format(PrintoutFormat.REPAIR_ORDER_PRINTOUT_FORMAT,
-                id, state, created, estCompleteStr, cost, customerName, problem, diagStr, tasksStr);
+                id, state, created, estCompleteStr, cost, customer.toInlineString(), problem, diagStr, tasksStr);
     }
 }

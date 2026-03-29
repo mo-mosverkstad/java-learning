@@ -134,6 +134,11 @@ public class RepairOrderTest {
         assertNotNull(str);
         assertTrue(str.contains("Repair Order"));
         assertTrue(str.contains(order.getId()));
+        assertTrue(str.contains("Customer:"));
+        assertTrue(str.contains("- Name:"));
+        assertTrue(str.contains("Test"));
+        assertTrue(str.contains("+46701234567"));
+        assertTrue(str.contains("test@example.com"));
     }
 
     private RepairOrder createOrder() {

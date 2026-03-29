@@ -14,7 +14,9 @@ import se.ebikerepair.util.JsonFileHandler;
  */
 public class DiagnosticReportDTO {
     private final Date date;
+    private final String description;
     private final List<DiagnosticTaskDTO> diagnosticTasks;
+    private static final String DEFAULT_DESCRIPTION = "This report contains pre-defined diagnostic tasks for e-bike inspection. Please check each task and record the result.";
     private static final List<DiagnosticTaskDTO> DIAGNOSTIC_TASKS = new JsonFileHandler("diagnosticTasks.json").readList(DiagnosticTaskDTO.class);
     
     /**
@@ -22,6 +24,7 @@ public class DiagnosticReportDTO {
      */
     public DiagnosticReportDTO(){
         this.date = new Date();
+        this.description = DEFAULT_DESCRIPTION;
         this.diagnosticTasks = DIAGNOSTIC_TASKS.stream()
                 .map(t -> new DiagnosticTaskDTO(t.getName(), t.getDescription(),
                         new Cost(t.getCost().getAmount(), t.getCost().getCurrency())))
@@ -31,6 +34,11 @@ public class DiagnosticReportDTO {
     /** @return the date the report was created */
     public Date getDate(){
         return date;
+    }
+    
+    /** @return the description of the report */
+    public String getDescription(){
+        return description;
     }
 
     /** @return the list of diagnostic tasks */
@@ -42,6 +50,6 @@ public class DiagnosticReportDTO {
     public String toString(){
         String tasksStr = diagnosticTasks.isEmpty() ? "      (none)\n" :
                 diagnosticTasks.stream().map(DiagnosticTaskDTO::toString).collect(Collectors.joining());
-        return String.format(PrintoutFormat.DIAGNOSTIC_REPORT_PRINTOUT_FORMAT, date, tasksStr);
+        return String.format(PrintoutFormat.DIAGNOSTIC_REPORT_PRINTOUT_FORMAT, date, description, tasksStr);
     }
 }

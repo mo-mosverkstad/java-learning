@@ -65,6 +65,19 @@ public class CustomerDTO {
         throw new IllegalArgumentException(String.format("No bike found with serial number %s", serialNumber));
     }
 
+    /**
+     * Returns an inline formatted string for use inside repair order printouts (without borders).
+     *
+     * @return the inline formatted customer string
+     */
+    public String toInlineString() {
+        String bikesStr = bikes == null || bikes.isEmpty() ? PrintoutFormat.BIKE_PRINTOUT_EMPTY :
+                bikes.stream().map(b -> String.format(PrintoutFormat.BIKE_PRINTOUT_FORMAT,
+                        b.getBrand(), b.getModel(), b.getSerialNumber()))
+                        .collect(Collectors.joining());
+        return String.format(PrintoutFormat.CUSTOMER_INLINE_PRINTOUT_FORMAT, name, telephoneNumber, emailAddress, bikesStr);
+    }
+
     @Override
     public String toString() {
         String bikesStr = bikes == null || bikes.isEmpty() ? PrintoutFormat.BIKE_PRINTOUT_EMPTY :

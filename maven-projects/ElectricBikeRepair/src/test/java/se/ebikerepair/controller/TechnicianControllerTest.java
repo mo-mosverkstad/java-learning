@@ -7,7 +7,7 @@ import se.ebikerepair.integration.BikeDTO;
 import se.ebikerepair.integration.CustomerDTO;
 import se.ebikerepair.integration.RegistryCreator;
 import se.ebikerepair.model.*;
-import se.ebikerepair.printer.Printer;
+import se.ebikerepair.integration.Printer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -107,7 +107,6 @@ class TechnicianControllerTest {
     @Test
     void testFindRepairOrderByNameNotFound() {
         RepairOrderDTO dto = techController.findRepairOrder("0707654321");
-        int index = dto.findTaskIndexByName("NonExistentTask");
-        assertEquals(-1, index);
+        assertThrows(IllegalArgumentException.class, () -> dto.findTaskIndexByName("NonExistentTask"));
     }
 }

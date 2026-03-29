@@ -24,8 +24,15 @@ public final class PrintoutFormat {
             "  Bikes:%n%s" +
             "=================================";
 
+    public static final String CUSTOMER_INLINE_PRINTOUT_FORMAT =
+            "  - Name:      %s%n" +
+            "  - Phone:     %s%n" +
+            "  - Email:     %s%n" +
+            "  - Bikes:%n%s";
+
     public static final String PROBLEM_PRINTOUT_FORMAT =
-            "    - Description: %s (broken bike: %s)%n";
+            "    - Description: %s%n" +
+            "    - Broken bike: %s%n";
 
     public static final String DIAGNOSTIC_TASK_PRINTOUT_FORMAT =
             "      --------------------------------%n" +
@@ -34,7 +41,8 @@ public final class PrintoutFormat {
             "      [%s] Cost: %s | Result: %s%n";
 
     public static final String DIAGNOSTIC_REPORT_PRINTOUT_FORMAT =
-            "    Date: %s%n%s";
+            "    Date: %s%n" +
+            "    Description: %s%n%s";
 
     public static final String PROPOSED_REPAIR_TASK_PRINTOUT_FORMAT =
             "      --------------------------------%n" +
@@ -51,7 +59,9 @@ public final class PrintoutFormat {
             "  Created:        %s%n" +
             "  Est. Complete:  %s%n" +
             "  Total Cost:     %s%n" +
-            "  Customer:       %s%n" +
+            "********************************%n" +
+            "  Customer:%n%s" +
+            "********************************%n" +
             "  Problem:%n%s" +
             "********************************%n" +
             "  Diagnostic Report:%n%s" +
