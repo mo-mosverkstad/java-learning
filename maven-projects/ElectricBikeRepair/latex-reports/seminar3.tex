@@ -74,22 +74,33 @@ It is furthermore declared that no part of the solution has been copied from any
 
 % \textbf{This chapter tells \textit{what} are you going to do.} Explain the task and the requirements on the solution. It's important to clearly state the requirements.
 
-This report delves into the implementation of a software system that manages electric bike repair processes in code. The code implementation are based on class diagrams in terms of structure as well as the communication diagram for each system operation in terms of functionality and behavior. Using these methods, the structure of the program can be outlined. Additionally, the program also involves
-
-This report concerns the implementation of a software system for managing repair processes in an
-electric bike workshop. The system design is based on given requirement specification
-with both normal and alternative workflow scenarios.
+This report delves into the implementation of a software system that manages electric bike repair processes in code. The code implementation are based on class diagrams in terms of structure as well as the communication diagram for each system operation in terms of functionality and behavior. Using these methods, the structure of the program can be outlined. Additionally, rigorous testing using JUnit tests are also included in code implementations.
 
 \subsection{Requirements of Seminar 3}
-Requirements \dots
 
-\subsection{Implementing code on system operation diagrams}
-System diagrams are implemented as code ...
+The requirements of seminar 3 consists of two main task: program implementation and unit tests. In terms of code implementation, only the basic flow and startup sequences needs to be designed, whereas alternative flows can be currently omitted. These tasks are mainly covered in course literature \texttt{A First Course in Object-Oriented Development}, particularily Chapter~6 and Chapter~7.
+
+The programming requirements includes:
+\begin{itemize}
+    \item The program must be compilable and executable, producing the intended behavior as the customer specification, whereas all the implementation are written in Java.
+    \item The user interface is replaced by a single View class that contains hard-coded calls to the controller. The class prints out all outputs returned by the controller, including the repair order printout, to \texttt{System.out}.
+    \item Database and external systems can be omitted in this seminar. Instead of storing relevant data into database or secondary storage, the integration layer classes stores the data in memory. In this case, external systems are represented by placeholder objects.
+    \item Exceptions are not used
+    \item The code follows all guidelines from Chapter 6 of the course book, including naming conventions, cohesion, coupling, encapsulation and one Javadoc comment for each public method interface declaration.
+\end{itemize}
+
+Unit Testing Requirements includes writing unit tests that cover all classes in the controller, model and integration layers, except DTO classes that only contains simple constructors and getters. Additionally, methods that prints out to \texttt{System.out} does not need to be tested.
+
+\subsection{Implementing code on class diagram and system operation diagrams}
+Class diagram and system operation diagrams that uses communication diagrams that are implemented in seminar 2 facilitates code implementation since both the large-scale architecture and class layouts are already written out. These can act as a primary reference for creating relevant packages and classes. With the help of the interaction diagrams, each system operation can be designed according to these.
 
 \section{Method}
 
 % \textbf{This chapter tells \textit{how} you solved the task.} Explain how you worked and what tools you used when solving the tasks. \textit{Do not explain your solution and do not present entire sub-results in detail. It's enough to explain which steps you performed and perhaps give a short example.} For example, some of the things to explain in the report for seminar one, is that you used a category list and noun identification to find class candidates for the domain model, and to tell which UML editor you used.
 % Goal: Explain how you worked (not the solution itself)
+
+In the Method chapter of this report, the development process must be explained, including how code structure, layering, and design decisions were made. 
+The Method chapter must explain how the tests were designed and how test cases were selected.
 
 \subsection{Dividing code in packages}
 
@@ -189,6 +200,8 @@ Javadoc should state what a unit does — **not how** — and must document **me
       *   Use it as:
           *   `if (isUnixEol(ch))`
 * **Complicated Flow Control**: Poorly structured **if‑statements and loops** become confusing when deeply nested or filled with unnecessary flags, making the logic hard to understand.
+
+\subsection{Testing}
 
 
 \section{Result}
