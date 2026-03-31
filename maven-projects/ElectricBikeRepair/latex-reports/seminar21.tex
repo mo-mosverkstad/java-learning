@@ -1,0 +1,465 @@
+\documentclass[a4paper]{scrartcl}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{textcomp}
+\usepackage{amsmath}
+\usepackage{lastpage}
+\usepackage{pgf}
+\usepackage{wrapfig}
+\usepackage{fancyvrb}
+
+% Listing header
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{lightgray}{gray}{0.95}
+
+\lstdefinestyle{javastyle}{
+    backgroundcolor=\color{lightgray},
+    basicstyle=\ttfamily\small,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=8pt,
+    frame=single,
+    showstringspaces=false,
+    breaklines=true,
+    breakautoindent=true,
+    breakindent=2em,
+    keepspaces=true,
+    columns=fullflexible,
+    tabsize=4,
+    language=Java,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray!70},
+    stringstyle=\color{orange!90!black}
+}
+
+% Create header and footer
+\headheight 27pt
+\pagestyle{fancyplain}
+\lhead{\footnotesize{Object-Oriented Design, IV1350}}
+\chead{\footnotesize{Seminar 2 Solution}}
+\rhead{}
+\lfoot{}
+\cfoot{\thepage\ (\pageref{LastPage})}
+\rfoot{}
+
+% Create title page
+\title{Seminar 2}
+\subtitle{Object-Oriented Design, IV1350}
+\author{Mo Wang mowang@ug.kth.se}
+%\date{\today} Prints today's date
+\date{2026-03-30}
+
+\begin{document}
+
+\maketitle
+\noindent\textbf{Project Members:} \\ \hfill
+% \tableofcontents %Generates the TOC
+[Mo Wang, mowang@ug.kth.se]
+
+\section*{Declaration:}
+
+By submitting this assignment, it is hereby declared that all group members listed above have contributed to the solution. It is also declared that all project members fully understand all parts of the final solution and can explain it upon request.
+
+It is furthermore declared that no part of the solution has been copied from any other source (except for resources presented in the Canvas page for the course IV1350), and that no part of the solution has been provided by someone not listed as a project member above.
+
+\section*{Tips for Report Writing}
+% \textbf{REMOVE THIS SECTION BEFORE SUBMITTING THE REPORT.}\\
+% \noindent \textit{The target audience has exactly the same skills as the author, except they do not know anything at all about the specific solution described in the report.} \\
+
+Consider the following:
+
+\begin{itemize}
+  \item \textbf{The report must be \textit{centered around the requirements}. Which are they (Introduction), how did you work to meet them (Method), what is the solution that meets them (Result), and how can you be sure they are met (Discussion). This is the IMRaD method.} The requirements on the Introduction, Method, Result and Discussion chapters are described below under each chapter.
+
+  \item Is spelling and grammar correct? Is spoken language avoided?
+
+  \item Does the report have a good structure with sections, subsections and paragraphs?
+
+      \item Is the text clarified with images and/or other figures, and with links to the code in your Git repository (for seminars 3 and 4)? Remember that all figures (images, tables, graphs, code listings, etc) shall be numbered and have a short explaining text.
+\end{itemize}
+
+\section{Introduction}
+\label{sec:intro}
+
+\textbf{This chapter tells \textit{what} are you going to do.} Explain the task and the requirements on the solution. It's important to clearly state the requirements.
+
+1.1 Background (from Seminar 1)
+Summarize the Repair Electric Bike scenario.
+Mention that Seminar 1 produced:
+
+A Domain Model (DM) describing important concepts such as:
+Customer, Bike, RepairOrder, DiagnosticReport, ProposedRepairTask, Cost [notes | Txt]
+A System Sequence Diagram (SSD) describing basic and alternative flows (5a, 19a) from the specification. [ericsson-m...epoint.com]
+
+
+Explain that these provide the analysis foundation for Seminar 2 design.
+1.2 Requirements for Seminar 2
+List the explicit design requirements:
+
+Apply high cohesion, low coupling, and good encapsulation. [ericsson-m...epoint.com]
+Follow MVC + Layer pattern splitting into:
+
+View (simple interface)
+Controller layer
+Model layer
+(Optional) Data layer omitted per instructions
+
+
+Design all flows of the scenario: basic + alt flows (5a, 19a). [ericsson-m...epoint.com]
+Include complete interaction diagrams for the whole system.
+Include a class diagram covering all classes.
+
+This report concerns designing an electric bike repair shop, according to seminar 2. The purpose is to create a complete object-oriented design of the application using ...
+
+---
+
+The design in this report builds on the analysis work from Seminar~1, where a 
+Domain Model (DM) and System Sequence Diagram (SSD) were produced for the 
+\textit{Repair Electric Bike} scenario. These describe the main actors 
+(Customer, Receptionist, Technician), domain concepts (Customer, Bike, RepairOrder, 
+DiagnosticReport, ProposedRepairTask, Cost), and the basic and alternative flows.
+
+\subsection{Objective of Seminar 2}
+The purpose of Seminar~2 is to create a complete object-oriented design of the 
+application using:
+\begin{itemize}
+  \item High cohesion, low coupling, and good encapsulation.
+  \item A layered architecture according to the MVC pattern.
+  \item Complete interaction diagrams covering all flows (basic + alternatives).
+  \item A class diagram consistent with the interaction diagrams.
+\end{itemize}
+
+The view implementation and data layer persistence are out of scope, except 
+for a placeholder \texttt{View} class and a simplified integration layer.
+
+\section{Method}
+
+\textbf{This chapter tells \textit{how} you solved the task.} Explain how you worked and what tools you used when solving the tasks. \textit{Do not explain your solution and do not present entire sub-results in detail. It's enough to explain which steps you performed and perhaps give a short example.} For example, some of the things to explain in the report for seminar one, is that you used a category list and noun identification to find class candidates for the domain model, and to tell which UML editor you used.
+
+Goal: Explain how you worked (not the solution itself)
+
+2.1 Analysis Approach
+Used:
+Noun identification to find domain entities
+Category list to refine classes
+Based on your notes:
+Prefer too many classes over too few
+Convert simple values → attributes (e.g., name, cost)
+
+2.2 Domain Model Development
+Describe how you:
+Identified key entities:
+Customer
+Bike
+RepairOrder
+DiagnosticReport
+ProposedRepairTask
+Decided:
+What is a class vs attribute
+Removed unnecessary associations (e.g., user actions)
+
+2.3 System Sequence Diagram (SSD)
+Explain:
+Only interactions between actor and system are included
+Each system operation:
+Starts with a verb (e.g., createRepairOrder, getRepairOrder)
+Mention:
+Separate handling of alternative flows
+
+2.4 Design Approach
+Followed MVC + Layer architecture
+View → Controller → Model → (Integration optional)
+Designed:
+One system operation at a time
+Using interaction diagrams first, not class diagrams
+
+
+2.5 Design Principles Applied
+Explain briefly:
+Encapsulation
+Private fields, controlled interfaces
+High Cohesion
+One responsibility per class
+Low Coupling
+Minimize dependencies (avoid “spider-in-the-web” controller)
+DTO Pattern
+Used for communication between layers (immutable data objects)
+
+---
+
+\subsection{Approach}
+The design process consisted of the following steps:
+\begin{itemize}
+  \item Revisiting the Seminar~1 domain model and SSD.
+  \item Identifying classes and responsibilities using noun analysis and category lists.
+  \item Splitting responsibilities across a layered MVC architecture.
+  \item Determining which classes should be immutable DTOs and which should be 
+        mutable domain model objects.
+  \item Constructing interaction diagrams for all flows.
+  \item Creating a unified class diagram after interaction diagrams stabilized.
+\end{itemize}
+
+\subsection{Use of Development Notes}
+Several important design considerations guided the process:
+\begin{itemize}
+  \item \textbf{DTO policy:}
+    \begin{itemize}
+      \item Integration-layer objects (e.g.\ Customer, Bike) are immutable DTOs.
+      \item Domain objects that change over time (e.g.\ RepairOrder) exist in a 
+      mutable version inside the model layer.
+      \item Crossing the controller--view boundary always uses immutable DTOs 
+      to ensure encapsulation and prevent state leaks.
+    \end{itemize}
+
+  \item \textbf{Telephone number design:} Instead of using a primitive string, a 
+        \texttt{TelephoneNumberDTO} with country code, area code, and subscriber 
+        number was used for stronger validation.
+
+  \item \textbf{Separation of controllers:} Due to differing authorization, 
+        the system uses two controllers:
+        \texttt{ReceptionistController} and \texttt{TechnicianController},
+        both inheriting from a shared abstract \texttt{Controller} base class.
+
+  \item \textbf{Error handling strategy:}
+    \begin{itemize}
+      \item Controllers and model throw exceptions.
+      \item The View catches \texttt{IllegalArgumentException} (user error) and
+            \texttt{IllegalStateException} (internal error).
+      \item Middle layers do not catch exceptions unless recovery is possible.
+    \end{itemize}
+
+  \item \textbf{ID generation:} All repair orders use 
+        \texttt{UUID.randomUUID()} instead of timestamps.
+
+  \item \textbf{Refinement of RepairOrder handling:}
+    Several approaches were evaluated:
+    \begin{itemize}
+      \item Approach~1: Only DTOs, no mutable model objects.
+      \item Approach~2: DTOs + immutable combined objects.
+      \item Approach~3: Mutable \texttt{RepairOrder} + immutable \texttt{RepairOrderDTO}.
+    \end{itemize}
+    The final design uses Approach~3.
+\end{itemize}
+
+\section{Result}
+\label{sec:result}
+
+\textbf{This chapter explains \textit{the result} of what you did.} \textbf{The report must show that you have done the work yourself and that you have understood what you have done}, both of these goals are met by explaining your solution here in the result chapter. Include links to your code in your Git repository (for seminars 3 and 4), and also include diagrams, see Figure \ref{fig:diag}, and other figures to illustrate your reasoning. All figures must be referenced in the text. Ask yourself if the solution is clearly explained, and if the reader will understand the application. What would you yourself want to know if you read about the application, is that included in the report? More specific instructions for the content can be found in each assignment. 
+
+3. Result
+
+Goal: Present and explain your design
+
+3.1 System Overview
+Describe architecture:
+Startup layer (Main)
+Controller layer
+Model layer
+(Optional) Integration layer
+3.2 Interaction Diagrams
+
+(VERY IMPORTANT – required)
+
+Include:
+
+One or several diagrams covering:
+Basic flow
+Alternative flows (5a, 19a)
+Main method (startup)
+
+Explain briefly:
+
+What happens step-by-step
+How objects collaborate
+
+Tip: Split diagrams if too large (recommended in notes)
+
+3.3 Class Diagram
+
+Include:
+
+All classes used in interaction diagrams
+
+Explain:
+
+Responsibilities of key classes:
+Controller
+RepairOrder
+Customer
+Technician
+Registry classes
+Relationships:
+Associations
+Dependencies
+
+You can omit:
+
+DTO details if diagram gets too large (as recommended in notes)
+3.4 Key Design Decisions
+
+Explain important choices:
+
+Examples:
+
+Why RepairOrder is central entity
+Why DTOs are used instead of passing primitives
+Why logic is placed in model instead of controller
+Handling of:
+Repair order states
+Alternative flows
+
+---
+
+\label{sec:result}
+
+\subsection{Architectural Overview}
+The final design follows an MVC structure:
+\begin{itemize}
+  \item \textbf{View}: Handles user interactions and catches exceptions.
+  \item \textbf{Controllers}: 
+    \begin{itemize}
+      \item \texttt{ReceptionistController}
+      \item \texttt{TechnicianController}
+    \end{itemize}
+    These contain orchestration logic but no business rules.
+  \item \textbf{Model layer}: 
+    Contains mutable domain objects such as:
+    \begin{itemize}
+      \item \texttt{RepairOrder}
+      \item \texttt{DiagnosticReport}
+      \item \texttt{ProposedRepairTask}
+      \item \texttt{Cost}
+    \end{itemize}
+  \item \textbf{Integration layer}: 
+    Provides immutable DTOs (Customer, Bike) loaded from JSON.
+\end{itemize}
+
+\subsection{Class Diagram}
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=\linewidth]{class-diagram.png}
+  \caption{Complete class diagram of the system.}
+  \label{fig:classdiagram}
+\end{figure}
+
+\subsection{Interaction Diagrams}
+The following diagrams are included and briefly explained:
+\begin{itemize}
+  \item Basic flow sequence diagram.
+  \item Alternative Flow 5a: unknown phone number.
+  \item Alternative Flow 19a: customer rejects repair order.
+  \item Startup sequence for \texttt{main}.
+\end{itemize}
+
+\subsection{Key Design Decisions}
+\begin{itemize}
+  \item Strict separation of concerns between controllers and model.
+  \item Immutable DTOs ensure encapsulation and prevent the exposure of 
+        internal state.
+  \item Use of domain objects (mutable) for business logic.
+  \item Validation encapsulated in value objects (e.g.\ telephone number).
+  \item Exception handling rules formalized based on error class.
+\end{itemize}
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+/**
+ * Application entry point. Initializes registries, controllers, and view, 
+ * then runs the repair workflow.
+ */
+public class Main {
+    /**
+     * Starts the electric bike repair application.
+     *
+     * @param args command line arguments (not used)
+     */
+    public static void main(String[] args) {
+        RegistryCreator registryCreator = new RegistryCreator();
+        Printer printer = new Printer();
+        ControllerCreator controllerCreator = new ControllerCreator(registryCreator, printer);
+        View view = new View(controllerCreator);
+        view.proceedActions("0707654321", "SK-2024-055");
+    }
+}
+\end{lstlisting}
+
+\section{Discussion}
+
+\textbf{This chapter evaluates your solution} according to the assessment criteria found in the assessment-criteria documents, which are available under each seminar (sections 4.1-4.4) on the \texttt{Seminar Tasks} page of the course web. To get 2p, it's important that the evaluation is extensive, and \textbf{motivated with concrete examples from your solution}. General statements, that could be applied to any solution, will not contribute to a higher score.
+
+---
+
+\subsection{Evaluation Against Criteria}
+The design is evaluated according to Seminar~2 assessment criteria:
+\begin{itemize}
+  \item \textbf{MVC correctness:} 
+        Clear separation between View, Controller, and Model.
+  \item \textbf{Encapsulation:}
+        DTOs are immutable; domain objects do not leak internal references.
+  \item \textbf{Cohesion:}
+        Each class has a clear responsibility (e.g.\ 
+        \texttt{ProposedRepairTask} handles only task description and cost).
+  \item \textbf{Coupling:}
+        Controllers depend only on interfaces and DTOs, not internal model structure.
+  \item \textbf{Use of exceptions:} 
+        Consistent with best practices; user errors vs internal errors separated.
+\end{itemize}
+
+\subsection{Limitations and Possible Improvements}
+\begin{itemize}
+  \item Controller workload could be reduced by introducing service objects.
+  \item The DiagnosticReport update process could be made more flexible.
+  \item A future data layer could support persistence, indexing, or storage logic.
+\end{itemize}
+
+4. Discussion
+
+Goal: Evaluate your design using criteria
+
+4.1 Encapsulation
+Are fields private?
+Is public interface minimal?
+Example from your design
+4.2 Cohesion
+Do classes have single responsibility?
+Example:
+RepairOrder handles repair logic only
+4.3 Coupling
+Are dependencies minimized?
+Does controller avoid being “spider-in-the-web”?
+4.4 Architecture Evaluation
+Does design follow:
+MVC?
+Layer pattern?
+Are responsibilities clearly separated?
+4.5 Strengths and Weaknesses
+
+Be specific:
+
+Strengths:
+Clear separation of concerns
+Scalable design
+Weaknesses:
+Controller might still be too central
+Some coupling to registry layer
+4.6 Possible Improvements
+
+Examples:
+
+Move more logic from controller → model
+Introduce additional abstractions
+Improve handling of repair states
+
+\section*{References}
+
+\textbf{It's mandatory to list here all sources from where you have collected information}, for example course material and YouTube videos. \textbf{Remember that all AI usage must be specified}. There are examples of how AI usage can be specified in Canvas, on the course front page.
+
+You can use any reference style you wish. \textbf{Don't mention other students you have collaborated with}, that shall instead be mentioned in the \textit{Project Members} section at the top of the report.
+
+\end{document}

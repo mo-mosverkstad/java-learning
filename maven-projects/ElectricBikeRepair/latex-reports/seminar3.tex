@@ -1,0 +1,252 @@
+\documentclass[a4paper]{scrartcl}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{textcomp}
+\usepackage{amsmath}
+\usepackage{lastpage}
+\usepackage{pgf}
+\usepackage{wrapfig}
+\usepackage{fancyvrb}
+
+% Listing header
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{lightgray}{gray}{0.95}
+
+\lstdefinestyle{javastyle}{
+    backgroundcolor=\color{lightgray},
+    basicstyle=\ttfamily\small,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=8pt,
+    frame=single,
+    showstringspaces=false,
+    breaklines=true,
+    breakautoindent=true,
+    breakindent=2em,
+    keepspaces=true,
+    columns=fullflexible,
+    tabsize=4,
+    language=Java,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray!70},
+    stringstyle=\color{orange!90!black}
+}
+
+% Create header and footer
+\headheight 27pt
+\pagestyle{fancyplain}
+\lhead{\footnotesize{Object-Oriented Design, IV1350}}
+\chead{\footnotesize{Seminar 2 Solution}}
+\rhead{}
+\lfoot{}
+\cfoot{\thepage\ (\pageref{LastPage})}
+\rfoot{}
+
+% Create title page
+\title{Seminar 3}
+\subtitle{Object-Oriented Design, IV1350}
+\author{Mo Wang mowang@ug.kth.se}
+%\date{\today} Prints today's date
+\date{2026-04-01}
+
+\begin{document}
+
+\maketitle
+\noindent\textbf{Project Members:} \\ \hfill
+% \tableofcontents %Generates the TOC
+[Mo Wang, mowang@ug.kth.se]
+
+\section*{Declaration:}
+
+By submitting this assignment, it is hereby declared that all group members listed above have contributed to the solution. It is also declared that all project members fully understand all parts of the final solution and can explain it upon request.
+
+It is furthermore declared that no part of the solution has been copied from any other source (except for resources presented in the Canvas page for the course IV1350), and that no part of the solution has been provided by someone not listed as a project member above.
+
+\section{Introduction}
+\label{sec:intro}
+
+% \textbf{This chapter tells \textit{what} are you going to do.} Explain the task and the requirements on the solution. It's important to clearly state the requirements.
+
+This report delves into the implementation of a software system that manages electric bike repair processes in code. The code implementation are based on class diagrams in terms of structure as well as the communication diagram for each system operation in terms of functionality and behavior. Using these methods, the structure of the program can be outlined. Additionally, the program also involves
+
+This report concerns the implementation of a software system for managing repair processes in an
+electric bike workshop. The system design is based on given requirement specification
+with both normal and alternative workflow scenarios.
+
+\subsection{Requirements of Seminar 3}
+Requirements \dots
+
+\subsection{Implementing code on system operation diagrams}
+System diagrams are implemented as code ...
+
+\section{Method}
+
+% \textbf{This chapter tells \textit{how} you solved the task.} Explain how you worked and what tools you used when solving the tasks. \textit{Do not explain your solution and do not present entire sub-results in detail. It's enough to explain which steps you performed and perhaps give a short example.} For example, some of the things to explain in the report for seminar one, is that you used a category list and noun identification to find class candidates for the domain model, and to tell which UML editor you used.
+% Goal: Explain how you worked (not the solution itself)
+
+\subsection{Dividing code in packages}
+
+## 6.1 Dividing the Code in Packages
+* Structured package naming hierarchy
+
+* Some classes don’t belong to any specific layer because they provide general services used across multiple layers. These utility classes, such as those for string parsing or file handling, are placed in a separate package like util. In the car‑rental application, this package is named ***se.kth.iv1350.carRental.util***.
+
+\subsection{Adherence to code conventions}
+
+## 6.2 Code Conventions
+*   **Package name**
+    *   Type: *package*
+    *   Description: Parts start lowercase; begin with reversed internet domain → product name → specific package.
+    *   Example: `se.kth.iv1350.rentCar.model` or `se.kth.iv1350.rentcar.model`
+
+*   **Class / Interface**
+    *   Type: *class, interface*
+    *   Description: Full descriptive name; each word starts with uppercase (PascalCase).
+    *   Example: `CashRegister`
+
+*   **Method**
+    *   Type: *method*
+    *   Description: Full description; starts lowercase; non-initial words start uppercase (camelCase).
+    *   Example: `calculateTotalCost`
+
+*   **Variable / Field / Parameter**
+    *   Type: *variable, field, parameter*
+    *   Description: Same rules as methods (camelCase).
+    *   Example: `paidRental`
+
+*   **Constant**
+    *   Type: *constant (final static field)*
+    *   Description: All uppercase letters; words separated by underscores.
+    *   Example: `MILES_PER_KM`
+
+\subsection{Writing comments and Javadoc}
+
+## 6.3 Comments
+Public interfaces must include **Javadoc** comments to generate API documentation.
+
+Javadoc should state what a unit does — **not how** — and must document **method behavior, parameters, and return values** using proper tags.
+
+**Avoid comments inside methods** — use them as a signal to refactor long methods instead.
+
+\subsection{Code smell and refactoring}
+
+## 6.4 Code Smell and Refactoring
+**Code smells** signal poor design and should be removed through refactoring to improve code quality without changing behavior.
+
+* **Duplicated Code**: Duplicated code is a severe code smell that must be eliminated because even a single repeated statement can lead to errors, inefficiency, and maintenance disasters.
+* **Long Method**:
+  * A method is too long if its name cannot fully explain it — use **smaller, well‑named** methods instead of comments to make code clearer.
+  * Reducing method calls does **not meaningfully improve performance**, so optimizing by avoiding them is pointless.
+* **Large Class**: A class is too large when its cohesion is low — splitting related fields into a new class improves clarity and design.
+* **Long Parameter List**:
+  * Long parameter lists are a code smell — **replace primitive parameters with objects** to improve cohesion, encapsulation, and maintainable design. Sometimes the object itself has already contains the paramter, use **this** to get it.
+  * Remove unnecessary parameters by letting the method obtain the needed data itself instead of passing it in.
+* **Excessive Use of Primitive Variables**: Primitive Obsession is a code smell—use objects instead of excessive primitive fields to improve cohesion, encapsulation, and overall design quality.
+  * **Group** closely related fields and methods into a new class to improve cohesion and ensure data is always valid.
+  * Never use arrays to store unrelated primitive values—replace them with objects so each piece of data has a clear, meaningful name.
+  * Use **enumerations** instead of strings or integers to avoid errors and make code meanings explicit.
+* **Meaningless Names**: All declared program elements must have meaningful names. (packages, classes, interfaces, methods, fields, parameters, local variables, etc.).
+  * **Avoid one‑letter identifiers**
+      *   Prefer `Person person = new Person();` over `Person p = new Person();`.
+      *   **Exceptions:**
+          *   When the abstraction is naturally one letter (e.g., coordinate `x`).
+          *   Loop variables (`i`, `j`, `k`, …) in nested loops.
+  *   **Do not use meaningless temporary names like `tmp` or `temp`**
+        *   Use descriptive names even for short‑lived variables (e.g., during swaps).
+  *   **Never distinguish identifiers by adding numbers**
+        *   Use meaningful names such as `fromAccount` and `toAccount`, **not** `account1` and `account2`.
+  *   **Do not fear long names**
+        *   What matters is clarity.
+        *   Example: `firstCustomerBuyingCampaignItem` is acceptable if it clearly explains the variable’s purpose.
+* **Anonymous Values**:
+  *   **Always give every value an explaining name**
+      *   Unnamed values (literals) make code hard to understand and maintain.
+      *   Named values are safer than comments because the compiler enforces correctness, while comments can become outdated.
+  *   **Do not place raw numeric values directly in method calls**
+      *   Example: avoid `connect(10000)`.
+      *   Prefer meaningful named constants like:
+          *   `private static final int MILLIS_PER_SECOND = 1000;`
+          *   `private static final int CONNECT_TIMEOUT_SECS = 10;`
+      *   Use them in expressions such as:
+          *   `connect(CONNECT_TIMEOUT_SECS * MILLIS_PER_SECOND);`
+  *   **This naming practice applies to all primitive values—including strings**
+      *   Example: avoid raw string values like `"\""` when building file paths.
+      *   Use a constant:
+          *   `private static final String PATH_SEPARATOR = "\\";`
+      *   Then write:
+          *   `openFile(dirName + PATH_SEPARATOR + fileName);`
+  *   **Sometimes a method provides the clearest name for a value**
+      *   Especially useful in conditional expressions (`if` statements).
+      *   Example: instead of checking `if (c == 10)` for Unix end‑of‑line, create:
+          *   `boolean isUnixEol(char c)`
+      *   Use it as:
+          *   `if (isUnixEol(ch))`
+* **Complicated Flow Control**: Poorly structured **if‑statements and loops** become confusing when deeply nested or filled with unnecessary flags, making the logic hard to understand.
+
+
+\section{Result}
+\label{sec:result}
+
+% \textbf{This chapter explains \textit{the result} of what you did.} \textbf{The report must show that you have done the work yourself and that you have understood what you have done}, both of these goals are met by explaining your solution here in the result chapter. Include links to your code in your Git repository (for seminars 3 and 4), and also include diagrams, see Figure \ref{fig:diag}, and other figures to illustrate your reasoning. All figures must be referenced in the text. Ask yourself if the solution is clearly explained, and if the reader will understand the application. What would you yourself want to know if you read about the application, is that included in the report? More specific instructions for the content can be found in each assignment.
+
+\subsection{The \texttt{searchCustomer} system operation}
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+/**
+ * Application entry point. Initializes registries, controllers, and view, 
+ * then runs the repair workflow.
+ */
+public class Main {
+    /**
+     * Starts the electric bike repair application.
+     *
+     * @param args command line arguments (not used)
+     */
+    public static void main(String[] args) {
+        RegistryCreator registryCreator = new RegistryCreator();
+        Printer printer = new Printer();
+        ControllerCreator controllerCreator = new ControllerCreator(registryCreator, printer);
+        View view = new View(controllerCreator);
+        view.proceedActions("0707654321", "SK-2024-055");
+    }
+}
+\end{lstlisting}
+
+\begin{figure}[h!]
+  \begin{center}
+    \includegraphics[width=\textwidth]{figures/startup.png}
+    \caption{A sample diagram to illustrate caption (this text), numbering and reference in text.}
+    \label{fig:diag}
+  \end{center}
+\end{figure}
+
+\subsection{The \texttt{createRepairOrder} system operation}
+
+\subsection{The \texttt{findRepairOrder} system operation}
+
+\subsection{The \texttt{addDiagnosticResult} system operation}
+
+\subsection{The \texttt{createProposedRepairTask} system operation}
+
+\subsection{The \texttt{acceptRepairOrder} system operation}
+
+\subsection{The \texttt{rejectRepairOrder} system operation}
+
+\section{Discussion}
+
+% \textbf{This chapter evaluates your solution} according to the assessment criteria found in the assessment-criteria documents, which are available under each seminar (sections 4.1-4.4) on the \texttt{Seminar Tasks} page of the course web. To get 2p, it's important that the evaluation is extensive, and \textbf{motivated with concrete examples from your solution}. General statements, that could be applied to any solution, will not contribute to a higher score.
+
+\section*{References}
+
+\textbf{It's mandatory to list here all sources from where you have collected information}, for example course material and YouTube videos. \textbf{Remember that all AI usage must be specified}. There are examples of how AI usage can be specified in Canvas, on the course front page.
+
+You can use any reference style you wish. \textbf{Don't mention other students you have collaborated with}, that shall instead be mentioned in the \textit{Project Members} section at the top of the report.
+
+\end{document}
