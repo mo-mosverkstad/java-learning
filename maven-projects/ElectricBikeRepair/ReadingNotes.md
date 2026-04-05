@@ -750,17 +750,315 @@ Testing ***Main*** is difficult because it only creates objects and no UI exists
 
 # Chapter 8 Handling Failure
 ## 8.2 Exception Handling Best Practices
-* **Always use exceptions for error handling**: Never use return values to signal errors — exceptions provide clearer semantics, avoid confusion with valid results, keep error information separate from normal flow, and maintain high cohesion.
-* **Useexceptionsonlyforerrorhandling**: Exceptions should never be required for successful execution, and when they are, it signals a flawed public interface — adding methods like hasNext avoids forcing callers to use exceptions for normal control flow.
-* **Checked or unchecked exception**: Checked exceptions should signal business‑rule violations like booking an already‑booked car, while unchecked exceptions should be used for unrecoverable technical failures where the client cannot meaningfully respond.
-* **Name the exception after the error condition**: Exception classes should have clear, descriptive names ending with Exception, but not be overly specific—use fewer, more general exception types and place detailed context in the exception message to balance clarity with a manageable interface. [For the book‑car operation, the already‑booked case should use a clearly named checked exception like ***AlreadyBookedException***, while datastore failures should use a more general unchecked ***CarRegistryException***, balancing clarity with a manageable number of exception classes.]
-  * public class ***AlreadyBookedException*** extends Exception
-  * public class ***CarRegistryException*** extends RuntimeException
-* **Include information about the error condition**: Exception objects should store both the data describing the error condition and a developer‑focused message, ensuring useful debugging information without exposing internal details to the user interface. [For AlreadyBookedException, include detailed data such as the relevant CarDTO and a clear message like “Unable to book <regNo>: already booked,” while CarRegistryException can only provide a general datastore‑failure message because no more specific information is available.]
-* **Use functionality provided in java.lang.Exception**: Custom exception classes should extend Exception, pass messages to the superclass constructor, and encapsulate fixed messages when appropriate—storing only the varying data (like the specific car) in fields to maintain cohesion and clarity.
-* **Use the correct abstraction level for exceptions**: Low‑level technical exceptions (like database errors) should not propagate to the user interface; instead, they should be caught and wrapped in a higher‑level, user‑safe exception, preserving the original cause internally via exception chaining. However Exceptions should propagate to higher layers only when they are meaningful there; otherwise, they should be caught and handled earlier rather than being intercepted at every layer.
-  * Since propagating ***CarRegistryException*** up to the controller introduces no new dependency and simplifies the design, the method is updated to throw this exception, rename the setter to rentCar for clarity, and add supporting methods like isBooked and getCarByRegNo to maintain proper cohesion and behavior.
-  * ***CarRegistryException*** must be caught in the controller—never allowed to reach the view—so the controller wraps it in a high‑level OperationFailedException that informs the view of the failure without exposing integration‑layer details.
-* **Write Javadoc comments for all exceptions**: Always document every thrown exception in Javadoc using **@throws**, clearly stating the condition under which it is thrown, both to guide users of the method and to force the author to precisely define the exception’s purpose.
-  * CarRegistry methods throw CarRegistryException for datastore failures or when an expected existing car cannot be found—while methods that simply search (like findAvailableCar) do not throw exceptions when no match exists—so Javadoc @throws tags must clearly document these conditions even though the exception is unchecked.
-  * Since rentCar allows CarRegistryException to propagate and also throws AlreadyBookedException, its Javadoc must document both exceptions using @throws to clearly describe the conditions under which each is thrown.
+
+### **Always use exceptions for error handling**
+Never use return values to signal errors — exceptions provide clearer semantics, avoid confusion with valid results, keep error information separate from normal flow, and maintain high cohesion.
+
+### **Useexceptionsonlyforerrorhandling**
+Exceptions should never be required for successful execution, and when they are, it signals a flawed public interface — adding methods like hasNext avoids forcing callers to use exceptions for normal control flow.
+
+### **Checked or unchecked exception**
+Checked exceptions should signal business‑rule violations like booking an already‑booked car, while unchecked exceptions should be used for unrecoverable technical failures where the client cannot meaningfully respond.
+
+### **Name the exception after the error condition**
+Exception classes should have clear, descriptive names ending with Exception, but not be overly specific—use fewer, more general exception types and place detailed context in the exception message to balance clarity with a manageable interface. [For the book‑car operation, the already‑booked case should use a clearly named checked exception like ***AlreadyBookedException***, while datastore failures should use a more general unchecked ***CarRegistryException***, balancing clarity with a manageable number of exception classes.]
+
+* public class ***AlreadyBookedException*** extends Exception
+* public class ***CarRegistryException*** extends RuntimeException
+
+### **Include information about the error condition**
+Exception objects should store both the data describing the error condition and a developer‑focused message, ensuring useful debugging information without exposing internal details to the user interface.
+
+[For AlreadyBookedException, include detailed data such as the relevant CarDTO and a clear message like “Unable to book <regNo>: already booked,” while CarRegistryException can only provide a general datastore‑failure message because no more specific information is available.]
+
+### **Use functionality provided in java.lang.Exception**
+Custom exception classes should extend Exception, pass messages to the superclass constructor, and encapsulate fixed messages when appropriate—storing only the varying data (like the specific car) in fields to maintain cohesion and clarity.
+
+### **Use the correct abstraction level for exceptions**
+Low‑level technical exceptions (like database errors) should not propagate to the user interface; instead, they should be caught and wrapped in a higher‑level, user‑safe exception, preserving the original cause internally via exception chaining. However Exceptions should propagate to higher layers only when they are meaningful there; otherwise, they should be caught and handled earlier rather than being intercepted at every layer.
+
+Since propagating ***CarRegistryException*** up to the controller introduces no new dependency and simplifies the design, the method is updated to throw this exception, rename the setter to rentCar for clarity, and add supporting methods like isBooked and getCarByRegNo to maintain proper cohesion and behavior.
+
+***CarRegistryException*** must be caught in the controller—never allowed to reach the view—so the controller wraps it in a high‑level OperationFailedException that informs the view of the failure without exposing integration‑layer details.
+
+### **Write Javadoc comments for all exceptions**
+Always document every thrown exception in Javadoc using **@throws**, clearly stating the condition under which it is thrown, both to guide users of the method and to force the author to precisely define the exception’s purpose.
+
+CarRegistry methods throw CarRegistryException for datastore failures or when an expected existing car cannot be found—while methods that simply search (like findAvailableCar) do not throw exceptions when no match exists—so Javadoc @throws tags must clearly document these conditions even though the exception is unchecked.
+
+Since rentCar allows CarRegistryException to propagate and also throws AlreadyBookedException, its Javadoc must document both exceptions using @throws to clearly describe the conditions under which each is thrown.
+
+The controller’s bookCar method must document that AlreadyBookedException may pass through unchanged while CarRegistryException is caught and wrapped in an OperationFailedException to indicate the operation failed without exposing low‑level details.
+
+
+### **An object shall not change state if it throws an exception**
+After an exception is thrown, the object must remain in the same state it had before the method call — meaning no fields should be modified unless the method completes successfully.
+
+* **Make the object immutable**: by giving it only final fields and preventing inheritance—is the strongest way to ensure its state never changes, even when exceptions occur, and often requires copying referenced objects to avoid shared mutable state.
+* **Check parameter values before changing any state**: Always validate all parameters before modifying any state so that if an exception is thrown, the object remains unchanged.
+* **Place operations that might fail before operations that alter the state**: Perform any operations that might fail before modifying the object's state, so that if an exception occurs during those preliminary checks, no state has been altered.
+* **Use a temporary copy of the state**: If no safer strategy is available, create a temporary copy of the object’s state and restore it before throwing an exception so the object remains unchanged.
+* All exception‑throwing methods in the case study follow proper practice: CarRegistry checks for failures before modifying state, Rental validates parameters first, and Controller’s bookCar never changes state at all.
+
+### **Never write an empty catch block**
+An empty catch block silently ignores exceptions, making failures invisible and causing extremely confusing program behavior. In the simulated view, exceptions are caught at the top level so no error escapes to the user, and the catch blocks—though not empty—must ultimately provide meaningful user and developer feedback instead of ignoring failures.
+
+### **How to notify the user?**
+The user interface must always present clear, consistent error messages generated by a single dedicated component in the view layer, ensuring users understand failures without exposing internal technical details.
+
+The view layer centralizes error handling by calling a dedicated error‑message component that prints consistent, user‑appropriate messages rather than exposing internal exception details or relying on lower‑layer messages.
+
+### **How to notify developers?**
+Developers also need detailed diagnostic information, so exceptions must be logged by a dedicated logging component that records full stack traces consistently in one place, separate from user‑visible error messages.
+
+All exceptions—except those representing normal business‑rule violations—should be logged by catching business‑logic exceptions first, then using a final catch‑all Exception handler to ensure every unexpected error is recorded for debugging.
+
+The case study logs all non–business‑logic exceptions to a file using a dedicated logging component in util, while business‑rule exceptions only show a user‑friendly message, ensuring consistent error reporting without exposing internal details.
+
+### **Write unit tests for the exception handling**
+Exception handling must also be unit tested—ensuring no exceptions occur during valid execution, that they do occur under failure conditions, that exception contents are correct, and that catch blocks handle them as intended.
+
+Exception‑handling tests verify that CarRegistry, Rental, Controller, and UI/log components correctly throw, propagate, and process exceptions when cars don’t exist or are already booked.
+
+## 8.3 Complete Exception Handling in the Case Study
+In the rent‑car case study, beyond booking failures, only two additional situations clearly require exceptions, keeping the incomplete program’s exception usage minimal and focused on obvious failure conditions.
+
+If the LogHandler fails to open the log file at startup, it throws an IOException, which is caught in main, and the program currently terminates because running without logging is not allowed.
+
+Calling controller operations in the wrong order must throw an IllegalStateException, because registerCustomer must run before bookCar or pay, and calling them out of order would otherwise cause a NullPointerException or corrupt the rental workflow.
+
+## 8.4 Common Mistakes
+* **Failure handling is missing**: Failure handling is often incomplete — developers frequently forget to validate all parameters and cover all execution paths, but thorough unit testing is the best way to expose such missing checks.
+* **Exceptions are caught when it is not needed**: Do not catch exceptions unnecessarily — if the catch block does nothing except rethrow, let the exception propagate naturally instead of adding pointless handling.
+
+# Chapter 9 Polymorphism and Inheritance
+Polymorphism and inheritance are powerful design tools, but their only real purpose is to help achieve better coupling, cohesion, and encapsulation—the true measures of design quality.
+
+## 9.1 UML
+In UML class diagrams, interfaces are marked with the «interface» stereotype, their abstract methods are written in italics, classes realize interfaces, and subclasses generalize superclasses—UML’s formal terminology for implementation and inheritance.
+
+Sequence and communication diagrams cannot show that an object both implements an interface and inherits from a class—such diagrams must depict the object as either the class type or the interface type, but not both simultaneously.
+
+Drawing both the interface type and the implementing class type for the same lifeline is incorrect, because in a sequence diagram it would imply two separate objects rather than one.
+
+Interfaces in sequence and communication diagrams can be drawn either with the standard class‑diagram interface symbol or with the alternative “lollipop” interface symbol shown in ***figure 9.3***.
+
+## 9.2 Polymorphism
+Polymorphism lets different classes share a common interface so clients depend only on the interface (e.g., Logger), not the concrete implementation (e.g., FileLogger), enabling flexibility and decoupled design.
+
+By introducing multiple classes (like FileLogger and ConsoleLogger) that implement the same Logger interface, the system achieves powerful polymorphism, allowing clients to use logging without depending on any specific implementation and thereby maintaining extremely low coupling.
+
+***Figure 9.5*** illustrates the core power of polymorphism: the client depends only on the Logger interface, not on any concrete implementation, allowing the actual logging class to be swapped at runtime without changing the client or increasing coupling.
+
+Polymorphism improves design by increasing cohesion, reducing coupling, and strengthening encapsulation, since clients rely only on an interface while implementation details remain fully hidden inside the API.
+
+***High cohesion: Controller and (ReceptionistController and TechnicianController)***
+
+Polymorphism allows a program’s behavior to change at runtime — such as switching log destinations—without scattered if statements or code changes, because clients depend only on an interface while implementations remain encapsulated.
+
+Polymorphism even allows new implementations to be loaded and added at runtime, letting a program dynamically load classes (such as different Logger implementations) that were not present when the program started.
+
+## 9.3 Inheritance
+Inheritance makes a subclass automatically gain all non‑private members of its superclass, a powerful but far‑reaching relationship with important design consequences.
+
+Protected members (marked with #) are accessible to subclasses in any package and to other classes only within the same package, making them effectively part of the public interface rather than the implementation.
+
+### **When Not to Use Inheritance, And What to do Instead**
+
+Inheritance should never be used solely for code reuse — composition (calling another class’s methods) is almost always the better choice, and inheritance is appropriate only in specific, well‑justified design scenarios.
+
+### **First Reason to Prefer Composition: Inheritance Complicates Code Reuse**:
+Classical inheritance hierarchies often look appealing but frequently make code harder—not easier — to reuse.
+
+Rigid inheritance hierarchies break down when real‑world variations appear — like penguins that are birds but don’t fly — showing that classifying by taxonomy often fails compared to modeling behavior (e.g., movement) separately.
+
+Trying to model animals with inheritance quickly breaks down — while composition allows any animal to have any combination of movement behaviors and even change them over time, despite producing less tidy diagrams.
+
+### **Second Reason to Prefer Composition: Inheritance Breaks Encapsulation**
+Inheritance breaks encapsulation because subclasses receive not just the public interface but also the superclass’s internal implementation, making the code harder to maintain and more prone to bugs—especially when the superclass was never designed to be inherited.
+
+Subclassing a class not designed for inheritance—such as extending List to create CountingList—is dangerous because inherited internal implementation can behave unexpectedly and break encapsulation, leading to subtle bugs and maintenance problems.
+
+This inheritance “fix” fails because List.addAll internally calls add, so overriding add in CountingList causes the counter to increase twice—once in addAll and once in the overridden add—revealing how inheriting a class not designed for extension easily leads to subtle, hard‑to‑detect bugs.
+
+Although inheritance might look simpler, it fails here because CountingList becomes tightly coupled to List’s undocumented internal behavior, causing fragile bugs—whereas composition avoids these pitfalls and remains stable even if List’s implementation changes.
+
+### **Third Reason to Prefer Composition: There is no Way to Control the Public Interface of the Subclass**
+A subclass automatically inherits the entire public interface of its superclass, forcing the subclass author to accept and maintain all inherited methods—often dozens of them—which can lead to loss of control, accidental interface expansion, and hidden maintenance burdens when the superclass evolves.
+
+### **How to Use Inheritance Appropriately**
+Despite its risks, inheritance is appropriate when a subclass truly is‑a specialized version of its superclass, sharing its core behavior and public interface in a stable, well‑designed hierarchy.
+
+#### **Use Inheritance to Modify Behavior**
+Inheritance is appropriate when one class performs almost the same task as another but differs only in specific details, making specialization through a subclass cleaner than duplication.
+
+When two classes differ only in a small implementation detail—such as BarChart and LineChart—inheritance is appropriate: shared structure goes into a superclass, and the differing part is placed in a protected, overridable method (a Template Method).
+
+#### **Use Inheritance to Provide Default Implementation**
+Inheritance can provide default method implementations—such as through adapter classes like MouseAdapter—but interfaces should generally contain only declarations, since default methods exist mainly to maintain compatibility when evolving an existing interface.
+
+### **When Class Hierarchies Are Appropriate**
+Classical inheritance hierarchies are useful only when specific conditions are met and should be applied deliberately rather than automatically or blindly.
+
+1. All members of the superclass must be meaningful also in the subclass.
+2. The superclass is a generalization of the subclass, it is more abstract than the subclass, and can therefore be used in more situations than the subclass.
+3. The subclass is a specialization of the superclass. It can not be used in all situations where the superclass can be used, but where it can be used, it is better suited than the superclass.
+4. The subclass and the superclass must have an is-a relation, meaning the expression a *subclass name* is a *superclass name* must be true.
+
+Inheritance is usually not suitable for modeling real‑world entities—like animals—because they rarely fit strict generalization–specialization trees; instead, inheritance works best for artificial, well‑defined concepts where hierarchies are stable and unambiguous.
+
+The Java Collections API demonstrates a strong, well‑designed inheritance hierarchy because its types are artificial constructs with clear, controlled relationships—unlike real‑world entities whose complexity makes inheritance unsuitable.
+
+## 9.4 Gang of Four Design Patterns
+A design pattern is a formalized, reusable solution to a recurring software design problem, serving as a “cookbook” of proven strategies for building better systems.
+
+The GoF (Gang of Four) book defines 23 essential design patterns that form a shared vocabulary and toolkit for solving recurring object‑oriented design problems, and every developer should master the common ones despite their initially abstract nature.
+
+### **The Observer Pattern**
+The observer pattern notifies one or more dependent objects automatically whenever another object changes state, making it ideal for listeners and event‑handling mechanisms.
+
+#### Overview
+The observer pattern hides concrete observers behind an interface, allowing the observed object to notify them of state changes without knowing their actual classes—only that they support the required notification ability.
+
+#### Case Study
+The observer pattern solves the problem of sending data from the model to the view by notifying a display whenever a rental is paid, allowing the view to update automatically without relying on return values.
+
+Because the view shouldn’t track rentals, duplicate logic, or manage other view components, it’s bad design for it to update the rental‑display directly — highlighting why an observer is needed to notify the display whenever a rental is paid.
+
+Because neither the view nor controller may directly update the display without breaking MVC, the model must notify the display through an observer so the view can react without creating dependencies.
+
+#### Solution
+We define a RentalObserver interface with a newRental notification method so the model can inform the view of completed rentals without creating any dependency on view classes.
+
+Rental becomes the observed class by adding addObserver and a private notifyObservers method, which is invoked when a payment is completed so all registered observers (e.g., the display) are informed of the new rental.
+
+***Add reparation for observer pattern???***
+
+RentedCarsDisplay is implemented in the view as a RentalObserver that receives notifications from Rental and prints updated information—such as the size of the newly rented car—to the screen.
+
+Because the car size string was increasingly used throughout the code and prone to misspelling, it was replaced with a type‑safe enumeration inside CarDTO to ensure consistency and avoid errors.
+
+It’s best to let the view create and register the RentedCarsDisplay observer, since doing it in Main would create unnecessary coupling between the startup and view layers.
+
+Because the view may only communicate with the model through the controller, the observer must be passed from the view to the controller, which stores all observers and registers them with each new Rental instance.
+
+#### Comments
+* **What shall the observer know about the observed class?** If the observer needs more and more data from the observed object, passing all data as method parameters becomes problematic because every new data requirement forces changes to the observer interface, increasing coupling and reducing flexibility. Instead of passing all needed data directly to observers—which forces constant interface changes—the observed object can pass itself to the observer, and to avoid tight coupling the observer should depend only on a minimal Observed interface implemented by the observed class.
+* **Is an event class needed?** Sometimes an event class is used so the observer receives a single object containing all relevant event data—including optional references to the observed object—avoiding cluttered parameter lists and keeping the notification interface stable.
+* **When shall observers be notified?** Observers must be notified only after the event is fully completed — never before — so notifications always reflect a correct, finished state.
+* **Broadcasted method call!** Observer notifications act like broadcasted method calls, so observers must keep their handlers lightweight because the observed object cannot know how many observers will run or how costly their actions might be.
+
+### **The Strategy Pattern**
+The strategy pattern lets you swap algorithms or behaviors at runtime—like switching logger implementations—without modifying existing code.
+
+#### Overview
+The strategy pattern lets a client depend only on an algorithm’s interface, enabling different implementations to be swapped freely without modifying the client code.
+
+#### Case Study
+Car matching in the case study is implemented using one specific algorithm in CarRegistry, but this is only one of many possible matching strategies — making it a natural candidate for applying the strategy pattern.
+
+To enable switching between different car‑matching algorithms, the strategy pattern introduces a strategy interface and assigns CarRegistry a specific implementation, avoiding messy hard‑coded logic and making new algorithms easy to add.
+
+#### Solution
+CarRegistry uses the strategy interface Matcher so it depends only on the interface—not on specific implementations—and passes a list of CarDTO objects to each strategy, which is acceptable given the small dataset and the absence of a real database, preserving encapsulation by keeping CarData internal.
+
+Three interchangeable matching algorithms—WildCardMatch, PerfectMatch, and PromotingMatch—are implemented as Matcher strategies, enabling CarRegistry to flexibly switch search behavior, including promoting a specific car while falling back to PerfectMatch if the promoted one doesn’t qualify.
+
+CarRegistry uses a configurable Matcher strategy, but since it still instantiates WildCardMatch directly, it depends on a concrete implementation—something the upcoming Factory pattern will fix so algorithms can be swapped cleanly without modifying CarRegistry.
+
+#### Comments
+* **Algorithms might need a state**: Concrete strategy classes may differ only by internal state (such as which car to promote), so there’s no need to create a separate class for each variation—just store the varying state in fields of a single strategy implementation.
+* **All algorithms must have the same public interface**: All concrete strategies must share the same public interface, which becomes problematic when different algorithms require different data, forcing unused parameters into some implementations and reducing cohesion—an unavoidable limitation that must be managed by unifying interfaces as much as possible.
+* **Whoshall instantiate implementations?** Because the strategy pattern leaves CarRegistry dependent on a concrete strategy instantiation, a factory is needed to create the appropriate algorithm implementation without exposing those details to the client.
+
+### **The Factory Pattern**
+When object creation causes unwanted coupling or complexity — such as CarRegistry depending on specific strategy classes — the solution is to introduce a factory class whose sole responsibility is to instantiate the needed objects cleanly.
+
+#### Overview
+A factory lets clients request objects without knowing their concrete classes—the factory decides which implementation to create, while the client simply uses the product via its interface.
+
+#### Case Study
+A factory removes CarRegistry’s dependency on specific matching‑algorithm classes so the algorithm can be swapped without modifying or recompiling CarRegistry, fulfilling the purpose of the strategy pattern.
+
+#### Solution
+A MatcherFactory removes CarRegistry’s dependency on concrete matcher classes by reading the desired implementation’s class name from a system property and instantiating it dynamically at runtime.
+
+After reading the class name from the system property, the factory dynamically creates an instance of that class using reflection ***(as shown on lines 33–34 of listing 9.26)***.
+
+Using a factory removes all direct references to concrete Matcher implementations from CarRegistry, and although the system property makes the algorithm configurable at startup, achieving runtime switching requires updating the property and triggering the factory to reload it.
+
+#### Comments
+* **How shall the factory know what to create?** A factory can be configured in many ways—via system properties, files, UI input, or setter methods—but it also needs a trigger to reload that configuration so products can be switched dynamically during program execution. Factories can also choose products based on runtime program state—for example creating different payment‑handler objects depending on whether the customer pays with cash or credit card—by accepting parameters that guide which product to instantiate.
+* **Try to make the factory independent of concrete products.** To avoid factory–product coupling, initialization data should be passed uniformly through an init(Map<String,Object>) method in the interface, so the factory never references concrete classes like PromotingMatch, keeping it fully independent of specific products.
+* **Products can be cached.** Factories can improve performance by caching and reusing product instances instead of creating a new object every time, especially when object creation is expensive or frequent.
+* **Who creates the factory itself?** If creating a factory is expensive or needs to be shared, only one instance should exist and be accessible everywhere — setting the stage for the Singleton pattern.
+
+### **The Singleton Pattern**
+When only a single instance of a class must exist—such as a logger that would produce mixed output if duplicated—the program must prevent multiple creations and provide global access to that single instance.
+
+#### Overview
+A Singleton is created by making the constructor private, storing the sole instance in a static field, and providing a static method to access that one instance, ensuring only one object can ever exist.
+
+#### Case Study
+A factory is often made a singleton so only one shared instance creates and manages cached products consistently across the entire program.
+
+#### Solution
+The Singleton factory implementation creates exactly one shared instance by storing it in a static field, providing it through a static accessor, and hiding the constructor—allowing clients like CarRegistry to obtain the single factory via getFactory().
+
+#### Comments
+* **Why not make all members static, instead of creating a singleton?** Making everything static is not a substitute for a Singleton—static members break object‑orientation, spread static‑usage problems to other classes, cannot be overridden or serialized, and still require a private constructor, whereas a Singleton preserves OO design while ensuring only one instance exists.
+* **Is it never appropriate to create a class where all members are static?** A class with all‑static members is appropriate only when it represents a completely stateless procedural utility — such as java.lang.Math — where no object state or OO behavior is needed.
+* **It is impossible to pass parameters to the constructor of a singleton.** A singleton’s constructor can’t accept parameters because only the class itself may call it, but configuration data — such as file paths — can still be provided by using external inputs like system properties.
+* **When is the singleton instance created?** A singleton instance is created when the class is loaded by the JVM — during static field initialization — which occurs the first time the class is referenced in the program.
+
+### **The Composite Pattern**
+The composite pattern allows clients to treat single objects and groups of objects uniformly, letting both individual components and collections perform the same operations through a shared interface.
+
+#### Overview
+In the composite pattern, a composite object holds multiple task objects and, when invoked, calls each one and aggregates their results so the client can treat single and grouped tasks identically through the same interface.
+
+#### Case Study
+Hard‑coding combinations of matching algorithms (like in PromotingMatch) is inflexible and unmaintainable, so a composite pattern should be used to dynamically combine and reorder algorithms at runtime.
+
+#### Solution
+To keep all matching algorithms independent, the hard‑coded fallback in PromotingMatch must be removed so it simply returns null when no match is found, leaving combination logic to a composite instead of individual algorithms.
+
+A composite matcher implements the same Matcher interface as other algorithms but performs no matching itself — instead it calls each wrapped algorithm in sequence and returns the first successful result.
+
+The empty init method in the composite matcher exists so initialization data — like the promoted car’s registration number — can be passed uniformly through the Matcher interface, allowing the factory to initialize any matcher without referencing concrete classes such as PromotingMatch.
+
+The factory builds the composite by reading a comma ‑ separated list of matcher class names from the system property, creating a CompositeMatcher when multiple names are provided, and instantiating and adding each specified matcher to it.
+
+#### Comments
+* **But, there is still a hard-coded class name. Yes.** CompositeMatcher may be hard‑coded in the factory because it is part of the matching‑infrastructure rather than a configurable algorithm, but if multiple composite types were ever needed, its class name could also be externalized just like the concrete matcher implementations.
+* **How to change the algorithm for combining outcomes of concrete algorithms wrapped by a composite?** To change how a composite combines results from its wrapped algorithms, the factory must also be configured to instantiate different composite implementations — selected via configuration (e.g., a system property) just like concrete matchers.
+
+### **The Template Method Pattern**
+When duplicated code represents the structure of a method — such as try‑catch or if‑blocks with varying inner logic — the template method pattern is required because ordinary method extraction cannot remove this type of duplication.
+
+#### Overview
+The template method pattern puts shared workflow code into an abstract superclass while delegating the varying parts to abstract methods that concrete subclasses override.
+
+#### Case Study
+The case study’s rental‑car display is now extended so two independent observers — one text‑based and one GUI‑based — both update automatically whenever the number of rented cars changes.
+
+#### Solution
+Using the template method pattern, shared rental‑display logic is placed in an abstract superclass while each concrete view (text and GUI) overrides only the printCurrentState method to present the information in its own way.
+
+#### Comments
+* **More abstract methods** A template class may contain multiple abstract methods, each representing a customizable step that concrete subclasses must implement as part of the overall algorithm.
+
+# Chapter 10 What’s Next?
+Rather than fixating on whether code follows a named pattern, focus on understanding the design benefits the pattern provides and explore further learning resources to continue developing your software architecture skills.
+
+**Domain‑Driven Design (DDD)** is a powerful alternative design approach where the domain model directly becomes the system’s class diagram, offering deeper insight and solutions to complex design problems, making Evans’ Domain‑Driven Design an excellent next step for further learning.
+
+Beyond **MVC**, many architectural patterns—such as MVVM, MVP, and DDD’s own layering—offer alternative ways to structure systems with similar separation of concerns but different layer responsibilities.
+
+Despite their age, **the GoF design‑patterns book and Fowler’s refactoring book** remain highly relevant because they introduced foundational concepts and ways of thinking that still underpin modern software design, even if their code examples use older languages.
+
+**Joshua Bloch’s Effective Java (3rd edition)** remains an essential resource for Java developers because it distills modern, language‑specific best practices—making older editions obsolete due to Java’s rapid evolution.
+
+**Martin Fowler’s website (https://martinfowler.com/)** is an excellent resource filled with valuable material on software design and architecture, even if you don’t agree with everything.
+
+There are countless learning resources beyond this book, and the best path forward is to explore multiple — often contradictory — opinions and practices, gaining deeper understanding over time through continuous study and hands‑on experience.
