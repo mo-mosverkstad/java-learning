@@ -91,63 +91,78 @@ The programming requirements includes:
 
 Unit Testing Requirements includes writing unit tests that cover all classes in the controller, model and integration layers, except DTO classes that only contains simple constructors and getters. Additionally, methods that prints out to \texttt{System.out} does not need to be tested.
 
-\subsection{Implementing code on class diagram and system operation diagrams}
-Class diagram and system operation diagrams that uses communication diagrams that are implemented in seminar 2 facilitates code implementation since both the large-scale architecture and class layouts are already written out. These can act as a primary reference for creating relevant packages and classes. With the help of the interaction diagrams, each system operation can be designed according to these.
+\subsection{Implementing code based on class diagrams and system operation diagrams}
+
+Class diagrams and system operations from Seminar 2 can help with producing the implementation of the program structure, by translating the diagrams into code. The diagrams provides a clear overview of both the static architectural structure with classes as well as the dynamic system functionality, which facilitates the transition from design to code. 
+
+The class diagram is used mostly as a blueprint for defining the application architecture. It contains the main classes with their repsonsibilities and their relationships, as well as their positions to their packages such as controller, model and integration. In this case, each class and package in the diagram can be directly translated into a corresponding Java class or package.
+
+The system operation diagrams, represented as communication diagrams, are used to implement the system behavior once the basic package and class skeleton structures are implemented. Since the diagrams describe how objects interact during functional execution, by following the message flow in the diagrams, the functionality can easily be translated and implemented. This can be accomplished by putting the relevant code statements with each functionality in its desired method of a specific class. 
+
+Additionally, the communication diagrams above helped ensure that the control flow of the program followed the intended sequence of execution events of a functionality, which reduced ambiguity when implementing methods in the controller and model layers, as each step in a system operation could be traced back to a corresponding message in the diagram.
 
 \section{Method}
 
 % \textbf{This chapter tells \textit{how} you solved the task.} Explain how you worked and what tools you used when solving the tasks. \textit{Do not explain your solution and do not present entire sub-results in detail. It's enough to explain which steps you performed and perhaps give a short example.} For example, some of the things to explain in the report for seminar one, is that you used a category list and noun identification to find class candidates for the domain model, and to tell which UML editor you used.
 % Goal: Explain how you worked (not the solution itself)
 
-In the Method chapter of this report, the development process must be explained, including how code structure, layering, and design decisions were made. 
-The Method chapter must explain how the tests were designed and how test cases were selected.
+% Slight help:
+% In the Method chapter of this report, the development process must be explained, including how code structure, layering, and design decisions were made. 
+% The Method chapter must explain how the tests were designed and how test cases were selected.
+
+The implementation method includes translating the UML diagrams from Seminar 2 into the executable Java Code. The process involves establishing overall structure of application based on the class diagram, followed by implementation of the behavior of each system operation using communication diagram.
+
+The development starts with writing out the skeleton architecture with empty packages and class skeletons from class diagram. Afterwards, the development continues incrementally. Each system operation is designed from every corresponding communication diagram, beginning with the basic startup sequence where all relevant and necessary classes are initialized. 
+
+The development also contains several programming guidelines for code readability and extensibility, such as dividing code into packages, following code conventions, adhering to naming conventions. 
+
+Throughout the implementation, after each system operation, tests are written and conducted to detect potential errors, which are resolved and patched before continuing onto next system operation, in order to ensure code stability and quality. Refactoring is also important after every system operation to improve readability, cohesion and maintainability.
 
 \subsection{Dividing code in packages}
 
-## 6.1 Dividing the Code in Packages
-* Structured package naming hierarchy
+The code is organized into packages based on the layered MVC-architecture in the class diagram. The main packages include controller, model and integration layers, where each layer has a clearly defined responsibility.
 
-* Some classes don’t belong to any specific layer because they provide general services used across multiple layers. These utility classes, such as those for string parsing or file handling, are placed in a separate package like util. In the car‑rental application, this package is named ***se.kth.iv1350.carRental.util***.
+For instance, the controller package contains classes responsible for handling system operations and coordinating interactions between different parts of the system. The model package includes the core domain logic and represents the main business entities of the application. The integration package is responsible for handling external systems and data storage, which in this implementation are represented by in-memory objects.
+
+However, some classes, including string parsing, file handling and printout format constants, don't fit into a specific package since they provide general-purpose functionality that is necessary across multiple layers. As a result, they are collected into a separate package named \texttt{util}.
+
+The separation into layers leads to low coupling and high cohesion, where each package has a well-defined responsibility, which contributes to readability, maintainability and extensibility.
+
 
 \subsection{Adherence to code conventions}
 
-## 6.2 Code Conventions
-*   **Package name**
-    *   Type: *package*
-    *   Description: Parts start lowercase; begin with reversed internet domain → product name → specific package.
-    *   Example: `se.kth.iv1350.rentCar.model` or `se.kth.iv1350.rentcar.model`
+During code implementation, code conventions and guidelines are followed for readability and extensibility. For instance, code packages are started in lowercase, beginning with reversed internet domain, followed by product name and specific packages. For instance, the \texttt{startup} class has the package name \texttt{se.ebikerepair.startup.Main}.
 
-*   **Class / Interface**
-    *   Type: *class, interface*
-    *   Description: Full descriptive name; each word starts with uppercase (PascalCase).
-    *   Example: `CashRegister`
+se.ebikerepair does not produce a reversed internet domain???
 
-*   **Method**
-    *   Type: *method*
-    *   Description: Full description; starts lowercase; non-initial words start uppercase (camelCase).
-    *   Example: `calculateTotalCost`
+Classes and interfaces contains a full descriptive name. Each class starts with an uppercase letter and written in PascalCase, for instance \texttt{ControllerCreator} and \texttt{CustomerDTO}. 
 
-*   **Variable / Field / Parameter**
-    *   Type: *variable, field, parameter*
-    *   Description: Same rules as methods (camelCase).
-    *   Example: `paidRental`
+Method names contains a full description in its name in terms of its functionality and follows camelCase, starting with a lower case letter. For example, the method \texttt{addProposedRepairTask} in the class \texttt{RepairOrder} adds a proposed repair task with the class type \texttt{ProposedRepairTaskDTO} into a repair order.
 
-*   **Constant**
-    *   Type: *constant (final static field)*
-    *   Description: All uppercase letters; words separated by underscores.
-    *   Example: `MILES_PER_KM`
+Variables, fields and parameters applies same rules as methods: descriptive names and camelCase notation. For instance, a variable \texttt{estimatedCompleteDate} describes the date when the repair order is estimated to be completed, which clearly states the meaning of the \texttt{Date} object. This contributes and enhances code readability, where each variable name explains its intent.
+
+Constants, \texttt{final static} fields, are written in all uppercase letters, separated by underscores. For instance, the constant \texttt{BIKE_PRINTOUT_FORMAT} holds the format of a format string showing the detail information of a \texttt{BikeDTO}.
 
 \subsection{Writing comments and Javadoc}
 
-## 6.3 Comments
-Public interfaces must include **Javadoc** comments to generate API documentation.
+All public interfaces are included in Javadoc comments in order to generate Java API documentation. On the other hand, inline comments inside each function are avoided since they are obscure and focus only on its internal functional mechanism. In Javadoc documentation, each method or class has a brief description about its intended functionality and behavior in a high-level abstraction. It also includes given parameters, return values and exceptions being thrown.
 
-Javadoc should state what a unit does — **not how** — and must document **method behavior, parameters, and return values** using proper tags.
-
-**Avoid comments inside methods** — use them as a signal to refactor long methods instead.
+For instance, in \texttt{RepairOrderRegistry} class, the Javadoc for the method \texttt{findRepairOrdersByTelephoneNumber} only states that the method finds all repair orders for a customer by a given telephone number, as well as the method takes in a \texttt{telephoneNumber} in string and returns a list of \texttt{repairOrder}s in \texttt{List<RepairOrder>}. However, it does not state how the registry stores the repair orders and how it is found using a telephone number, whether storing all telephone numbers in a long list without indexing and found by linear scan or using a clever hash-index for constant time search. In this case, the internal logic is encapsulated and can be optimized when the program evolves without changing the existing API interface.
 
 \subsection{Code smell and refactoring}
 
+Another important aspect of code implementation is recognizing code smell, which are symptoms of poor design of a program, as well as adressing them by refactoring in order to improve code quality, as well as better readability and maintainability. 
+
+One common code smell is duplicated code, where similar logic appears in different methods. This can be resolved by extracting the shared functionality logic into separate helper methods, some are private methods if these are not used elsewhere. For instance, the formatting styles are common between the class \texttt{RepairOrder} and \texttt{RepairOrderDTO}, whereas the \texttt{format} function, that is only responsible for formatting the repair order string, can be extracted and placed in \texttt{RepairOrderDTO} class.
+
+Another common code smell is long methods, which can be defined as a method taking responsibility of more than one functionality without explicit hierarchy of method calling. This can be resolved by splitting up each logic of the method that concerns each repsonsibility into its intended well-named method. This improves readability and make the control flow easier to follow and understand. For instance, classes in control layer does not take resposibility in controller logic...
+
+Additionally, primitive obsession is another code smell, where primitive values are favoured than regular objects. This can be adressed by introducing small data classes, DTOs, that wrap up multiple variables into one, such as \texttt{Cost} class that holds both a amount value and a currency value. This avoids primitive variables and fields to be scattered across the logic, which does not only cause low readability, but also harder to maintain since multiple variables have to be considered without an explicit relationship written as code syntax.
+
+Detecting code smells and refactoring is a continous and ongoing process during code implementation. After each system operation, the process is done in order to ensure clean and maintainable code, while preserving its functionality. As a result, the final design adhere stronger to the OOP guidelines and produces higher cohesion, lower coupling and high encapsulation, which makes code easier to extend, improve and optimize.
+
+
+% To be removed !!!
 ## 6.4 Code Smell and Refactoring
 **Code smells** signal poor design and should be removed through refactoring to improve code quality without changing behavior.
 
@@ -203,13 +218,124 @@ Javadoc should state what a unit does — **not how** — and must document **me
 
 \subsection{Testing}
 
+Unit testing is conducted to verify the correctness of the program behavior. Tests are written for all public methods, except simple methods such as getters and setters, in all layers, controller, model and integration.
+
+Test cases are designed to cover typical usage scenarios, as well as edge cases where incorrect or unexpected input could occur. For example, methods that retrieve repair orders are tested with both existing and non-existing identifiers to ensure correct behavior in all situations.
+
+The tests are implemented using JUnit and executed after each system operation are completed. This ensured that incorrect program behavior are detected early in development stage and that newly added functionality does not interfere with existing behavior. Methods that only produce output to \texttt{System.out} are not tested.
+
 
 \section{Result}
 \label{sec:result}
 
 % \textbf{This chapter explains \textit{the result} of what you did.} \textbf{The report must show that you have done the work yourself and that you have understood what you have done}, both of these goals are met by explaining your solution here in the result chapter. Include links to your code in your Git repository (for seminars 3 and 4), and also include diagrams, see Figure \ref{fig:diag}, and other figures to illustrate your reasoning. All figures must be referenced in the text. Ask yourself if the solution is clearly explained, and if the reader will understand the application. What would you yourself want to know if you read about the application, is that included in the report? More specific instructions for the content can be found in each assignment.
 
+Based on the design diagrams from seminar 2, the code implementation covers the basic flow and startup sequence. Additionally, the code implementation is structurally divided into mutiple packages, where each of them corresponds to a layer in the MVC-layered architecture. 
+
+Each system operation is described in terms of its purpose and execution flow through the different layers of the system. Relevant parts of the implementation are illustrated with code snippets, and the interaction between the controller, model, and integration layers is explained.
+
 \subsection{The \texttt{searchCustomer} system operation}
+
+The first system operation is \texttt{searchCustomer} which involves searching a customer using a phone number. 
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+package se.ebikerepair.view;
+
+import java.util.List;
+
+import se.ebikerepair.controller.ControllerCreator;
+import se.ebikerepair.controller.ReceptionistController;
+import se.ebikerepair.controller.TechnicianController;
+import se.ebikerepair.integration.CustomerDTO;
+
+/**
+ * View layer that orchestrates the repair workflow: reception preparation, technician diagnostics,
+ * and reception confirmation. Catches and displays user-facing errors.
+ */
+public class View {
+    private static final String ERROR_PREFIX = "Error: ";
+    private final ReceptionistController receptionistController;
+    private final TechnicianController technicianController;
+
+    /**
+     * Creates a view with controllers from the given controller creator.
+     *
+     * @param controllerCreator the factory providing access to controllers
+     */
+    public View(ControllerCreator controllerCreator){
+        receptionistController = controllerCreator.getReceptionistController();
+        technicianController = controllerCreator.getTechnicianController();
+    }
+
+    /**
+     * Runs the full repair workflow: reception preparation, technician diagnostics, and reception confirmation.
+     *
+     * @param telephoneNumber the customer's telephone number
+     * @param bikeSerialNumber the serial number of the broken bike
+     */
+    public void proceedActions(String telephoneNumber, String bikeSerialNumber) {
+        try {
+            CustomerDTO foundCustomer = receptionistController.searchCustomer(telephoneNumber);
+            printout("1. Reception - Found customer:", foundCustomer);
+
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            System.out.println(ERROR_PREFIX + e.getMessage());
+        }
+    }
+
+    private void printout(Object... objects) {
+        for (Object object : objects) {
+            System.out.println(object);
+        }
+        System.out.println();
+    }
+}
+
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+/**
+ * Application entry point. Initializes registries, controllers, and view, 
+ * then runs the repair workflow.
+ */
+public class Main {
+    /**
+     * Starts the electric bike repair application.
+     *
+     * @param args command line arguments (not used)
+     */
+    public static void main(String[] args) {
+        RegistryCreator registryCreator = new RegistryCreator();
+        Printer printer = new Printer();
+        ControllerCreator controllerCreator = new ControllerCreator(registryCreator, printer);
+        View view = new View(controllerCreator);
+        view.proceedActions("0707654321", "SK-2024-055");
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+/**
+ * Application entry point. Initializes registries, controllers, and view, 
+ * then runs the repair workflow.
+ */
+public class Main {
+    /**
+     * Starts the electric bike repair application.
+     *
+     * @param args command line arguments (not used)
+     */
+    public static void main(String[] args) {
+        RegistryCreator registryCreator = new RegistryCreator();
+        Printer printer = new Printer();
+        ControllerCreator controllerCreator = new ControllerCreator(registryCreator, printer);
+        View view = new View(controllerCreator);
+        view.proceedActions("0707654321", "SK-2024-055");
+    }
+}
+\end{lstlisting}
+
+
 
 \begin{lstlisting}[style=javastyle, caption={Main class entry point}]
 /**
