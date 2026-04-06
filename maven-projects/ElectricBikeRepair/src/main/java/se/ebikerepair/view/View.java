@@ -1,18 +1,15 @@
 package se.ebikerepair.view;
 
-import java.util.List;
-
 import se.ebikerepair.controller.ControllerCreator;
 import se.ebikerepair.controller.ReceptionistController;
 import se.ebikerepair.controller.TechnicianController;
 import se.ebikerepair.integration.CustomerDTO;
 import se.ebikerepair.integration.BikeDTO;
-import se.ebikerepair.model.DiagnosticReportDTO;
-import se.ebikerepair.model.ProblemDTO;
-import se.ebikerepair.model.ProposedRepairTaskDTO;
-import se.ebikerepair.model.RepairOrderDTO;
+import se.ebikerepair.integration.ProblemDTO;
+import se.ebikerepair.integration.RepairOrderDTO;
+import se.ebikerepair.integration.RepairTaskDTO;
 import se.ebikerepair.model.Cost;
-import se.ebikerepair.model.ResultDTO;
+import se.ebikerepair.integration.ResultDTO;
 
 /**
  * View layer that orchestrates the repair workflow: reception preparation, technician diagnostics,
@@ -28,7 +25,7 @@ public class View {
      *
      * @param controllerCreator the factory providing access to controllers
      */
-    public View(ControllerCreator controllerCreator){
+    public View(ControllerCreator controllerCreator) {
         receptionistController = controllerCreator.getReceptionistController();
         technicianController = controllerCreator.getTechnicianController();
     }
@@ -59,23 +56,23 @@ public class View {
         }
     }
 
-    private void proceedTechnicianDiagnosticActions(String telephoneNumber){
+    private void proceedTechnicianDiagnosticActions(String telephoneNumber) {
         try {
             RepairOrderDTO repairOrderDTO = technicianController.findRepairOrder(telephoneNumber);
             printout("3. Technician - Requested repair order: ", repairOrderDTO);
 
             String repairOrderId = repairOrderDTO.id();
-            int diagnosticTaskIndex = repairOrderDTO.findTaskIndexByName("Mechanical Safety Check");
+            String diagnosticTaskName = "Mechanical Safety Check";
             ResultDTO result = new ResultDTO(true, true, "Chain and gears should be replaced.");
-            technicianController.addDiagnosticResult(repairOrderId, diagnosticTaskIndex, result);
-            printout("4. Technician - Created diagnostic report: ", repairOrderDTO.diagnosticReport().getDiagnosticTasks().get(diagnosticTaskIndex));
+            technicianController.addDiagnosticResult(repairOrderId, diagnosticTaskName, result);
+            printout("4. Technician - Updated diagnostic task: ", diagnosticTaskName);
 
-            ProposedRepairTaskDTO proposedRepairTaskDTO1 = new ProposedRepairTaskDTO("Replace Chain", "Removal of worn or stretched chain and installation of a new compatible e‑bike chain. Includes lubrication, tension adjustment, and drivetrain alignment check.", new Cost(500, "SEK"), 1);
-            ProposedRepairTaskDTO proposedRepairTaskDTO2 = new ProposedRepairTaskDTO("Replace gears", "Replacement of worn or damaged rear cassette/freewheel or front chainrings. Includes removal of old components, installation of new gear set, indexing and tuning of derailleur(s).", new Cost(400, "SEK"), 2);
-            technicianController.addProposedRepairTask(repairOrderId, proposedRepairTaskDTO1);
-            technicianController.addProposedRepairTask(repairOrderId, proposedRepairTaskDTO2);
-            printout("5. Technician - Created proposed repair tasks 01: ", proposedRepairTaskDTO1);
-            printout("6. Technician - Created proposed repair tasks 02: ", proposedRepairTaskDTO2);
+            RepairTaskDTO repairTask1 = new RepairTaskDTO("Replace Chain", "Removal of worn or stretched chain and installation of a new compatible e\u2011bike chain. Includes lubrication, tension adjustment, and drivetrain alignment check.", new Cost(500, "SEK"), 1);
+            RepairTaskDTO repairTask2 = new RepairTaskDTO("Replace gears", "Replacement of worn or damaged rear cassette/freewheel or front chainrings. Includes removal of old components, installation of new gear set, indexing and tuning of derailleur(s).", new Cost(400, "SEK"), 2);
+            technicianController.addRepairTask(repairOrderId, repairTask1);
+            technicianController.addRepairTask(repairOrderId, repairTask2);
+            printout("5. Technician - Created proposed repair tasks 01: ", repairTask1);
+            printout("6. Technician - Created proposed repair tasks 02: ", repairTask2);
         } catch (IllegalArgumentException | IllegalStateException e) {
             System.out.println(ERROR_PREFIX + e.getMessage());
         }
@@ -85,11 +82,11 @@ public class View {
         try {
             RepairOrderDTO repairOrderDTO = receptionistController.findRepairOrder(telephoneNumber);
             printout("7. Reception - found repair order: ", repairOrderDTO);
-            
+
             printout("8. Reception - Accepted order");
             String repairOrderId = repairOrderDTO.id();
             receptionistController.acceptRepairOrder(repairOrderId);
-            
+
         } catch (IllegalArgumentException | IllegalStateException e) {
             System.out.println(ERROR_PREFIX + e.getMessage());
         }

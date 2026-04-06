@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 import se.ebikerepair.integration.BikeDTO;
 import se.ebikerepair.integration.CustomerDTO;
 import se.ebikerepair.integration.RegistryCreator;
-import se.ebikerepair.model.ProblemDTO;
-import se.ebikerepair.model.RepairOrderDTO;
+import se.ebikerepair.integration.ProblemDTO;
+import se.ebikerepair.integration.RepairOrderDTO;
 import se.ebikerepair.model.RepairOrderState;
 import se.ebikerepair.integration.Printer;
 
@@ -15,11 +15,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ReceptionistControllerTest {
     private ReceptionistController controller;
-    private RegistryCreator registryCreator;
 
     @BeforeEach
     void setUp() {
-        registryCreator = new RegistryCreator();
+        RegistryCreator registryCreator = new RegistryCreator();
         controller = new ReceptionistController(registryCreator, new Printer());
     }
 
@@ -27,7 +26,7 @@ class ReceptionistControllerTest {
     void testSearchExistingCustomer() {
         CustomerDTO customer = controller.searchCustomer("0707654321");
         assertNotNull(customer);
-        assertEquals("Astrid Johansson", customer.getName());
+        assertEquals("Astrid Johansson", customer.name());
     }
 
     @Test
@@ -43,7 +42,7 @@ class ReceptionistControllerTest {
     @Test
     void testCreateRepairOrder() {
         CustomerDTO customer = controller.searchCustomer("0707654321");
-        BikeDTO bike = customer.getBikes().get(0);
+        BikeDTO bike = customer.bikes().get(0);
         String id = controller.createRepairOrder("0707654321", new ProblemDTO("Broken chain", bike));
         assertNotNull(id);
     }
@@ -57,7 +56,7 @@ class ReceptionistControllerTest {
     @Test
     void testAcceptRepairOrder() {
         CustomerDTO customer = controller.searchCustomer("0707654321");
-        BikeDTO bike = customer.getBikes().get(0);
+        BikeDTO bike = customer.bikes().get(0);
         String id = controller.createRepairOrder("0707654321", new ProblemDTO("Broken chain", bike));
 
         controller.acceptRepairOrder(id);
@@ -74,7 +73,7 @@ class ReceptionistControllerTest {
     @Test
     void testRejectRepairOrder() {
         CustomerDTO customer = controller.searchCustomer("0707654321");
-        BikeDTO bike = customer.getBikes().get(0);
+        BikeDTO bike = customer.bikes().get(0);
         String id = controller.createRepairOrder("0707654321", new ProblemDTO("Broken chain", bike));
 
         controller.rejectRepairOrder(id);
@@ -92,18 +91,18 @@ class ReceptionistControllerTest {
     void testSearchCustomerWithSpaces() {
         CustomerDTO customer = controller.searchCustomer("070-765 43 21");
         assertNotNull(customer);
-        assertEquals("Astrid Johansson", customer.getName());
+        assertEquals("Astrid Johansson", customer.name());
     }
 
     @Test
     void testCreateAndFindRepairOrder() {
         CustomerDTO customer = controller.searchCustomer("0707654321");
-        BikeDTO bike = customer.getBikes().get(0);
+        BikeDTO bike = customer.bikes().get(0);
         controller.createRepairOrder("0707654321", new ProblemDTO("Broken chain", bike));
 
         RepairOrderDTO dto = controller.findRepairOrder("0707654321");
         assertNotNull(dto);
-        assertEquals("Astrid Johansson", dto.customerDTO().getName());
+        assertEquals("Astrid Johansson", dto.customerDTO().name());
         assertEquals(RepairOrderState.NewlyCreated, dto.repairOrderState());
     }
 }

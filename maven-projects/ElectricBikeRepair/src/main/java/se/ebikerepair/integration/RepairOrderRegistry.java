@@ -50,10 +50,10 @@ public class RepairOrderRegistry{
      */
     public void save(RepairOrder repairOrder){
         repairOrdersByRepairOrderId.put(repairOrder.getId(), repairOrder);
-        List<RepairOrder> repairOrders = repairOrdersByTelephoneNumber.get(repairOrder.getCustomerDTO().getTelephoneNumber());
+        List<RepairOrder> repairOrders = repairOrdersByTelephoneNumber.get(repairOrder.getCustomerDTO().telephoneNumber());
         if (repairOrders == null){
             repairOrders = new ArrayList<>();
-            repairOrdersByTelephoneNumber.put(repairOrder.getCustomerDTO().getTelephoneNumber(), repairOrders);
+            repairOrdersByTelephoneNumber.put(repairOrder.getCustomerDTO().telephoneNumber(), repairOrders);
         }
         boolean addNew = true;
 

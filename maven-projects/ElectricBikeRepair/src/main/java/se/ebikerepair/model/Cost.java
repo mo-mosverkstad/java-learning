@@ -25,12 +25,20 @@ public class Cost {
         this(0, "SEK");
     }
 
-    /** @return the monetary amount */
+    /**
+     * Returns the monetary amount.
+     *
+     * @return the monetary amount
+     */
     public float getAmount() {
         return amount;
     }
 
-    /** @return the currency code */
+    /**
+     * Returns the currency code.
+     *
+     * @return the currency code
+     */
     public String getCurrency() {
         return currency;
     }

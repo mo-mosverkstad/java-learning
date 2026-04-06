@@ -3,7 +3,7 @@ package se.ebikerepair.util;
 import org.junit.jupiter.api.Test;
 
 import se.ebikerepair.integration.CustomerDTO;
-import se.ebikerepair.model.DiagnosticTaskDTO;
+import se.ebikerepair.integration.DiagnosticTaskDTO;
 
 import java.util.List;
 
@@ -23,8 +23,8 @@ class JsonFileHandlerTest {
         JsonFileHandler handler = new JsonFileHandler("diagnosticTasks.json");
         List<DiagnosticTaskDTO> tasks = handler.readList(DiagnosticTaskDTO.class);
         assertFalse(tasks.isEmpty());
-        assertNotNull(tasks.get(0).getName());
-        assertNotNull(tasks.get(0).getCost());
+        assertNotNull(tasks.get(0).name());
+        assertNotNull(tasks.get(0).cost());
     }
 
     @Test
@@ -39,9 +39,9 @@ class JsonFileHandlerTest {
         JsonFileHandler handler = new JsonFileHandler("customers.json");
         List<CustomerDTO> customers = handler.readList(CustomerDTO.class);
         CustomerDTO first = customers.get(0);
-        assertNotNull(first.getName());
-        assertNotNull(first.getTelephoneNumber());
-        assertNotNull(first.getEmailAddress());
-        assertNotNull(first.getBikes());
+        assertNotNull(first.name());
+        assertNotNull(first.telephoneNumber());
+        assertNotNull(first.emailAddress());
+        assertNotNull(first.bikes());
     }
 }

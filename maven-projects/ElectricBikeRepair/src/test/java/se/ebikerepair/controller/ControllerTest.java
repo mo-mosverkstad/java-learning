@@ -6,9 +6,8 @@ import org.junit.jupiter.api.Test;
 import se.ebikerepair.integration.BikeDTO;
 import se.ebikerepair.integration.CustomerDTO;
 import se.ebikerepair.integration.RepairOrderRegistry;
-import se.ebikerepair.model.ProblemDTO;
 import se.ebikerepair.model.RepairOrder;
-import se.ebikerepair.model.RepairOrderDTO;
+import se.ebikerepair.integration.RepairOrderDTO;
 
 import java.util.List;
 
@@ -30,12 +29,16 @@ class ControllerTest {
 
     @Test
     void testFindRepairOrderReturnsNewest() throws InterruptedException {
-        RepairOrder order1 = new RepairOrder(customer, new ProblemDTO("First issue", bike));
+        RepairOrder order1 = new RepairOrder(customer);
+        order1.getProblem().setDescription("First issue");
+        order1.getProblem().setBrokenBike(bike);
         registry.save(order1);
 
         Thread.sleep(50);
 
-        RepairOrder order2 = new RepairOrder(customer, new ProblemDTO("Second issue", bike));
+        RepairOrder order2 = new RepairOrder(customer);
+        order2.getProblem().setDescription("Second issue");
+        order2.getProblem().setBrokenBike(bike);
         registry.save(order2);
 
         RepairOrderDTO dto = controller.findRepairOrder("+46707654321");
@@ -56,12 +59,14 @@ class ControllerTest {
 
     @Test
     void testFindRepairOrderSingleOrder() {
-        RepairOrder order = new RepairOrder(customer, new ProblemDTO("Broken chain", bike));
+        RepairOrder order = new RepairOrder(customer);
+        order.getProblem().setDescription("Broken chain");
+        order.getProblem().setBrokenBike(bike);
         registry.save(order);
 
         RepairOrderDTO dto = controller.findRepairOrder("+46707654321");
         assertNotNull(dto);
         assertEquals(order.getId(), dto.id());
-        assertEquals("Astrid", dto.customerDTO().getName());
+        assertEquals("Astrid", dto.customerDTO().name());
     }
 }

@@ -1,6 +1,7 @@
 package se.ebikerepair.model;
 
 import org.junit.jupiter.api.Test;
+import se.ebikerepair.integration.ResultDTO;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -46,8 +47,18 @@ class ResultTest {
     @Test
     void testToString() {
         Result result = new Result(true, true, "Broken");
-        String str = result.toString();
+        ResultDTO dto = result.toDTO();
+        String str = dto.toString();
         assertTrue(str.contains("true"));
         assertTrue(str.contains("Broken"));
+    }
+
+    @Test
+    void testToDTO() {
+        Result result = new Result(true, false, "Checked ok");
+        ResultDTO dto = result.toDTO();
+        assertTrue(dto.checked());
+        assertFalse(dto.toBeRepaired());
+        assertEquals("Checked ok", dto.description());
     }
 }

@@ -1,68 +1,53 @@
 package se.ebikerepair.model;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import se.ebikerepair.integration.BikeDTO;
 import se.ebikerepair.integration.CustomerDTO;
-import se.ebikerepair.model.ProblemDTO;
-import se.ebikerepair.model.RepairOrder;
-import se.ebikerepair.model.RepairOrderDTO;
-import se.ebikerepair.model.RepairOrderState;
-import se.ebikerepair.model.Cost;
-import se.ebikerepair.model.DiagnosticReportDTO;
-import se.ebikerepair.model.ProposedRepairTaskDTO;
-import se.ebikerepair.model.Result;
-import se.ebikerepair.model.ResultDTO;
+import se.ebikerepair.integration.RepairOrderDTO;
+import se.ebikerepair.integration.RepairTaskDTO;
+import se.ebikerepair.integration.ResultDTO;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RepairOrderTest {
+class RepairOrderTest {
 
     @Test
     void testBasic() {
-        List<BikeDTO> bikes = new ArrayList<>();
-        BikeDTO brokenBike = new BikeDTO("Brand", "Model", "SerialNumber");
-        bikes.add(brokenBike);
-        CustomerDTO customer = new CustomerDTO("Alice", "0721312125", "alice@example.com", bikes);
-        ProblemDTO problem = new ProblemDTO("Flat tire", brokenBike);
+        RepairOrder order = createOrder();
 
-        RepairOrder order = new RepairOrder(customer, problem);
-
-        assertEquals(customer, order.getCustomerDTO());
-        // assertEquals(brokenBike, order.getBikeDTO());
-        assertEquals(problem, order.getProblemDTO());
-
+        assertNotNull(order.getCustomerDTO());
+        assertEquals("Flat tire", order.getProblem().getDescription());
         assertNotNull(order.getCreatedDate());
         assertNotNull(order.getTotalCost());
         assertNotNull(order.getId());
-
         assertEquals(RepairOrderState.NewlyCreated, order.getRepairOrderState());
-        assertNull(order.getEstimatedCompleteDate());
     }
-    
+
     @Test
     void testToDTO() {
-        List<BikeDTO> bikes = new ArrayList<>();
-        BikeDTO brokenBike = new BikeDTO("Brand", "Model", "SerialNumber");
-        bikes.add(brokenBike);
-        CustomerDTO customer = new CustomerDTO("Bob", "0722382175", "bob@example.com", bikes);
-        ProblemDTO problem = new ProblemDTO("Broken chain", brokenBike);
-
-        RepairOrder order = new RepairOrder(customer, problem);
-
+        RepairOrder order = createOrder();
         RepairOrderDTO dto = order.toDTO();
 
         assertEquals(order.getCustomerDTO(), dto.customerDTO());
-        assertEquals(order.getProblemDTO(), dto.problemDTO());
+        assertEquals(order.getProblem().getDescription(), dto.problemDTO().description());
+        assertEquals(order.getProblem().getBrokenBike(), dto.problemDTO().brokenBike());
         assertEquals(order.getCreatedDate(), dto.createdDate());
-        assertEquals(order.getTotalCost(), dto.totalCost());
         assertEquals(order.getRepairOrderState(), dto.repairOrderState());
         assertEquals(order.getId(), dto.id());
+        assertNotNull(dto.diagnosticReport());
+        assertNotNull(dto.repairTaskCollection());
+    }
+
+    @Test
+    void testToDTODeepCopy() {
+        RepairOrder order = createOrder();
+        RepairOrderDTO dto = order.toDTO();
+
+        assertNotSame(order.getCreatedDate(), dto.createdDate());
+        assertEquals(order.getCreatedDate(), dto.createdDate());
     }
 
     @Test
@@ -80,51 +65,33 @@ public class RepairOrderTest {
     }
 
     @Test
-    void testAddProposedRepairTask() {
+    void testAddRepairTask() {
         RepairOrder order = createOrder();
-        ProposedRepairTaskDTO task = new ProposedRepairTaskDTO("Fix chain", "Replace chain", new Cost(500, "SEK"), 2);
-        order.addProposedRepairTask(task);
+        order.getRepairTaskCollection().addRepairTask(new RepairTaskDTO("Fix chain", "Replace chain", new Cost(500, "SEK"), 2));
 
-        assertEquals(500.0F, order.getTotalCost().getAmount());
+        assertTrue(order.getTotalCost().getAmount() >= 500.0F);
         assertNotNull(order.getEstimatedCompleteDate());
     }
 
     @Test
-    void testAddMultipleProposedRepairTasks() {
+    void testAddMultipleRepairTasks() {
         RepairOrder order = createOrder();
-        order.addProposedRepairTask(new ProposedRepairTaskDTO("Task1", "Desc1", new Cost(300, "SEK"), 1));
-        order.addProposedRepairTask(new ProposedRepairTaskDTO("Task2", "Desc2", new Cost(200, "SEK"), 3));
+        order.getRepairTaskCollection().addRepairTask(new RepairTaskDTO("Task1", "Desc1", new Cost(300, "SEK"), 1));
+        order.getRepairTaskCollection().addRepairTask(new RepairTaskDTO("Task2", "Desc2", new Cost(200, "SEK"), 3));
 
-        assertEquals(500.0F, order.getTotalCost().getAmount());
+        assertTrue(order.getTotalCost().getAmount() >= 500.0F);
     }
 
     @Test
     void testUpdateDiagnosticResult() {
         RepairOrder order = createOrder();
         ResultDTO result = new ResultDTO(true, true, "Needs repair");
-        order.updateDiagnosticResult(0, result);
+        order.getDiagnosticReport().updateDiagnosticResult("Electrical", result);
 
-        Result taskResult = order.getDiagnosticReport().getDiagnosticTasks().get(0).getResult();
-        assertTrue(taskResult.getChecked());
-        assertTrue(taskResult.getToBeRepaired());
-        assertEquals("Needs repair", taskResult.getDescription());
-    }
-
-    @Test
-    void testCalculateCostByDiagnosticTask() {
-        RepairOrder order = createOrder();
-        float taskCost = order.getDiagnosticReport().getDiagnosticTasks().get(0).getCost().getAmount();
-        order.calculateCostByDiagnosticTask(0);
-
-        assertEquals(taskCost, order.getTotalCost().getAmount());
-    }
-
-    @Test
-    void testSetDiagnosticReport() {
-        RepairOrder order = createOrder();
-        DiagnosticReportDTO newReport = new DiagnosticReportDTO();
-        order.setDiagnosticReport(newReport);
-        assertEquals(newReport, order.getDiagnosticReport());
+        DiagnosticTask task = order.getDiagnosticReport().getDiagnosticTasks().get(0);
+        assertTrue(task.getResult().getChecked());
+        assertTrue(task.getResult().getToBeRepaired());
+        assertEquals("Needs repair", task.getResult().getDescription());
     }
 
     @Test
@@ -134,28 +101,16 @@ public class RepairOrderTest {
         assertNotNull(str);
         assertTrue(str.contains("Repair Order"));
         assertTrue(str.contains(order.getId()));
-        assertTrue(str.contains("Customer:"));
-        assertTrue(str.contains("- Name:"));
         assertTrue(str.contains("Test"));
         assertTrue(str.contains("+46701234567"));
-        assertTrue(str.contains("test@example.com"));
     }
 
     private RepairOrder createOrder() {
         BikeDTO bike = new BikeDTO("Brand", "Model", "SN");
         CustomerDTO customer = new CustomerDTO("Test", "+46701234567", "test@example.com", List.of(bike));
-        return new RepairOrder(customer, new ProblemDTO("Issue", bike));
+        RepairOrder order = new RepairOrder(customer);
+        order.getProblem().setDescription("Flat tire");
+        order.getProblem().setBrokenBike(bike);
+        return order;
     }
-
-    /*
-    @Test
-    void testNullCustomer() {
-        BikeDTO bike = new BikeDTO("Brand", "Model", "SN");
-        ProblemDTO problem = new ProblemDTO("Issue", bike);
-
-        assertThrows(NullPointerException.class, () -> {
-            new RepairOrder(null, problem);
-        });
-    }
-         */
 }

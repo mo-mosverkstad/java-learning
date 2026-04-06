@@ -38,17 +38,22 @@ public final class PrintoutFormat {
             "      --------------------------------%n" +
             "      [%s] %s%n" +
             "            %s%n" +
-            "      [%s] Cost: %s | Result: %s%n";
+            "      [%s] Cost: %s | Est. days: %d | Result: %s%n";
 
     public static final String DIAGNOSTIC_REPORT_PRINTOUT_FORMAT =
-            "    Date: %s%n" +
+            "    Days: %s%n" +
+            "    Cost: %s%n" +
             "    Description: %s%n%s";
 
+    public static final String REPAIR_TASK_COLLECTION_PRINTOUT_FORMAT =
+            "    Days: %s%n" +
+            "    Cost: %s%n%s";
+
     public static final String PROPOSED_REPAIR_TASK_PRINTOUT_FORMAT =
-            "      --------------------------------%n" +
-            "      [%s] %s%n" +
-            "          %s%n" +
-            "           Cost: %s | Est. days: %d%n";
+            "    --------------------------------%n" +
+            "    [%s] %s%n" +
+            "        %s%n" +
+            "         Cost: %s | Est. days: %d%n";
 
     public static final String REPAIR_ORDER_PRINTOUT_FORMAT =
             "=================================%n" +

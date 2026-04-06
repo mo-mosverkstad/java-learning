@@ -15,12 +15,20 @@ public class RegistryCreator {
         repairOrderRegistry = new RepairOrderRegistry();
     }
 
-    /** @return the customer registry */
+    /**
+     * Returns the customer registry.
+     *
+     * @return the customer registry
+     */
     public CustomerRegistry getCustomerRegistry(){
         return customerRegistry;
     }
 
-    /** @return the repair order registry */
+    /**
+     * Returns the repair order registry.
+     *
+     * @return the repair order registry
+     */
     public RepairOrderRegistry getRepairOrderRegistry(){
         return repairOrderRegistry;
     }

@@ -4,10 +4,11 @@ import se.ebikerepair.integration.CustomerDTO;
 import se.ebikerepair.integration.CustomerRegistry;
 import se.ebikerepair.integration.RegistryCreator;
 import se.ebikerepair.model.RepairOrder;
+import se.ebikerepair.model.Problem;
 import se.ebikerepair.integration.RepairOrderRegistry;
 import se.ebikerepair.util.TelephoneNumber;
-import se.ebikerepair.model.ProblemDTO;
-import se.ebikerepair.model.RepairOrderDTO;
+import se.ebikerepair.integration.ProblemDTO;
+import se.ebikerepair.integration.RepairOrderDTO;
 import se.ebikerepair.integration.Printer;
 
 /**
@@ -56,7 +57,9 @@ public class ReceptionistController extends Controller{
      */
     public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws IllegalArgumentException{
         CustomerDTO foundCustomer = searchCustomer(telephoneNumber);
-        RepairOrder repairOrder = new RepairOrder(foundCustomer, problemDTO);
+        RepairOrder repairOrder = new RepairOrder(foundCustomer);
+        Problem problem = repairOrder.getProblem();
+        problem.update(problemDTO);
         repairOrderRegistry.save(repairOrder);
         return repairOrder.getId();
     }

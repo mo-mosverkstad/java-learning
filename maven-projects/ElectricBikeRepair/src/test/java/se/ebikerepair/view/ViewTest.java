@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import se.ebikerepair.controller.ControllerCreator;
 import se.ebikerepair.integration.RegistryCreator;
-import se.ebikerepair.model.RepairOrderDTO;
-import se.ebikerepair.model.RepairOrderState;
 import se.ebikerepair.integration.Printer;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,14 +15,13 @@ import java.io.PrintStream;
 
 class ViewTest {
     private View view;
-    private ControllerCreator controllerCreator;
     private ByteArrayOutputStream outputStream;
     private PrintStream originalOut;
 
     @BeforeEach
     void setUp() {
         RegistryCreator registryCreator = new RegistryCreator();
-        controllerCreator = new ControllerCreator(registryCreator, new Printer());
+        ControllerCreator controllerCreator = new ControllerCreator(registryCreator, new Printer());
         view = new View(controllerCreator);
 
         outputStream = new ByteArrayOutputStream();
@@ -88,11 +85,11 @@ class ViewTest {
     }
 
     @Test
-    void testProceedActionsDiagnosticReport() {
+    void testProceedActionsDiagnosticUpdate() {
         view.proceedActions("0707654321", "MO-2024-010");
         String output = outputStream.toString();
 
-        assertTrue(output.contains("4. Technician - Created diagnostic report:"));
+        assertTrue(output.contains("4. Technician - Updated diagnostic task:"));
     }
 
     @Test

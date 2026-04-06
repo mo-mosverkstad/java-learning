@@ -19,7 +19,7 @@ public class CustomerRegistry{
     public CustomerRegistry() {
         jsonFileHandler = new JsonFileHandler("customers.json");
         for (CustomerDTO customerDTO : jsonFileHandler.readList(CustomerDTO.class)){
-            customers.put(customerDTO.getTelephoneNumber(), customerDTO);
+            customers.put(customerDTO.telephoneNumber(), customerDTO);
         }
     }
 
@@ -39,7 +39,7 @@ public class CustomerRegistry{
      * @param customer the customer to save
      */
     public void save(CustomerDTO customer) {
-        customers.put(customer.getTelephoneNumber(), customer);
+        customers.put(customer.telephoneNumber(), customer);
         jsonFileHandler.writeList(new ArrayList<>(customers.values()));
     }
 }

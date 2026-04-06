@@ -1,5 +1,7 @@
 package se.ebikerepair.model;
 
+import se.ebikerepair.integration.ResultDTO;
+
 /**
  * Mutable result of a diagnostic task, tracking whether it has been checked and if repair is needed.
  */
@@ -28,32 +30,56 @@ public class Result {
         this(false, false, "have not checked yet");
     }
 
-    /** @return whether the task has been checked */
+    /**
+     * Returns whether the task has been checked.
+     *
+     * @return whether the task has been checked
+     */
     public boolean getChecked() {
         return checked;
     }
 
-    /** @return whether repair is needed */
+    /**
+     * Returns whether repair is needed.
+     *
+     * @return whether repair is needed
+     */
     public boolean getToBeRepaired() {
         return toBeRepaired;
     }
 
-    /** @return the result description */
+    /**
+     * Returns the result description.
+     *
+     * @return the result description
+     */
     public String getDescription() {
         return description;
     }
 
-    /** @param checked whether the task has been checked */
+    /**
+     * Sets whether the task has been checked.
+     *
+     * @param checked whether the task has been checked
+     */
     public void setChecked(boolean checked) {
         this.checked = checked;
     }
 
-    /** @param toBeRepaired whether repair is needed */
+    /**
+     * Sets whether repair is needed.
+     *
+     * @param toBeRepaired whether repair is needed
+     */
     public void setToBeRepaired(boolean toBeRepaired) {
         this.toBeRepaired = toBeRepaired;
     }
 
-    /** @param description the result description */
+    /**
+     * Sets the result description.
+     *
+     * @param description the result description
+     */
     public void setDescription(String description) {
         this.description = description;
     }
@@ -64,12 +90,17 @@ public class Result {
      * @param result the ResultDTO containing the new values
      */
     public void update(ResultDTO result) {
-        this.checked = result.getChecked();
-        this.toBeRepaired = result.getToBeRepaired();
-        this.description = result.getDescription();
+        this.checked = result.checked();
+        this.toBeRepaired = result.toBeRepaired();
+        this.description = result.description();
     }
 
-    public String toString() {
-        return String.format("Result: [checked: %s, to be repaired: %s] %s", checked, toBeRepaired, description);
+    /**
+     * Converts this result to an immutable DTO.
+     *
+     * @return a ResultDTO snapshot of this result
+     */
+    public ResultDTO toDTO() {
+        return new ResultDTO(checked, toBeRepaired, description);
     }
 }

@@ -3,30 +3,30 @@
     "name": "0.Basic Electrical System Check",
     "description": "A general inspection of the e-bike's electrical components, including wiring, connectors, sensors, and display functionality. Checks for loose connections, corrosion, and obvious cable damage.",
     "cost": { "amount": 300, "currency": "SEK" },
-    "result": { "checked": false, "toBeRepaired": false, "description": "have not checked yet" }
+    "days": 1
   },
   {
     "name": "1.Battery Health & Capacity Test",
     "description": "Tests the battery's remaining capacity, charge cycles, internal resistance, and voltage output under load. Identifies early signs of cell degradation.",
     "cost": { "amount": 425, "currency": "SEK" },
-    "result": { "checked": false, "toBeRepaired": false, "description": "have not checked yet" }
+    "days": 2
   },
   {
     "name": "2.Motor Diagnostic & Noise Analysis",
     "description": "Evaluates motor performance, noise levels, internal resistance, torque output, error codes, and abnormal vibration. Includes hub motors or mid-drive systems.",
     "cost": { "amount": 500, "currency": "SEK" },
-    "result": { "checked": false, "toBeRepaired": false, "description": "have not checked yet" }
+    "days": 2
   },
   {
     "name": "3.Charger Functionality Test",
     "description": "Measures charger voltage, consistency, output under load, and connector integrity to ensure safe and stable charging.",
     "cost": { "amount": 200, "currency": "SEK" },
-    "result": { "checked": false, "toBeRepaired": false, "description": "have not checked yet" }
+    "days": 1
   },
   {
     "name": "4.Drivetrain & Mechanical Safety Check",
     "description": "Ensures gears, chain, brakes, bearings, and frame components work correctly with the electric assist system. Identifies mechanical issues affecting motor load.",
     "cost": { "amount": 275, "currency": "SEK" },
-    "result": { "checked": false, "toBeRepaired": false, "description": "have not checked yet" }
+    "days": 1
   }
 ]

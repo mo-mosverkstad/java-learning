@@ -18,7 +18,7 @@ class CustomerRegistryTest {
     }
 
     @AfterEach
-    void cleanUp(){
+    void cleanUp() {
         registry = null;
     }
 
@@ -26,8 +26,8 @@ class CustomerRegistryTest {
     void testGetExistingCustomer() {
         CustomerDTO customer = registry.find("+46701234567");
         assertNotNull(customer);
-        assertEquals("Erik Lindqvist", customer.getName());
-        assertEquals("erik.lindqvist@example.com", customer.getEmailAddress());
+        assertEquals("Erik Lindqvist", customer.name());
+        assertEquals("erik.lindqvist@example.com", customer.emailAddress());
     }
 
     @Test
@@ -39,7 +39,7 @@ class CustomerRegistryTest {
     void testCustomerHasBikes() {
         CustomerDTO astrid = registry.find("+46707654321");
         assertNotNull(astrid);
-        List<BikeDTO> bikes = astrid.getBikes();
+        List<BikeDTO> bikes = astrid.bikes();
         assertNotNull(bikes);
         assertEquals(2, bikes.size());
     }
@@ -47,10 +47,10 @@ class CustomerRegistryTest {
     @Test
     void testBikeDetails() {
         CustomerDTO erik = registry.find("+46701234567");
-        BikeDTO bike = erik.getBikes().get(0);
-        assertEquals("Crescent", bike.getBrand());
-        assertEquals("Elda", bike.getModel());
-        assertEquals("CR-2024-001", bike.getSerialNumber());
+        BikeDTO bike = erik.bikes().get(0);
+        assertEquals("Crescent", bike.brand());
+        assertEquals("Elda", bike.model());
+        assertEquals("CR-2024-001", bike.serialNumber());
     }
 
     @Test
@@ -61,8 +61,8 @@ class CustomerRegistryTest {
 
         CustomerDTO retrieved = registry.find("+46709999999");
         assertNotNull(retrieved);
-        assertEquals("Ingrid Svensson", retrieved.getName());
-        assertEquals(1, retrieved.getBikes().size());
-        assertEquals("CAKE", retrieved.getBikes().get(0).getBrand());
+        assertEquals("Ingrid Svensson", retrieved.name());
+        assertEquals(1, retrieved.bikes().size());
+        assertEquals("CAKE", retrieved.bikes().get(0).brand());
     }
 }

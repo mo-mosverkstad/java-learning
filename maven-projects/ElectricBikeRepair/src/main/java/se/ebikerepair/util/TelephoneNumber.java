@@ -120,17 +120,29 @@ public class TelephoneNumber {
         return false;
     }
 
-    /** @return the country code (e.g. "46" for Sweden) */
+    /**
+     * Returns the country code (e.g. "46" for Sweden).
+     *
+     * @return the country code
+     */
     public String getCc() {
         return cc;
     }
 
-    /** @return the area code (e.g. "70" for mobile) */
+    /**
+     * Returns the area code (e.g. "70" for mobile).
+     *
+     * @return the area code
+     */
     public String getAc() {
         return ac;
     }
 
-    /** @return the subscriber number */
+    /**
+     * Returns the subscriber number.
+     *
+     * @return the subscriber number
+     */
     public String getSn() {
         return sn;
     }

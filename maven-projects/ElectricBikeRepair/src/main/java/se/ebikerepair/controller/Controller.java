@@ -1,7 +1,7 @@
 package se.ebikerepair.controller;
 
 import se.ebikerepair.model.RepairOrder;
-import se.ebikerepair.model.RepairOrderDTO;
+import se.ebikerepair.integration.RepairOrderDTO;
 import se.ebikerepair.integration.RepairOrderRegistry;
 import se.ebikerepair.util.TelephoneNumber;
 import java.util.List;
