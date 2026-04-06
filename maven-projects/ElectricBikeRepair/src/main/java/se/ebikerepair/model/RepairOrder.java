@@ -5,6 +5,9 @@ import java.util.UUID;
 
 import se.ebikerepair.integration.CustomerDTO;
 import se.ebikerepair.integration.RepairOrderDTO;
+import se.ebikerepair.integration.ProblemDTO;
+import se.ebikerepair.integration.ResultDTO;
+import se.ebikerepair.integration.RepairTaskDTO;
 
 
 /**
@@ -106,6 +109,11 @@ public class RepairOrder {
         return diagnosticReport;
     }
 
+    /**
+     * Returns the repair task collection.
+     *
+     * @return the repair task collection
+     */
     public RepairTaskCollection getRepairTaskCollection() {
         return repairTaskCollection;
     }
@@ -117,6 +125,35 @@ public class RepairOrder {
      */
     public String getId() {
         return id;
+    }
+
+    /**
+     * Updates the problem with values from a ProblemDTO.
+     *
+     * @param problemDTO the DTO containing the new problem values
+     */
+    public void updateProblem(ProblemDTO problemDTO) {
+        this.problem.update(problemDTO);
+    }
+
+    /**
+     * Updates a diagnostic task result identified by name.
+     *
+     * @param name the diagnostic task name (partial match)
+     * @param result the result to apply to the diagnostic task
+     * @throws IllegalArgumentException if no diagnostic task matches the given name
+     */
+    public void updateDiagnosticResult(String name, ResultDTO result) {
+        getDiagnosticReport().updateDiagnosticResult(name, result);
+    }
+
+    /**
+     * Adds a repair task to the collection from a RepairTaskDTO.
+     *
+     * @param repairTask the repair task DTO to add
+     */
+    public void addRepairTask(RepairTaskDTO repairTask) {
+        getRepairTaskCollection().addRepairTask(repairTask);
     }
 
     /**

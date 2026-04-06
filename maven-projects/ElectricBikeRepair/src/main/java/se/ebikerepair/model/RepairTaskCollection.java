@@ -25,7 +25,7 @@ public class RepairTaskCollection {
      *
      * @param repairTask the repair task to add
      */
-    public void addRepairTask(RepairTaskDTO repairTaskDTO) {
+    protected void addRepairTask(RepairTaskDTO repairTaskDTO) {
         RepairTask repairTask = new RepairTask(repairTaskDTO.name(), repairTaskDTO.description(), repairTaskDTO.cost(),
                 repairTaskDTO.estimatedDays());
         repairTasks.add(repairTask);

@@ -101,7 +101,7 @@ public class DiagnosticReport {
      * @param name search name (partial match)
      * @param result the result to update with
      */
-    public void updateDiagnosticResult(String name, ResultDTO result) {
+    protected void updateDiagnosticResult(String name, ResultDTO result) {
         int index = findTaskIndexByName(name);
         diagnosticTasks.get(index).getResult().update(result);
     }

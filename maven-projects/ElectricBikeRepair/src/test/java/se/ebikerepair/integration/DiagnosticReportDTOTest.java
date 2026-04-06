@@ -26,9 +26,8 @@ class DiagnosticReportDTOTest {
 
     @Test
     void testDaysIsPositiveAfterCheck() {
-        DiagnosticReport report = new DiagnosticReport();
-        report.updateDiagnosticResult("Electrical", new ResultDTO(true, false, "OK"));
-        DiagnosticReportDTO dto = report.toDTO();
+        DiagnosticTaskDTO checkedTask = new DiagnosticTaskDTO("Task", "Desc", new Cost(300, "SEK"), 2, new ResultDTO(true, false, "OK"));
+        DiagnosticReportDTO dto = new DiagnosticReportDTO(2, new Cost(300, "SEK"), "Report", List.of(checkedTask));
         assertTrue(dto.days() > 0);
     }
 
@@ -41,9 +40,8 @@ class DiagnosticReportDTOTest {
 
     @Test
     void testCostIsPositiveAfterCheck() {
-        DiagnosticReport report = new DiagnosticReport();
-        report.updateDiagnosticResult("Electrical", new ResultDTO(true, false, "OK"));
-        DiagnosticReportDTO dto = report.toDTO();
+        DiagnosticTaskDTO checkedTask = new DiagnosticTaskDTO("Task", "Desc", new Cost(300, "SEK"), 2, new ResultDTO(true, false, "OK"));
+        DiagnosticReportDTO dto = new DiagnosticReportDTO(2, new Cost(300, "SEK"), "Report", List.of(checkedTask));
         assertTrue(dto.cost().getAmount() > 0);
     }
 

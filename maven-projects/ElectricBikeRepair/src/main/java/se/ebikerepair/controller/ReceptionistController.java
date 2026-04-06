@@ -58,8 +58,7 @@ public class ReceptionistController extends Controller{
     public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws IllegalArgumentException{
         CustomerDTO foundCustomer = searchCustomer(telephoneNumber);
         RepairOrder repairOrder = new RepairOrder(foundCustomer);
-        Problem problem = repairOrder.getProblem();
-        problem.update(problemDTO);
+        repairOrder.updateProblem(problemDTO);
         repairOrderRegistry.save(repairOrder);
         return repairOrder.getId();
     }

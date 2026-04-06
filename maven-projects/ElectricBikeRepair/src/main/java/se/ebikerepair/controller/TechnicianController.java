@@ -32,7 +32,7 @@ public class TechnicianController extends Controller {
         if (repairOrder == null) {
             throw new IllegalStateException("Repair order not found for id: " + repairOrderId);
         }
-        repairOrder.getDiagnosticReport().updateDiagnosticResult(diagnosticTaskName, result);
+        repairOrder.updateDiagnosticResult(diagnosticTaskName, result);
         repairOrderRegistry.save(repairOrder);
     }
 
@@ -49,7 +49,7 @@ public class TechnicianController extends Controller {
             throw new IllegalStateException("Repair order not found for id: " + repairOrderId);
         }
 
-        repairOrder.getRepairTaskCollection().addRepairTask(repairTask);
+        repairOrder.addRepairTask(repairTask);
         repairOrderRegistry.save(repairOrder);
     }
 }
