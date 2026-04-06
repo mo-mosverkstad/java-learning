@@ -54,7 +54,7 @@ public class DiagnosticReport {
      *
      * @return the total estimated days
      */
-    public int getTotalDays() {
+    int getTotalDays() {
         int totalDays = 0;
         for (DiagnosticTask task : diagnosticTasks) {
             if (task.getResult().getChecked()){
@@ -69,7 +69,7 @@ public class DiagnosticReport {
      *
      * @return the total cost
      */
-    public Cost getTotalCost() {
+    Cost getTotalCost() {
         Cost total = new Cost();
         for (DiagnosticTask task : diagnosticTasks) {
             if (task.getResult().getChecked()){
@@ -101,7 +101,7 @@ public class DiagnosticReport {
      * @param name search name (partial match)
      * @param result the result to update with
      */
-    protected void updateDiagnosticResult(String name, ResultDTO result) {
+    void updateDiagnosticResult(String name, ResultDTO result) {
         int index = findTaskIndexByName(name);
         diagnosticTasks.get(index).getResult().update(result);
     }

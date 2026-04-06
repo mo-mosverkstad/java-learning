@@ -70,7 +70,7 @@ public class Problem {
      *
      * @param problemDTO the DTO containing the new values
      */
-    protected void update(ProblemDTO problemDTO) {
+    void update(ProblemDTO problemDTO) {
         this.description = problemDTO.description();
         this.brokenBike = problemDTO.brokenBike();
     }

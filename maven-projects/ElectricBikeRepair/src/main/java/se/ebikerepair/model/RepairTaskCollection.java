@@ -25,7 +25,7 @@ public class RepairTaskCollection {
      *
      * @param repairTask the repair task to add
      */
-    protected void addRepairTask(RepairTaskDTO repairTaskDTO) {
+    void addRepairTask(RepairTaskDTO repairTaskDTO) {
         RepairTask repairTask = new RepairTask(repairTaskDTO.name(), repairTaskDTO.description(), repairTaskDTO.cost(),
                 repairTaskDTO.estimatedDays());
         repairTasks.add(repairTask);
@@ -36,7 +36,7 @@ public class RepairTaskCollection {
      *
      * @return the total estimated days
      */
-    public int getTotalDays() {
+    int getTotalDays() {
         return repairTasks.stream().mapToInt(RepairTask::getEstimatedDays).sum();
     }
 
@@ -45,7 +45,7 @@ public class RepairTaskCollection {
      *
      * @return the total cost
      */
-    public Cost getTotalCost() {
+    Cost getTotalCost() {
         Cost total = new Cost();
         for (RepairTask task : repairTasks) {
             total.calculate(task.getCost());
