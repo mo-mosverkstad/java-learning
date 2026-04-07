@@ -77,53 +77,46 @@ It is furthermore declared that no part of the solution has been copied from any
 
 % \textbf{This chapter tells \texttt{what} are you going to do.} Explain the task and the requirements on the solution. It's important to clearly state the requirements.
 
-This report focuses on the \texttt{Design phase} of the \texttt{Repair Electric Bike} system and includes the design method, interaction diagrams, the resulting class diagram, and an evaluation of the design against the assessment criteria. The system design is based on the given requirements specification with both normal and alternative workflow scenarios, as well as following the \texttt{Domain Model} and \texttt{System Sequence Diagram} established earlier. The details of these diagrams can be found in Appendices~\ref{appendix:background}, \ref{appendix:domain-model} and \ref{appendix:system-sequence-diagram}.
+This report focuses on the \textbf{Design phase} of the \texttt{Repair Electric Bike} system and includes the design method, interaction diagrams, the resulting class diagram, and an evaluation of the design against the assessment criteria. The system design is based on the given requirements specification with both normal and alternative workflow scenarios, as well as following the \texttt{Domain Model} and \texttt{System Sequence Diagram} established earlier, the details of which can be found in Appendices~\ref{appendix:background}, \ref{appendix:domain-model} and \ref{appendix:system-sequence-diagram}.
 
 \subsection{Requirements of Seminar 2}
-The requirements of Seminar~2 are to design a complete, well-structured object-oriented architecture for the \texttt{Repair Electric Bike} system. The seminar focuses on applying established principles from the course literature, in particular Section~4.1 and Chapter~5 of \texttt{A First Course in Object-Oriented Development}.
+The requirements of Seminar~2 are to design a complete, well-structured object-oriented architecture for the \texttt{Repair Electric Bike} system. The seminar focuses on applying established principles from the course literature, particularily in Section~4.1 and Chapter~5 of \texttt{A First Course in Object-Oriented Development}.
 
 The design must satisfy the following requirements:
 
 \begin{itemize}
   \item \textbf{Layered architecture following the MVC and Layer patterns}.  
-        The program must be organised into appropriate layers with correct 
-        direction of dependencies and no mixing of responsibilities.
+        The program must be organised into appropriate layers with correct direction of dependencies and no mixing of responsibilities.
 
   \item \textbf{High cohesion, low coupling, and strong encapsulation}.  
-        The design shall demonstrate a well-defined public interface, clear 
-        responsibilities, and minimal dependencies between components.
+        The design shall demonstrate a well-defined public interface, clear responsibilities, and minimal dependencies between components.
 
   \item \textbf{Complete coverage of the entire Repair Electric Bike scenario}.  
-        All basic and alternative flows must be designed, including the 
-        startup sequence (the \texttt{main} method).
+        All basic and alternative flows must be designed, including the startup sequence (the \texttt{main} method).
 
   \item \textbf{Interaction diagrams for all behaviour}.  
-        The Result chapter must include sequence or communication diagrams 
-        covering \emph{every} system operation, including alternative flows 
-        and the startup sequence.
+        The Result chapter must include sequence or communication diagrams covering \emph{every} system operation, including alternative flows and the startup sequence.
 
   \item \textbf{A class diagram consistent with the interaction diagrams}.  
-        The diagram must include all classes used in the design, but may 
-        omit excessive detail for clarity.
+        The diagram must include all classes used in the design, but may omit excessive detail for clarity.
 \end{itemize}
 
 Implementation of the user interface and data persistence layer is out of scope. A simplified \texttt{View} class and a minimal integration layer are therefore used.
 
-This report therefore describes the design method, the resulting class and interaction
-diagrams, and a discussion evaluating the design according to the required principles.
+This report therefore describes the design method, the resulting class and interaction diagrams, as well as a discussion evaluating the design according to the required principles.
 
 \section{Method}
 % \textbf{This chapter tells \texttt{how} you solved the task.} Explain how you worked and what tools you used when solving the tasks. \texttt{Do not explain your solution and do not present entire sub-results in detail. It's enough to explain which steps you performed and perhaps give a short example.} For example, some of the things to explain in the report for seminar one, is that you used a category list and noun identification to find class candidates for the domain model, and to tell which UML editor you used.
 
 % Goal: Explain how you worked (not the solution itself)
 
-Based on the domain model (DM) and system sequence diagram (SSD) from analysis, the system design can be carried out by first dividing the system into the layered architecture pattern based on MVC and therefore designing one system operation at a time while aiming high cohesion, low coupling and high degree of encapsulation. 
+Based on the domain model (DM) and system sequence diagram (SSD) from analysis, which can be found in Appendix, the system design can be carried out by first dividing the system into the layered architecture pattern based on MVC and therefore designing one system operation at a time while aiming high cohesion, low coupling and high degree of encapsulation.
 
 \subsection{Step 1. Use the patterns MVC and layer}
 
 The first step involves usage of layered architectural MVC pattern, which includes several layers: view, controller, model, integration, data and startup, which can be visualized in Figure~\ref{fig:layered-architecture} showing a package diagram. It shows the different layers, where each of them has a clear responsibility and only interacts with the layer beneath it, following the direction of the dependencies illustrated in Layer pattern. 
 
-View layer concerns interactions with user while core logic is handled in model layer. Controller layer acts as a bridge between the view and the model and carries the necessary system operations. By calling each system operation, the equivalent operations in the model and integration are handled. The integration layer acts as a middle ground between the core logic and data layer, which in turn is responsible for storing data. Finally, the startup layer handles program initialization of the rest five layers and serves as the main function.
+View layer concerns interactions with user while core logic is handled in model layer. Controller layer acts as a bridge between the view and the model and carries the necessary system operations. By calling each system operation, the equivalent operations in the model and integration are handled. The integration layer acts as a middle ground between the core logic and data layer, which in turn is responsible for data storage. Finally, the startup layer handles program initialization of the rest five layers and serves as the main function.
 
 % todo (Finished): please replace it using Astah package diagram. Do forget to add figure caption.
 
@@ -175,9 +168,9 @@ The class diagram is also drawn using Astah tool, since it provides efficient su
 % todo (Finished): add last paragraph with one sentece, use Astah as tool to ...
 
 \subsection{Step 5. Implement the new design in code}
-In the last step, the new design in code is implemented, with the help from class diagram and sequence diagrams for each operation. The class diagram helps to create the skeleton code with each class name, whereas the system operation helps to write the implementation of each system operation. The design is implemented in code to verify that the interactions and dependencies defined in the diagrams were feasible.
+In the last step, the new design in code is implemented, with the help from class diagram and sequence diagrams for each operation. The class diagram helps to create the skeleton code with each class name, whereas the system operation helps to fill out the relevant implementation steps of each system operation. The design is implemented in code to verify that the interactions and dependencies defined in the diagrams are feasibly designed.
 
-By implementing the design in code, the code editor VSCode is used since it offers syntax highlightening and autocompletion. For compiling and testing the code, Maven is used for full codebase compilation, handle project dependencies and automate build tasks as well as integrating testing using JUnit test cases.
+By implementing the design in code, the code editor VSCode is used since it offers syntax highlightening and variable autocompletion. For compiling and testing the code, Maven is used for full codebase compilation, handle project dependencies and automate build tasks as well as handling testing using JUnit test cases.
 
 % todo (Finished): add last paragraph with one sentece, use vscode to edit coding, use mvn to compile and test coding.
 
@@ -188,13 +181,13 @@ By implementing the design in code, the code editor VSCode is used since it offe
 
 Following the method's steps, sequence diagrams for each system operation and class diagrams are created. These diagrams serve as blueprints for the subsequent implementation.
 
-The system adopts a layered architecture based on the MVC pattern, where each layer is mapped to a corresponding package. Since the project includes internal computational logic, database or file operations, and an interactive user interface, the program is divided into layers that each handle a specific concern. This separation allows responsibilities to be clearly partitioned—for example, the data layer manages file operations, while the model layer handles internal computation.
+The system adopts a layered architecture based on the MVC pattern, where each layer is mapped to a corresponding package. Since the project includes internal computational logic, database or file operations, and an interactive user interface, the program is divided into layers that each handle a specific concern. This separation allows responsibilities to be clearly partitioned - for example, the data layer manages file operations, while the model layer handles internal computation.
 
-Every system operation defined in the SSD is converted into a communication diagram, presented in the same order as in the SSD. The first operation, searchCustomer, retrieves a customer using a telephone number as input. It should also be noted that the view package is not fully designed at this stage. Instead, it contains only a placeholder class, View, representing a future user interface.
+Every system operation defined in the SSD is converted into a communication diagram, presented in the same order as in the SSD. This chapter therefore describes the design of every system operation, including the interaction diagrams and class diagram.
 
 \subsection{The \texttt{searchCustomer} system operation}
 
-In the searchCustomer case, the \texttt{View} class calling the method \texttt{searchCustomer} with a phone number in free format on \texttt{ReceptionistController} can be first written. Since a customer object needs to be returned, the receptionist controller class should find the corresponding customer. This can be done by calling \texttt{CustomerRegistry} that stores and handles customer informations, the function \texttt{find} is called by passing a phone number in canonical E164 format. In this case, the given phone must be converted from any format into canonical E164 format through \texttt{TelephoneNumber} class, before handing it into CustomerRegistry. The full process of is visualized in Figure~\ref{fig:search-customer}.
+The first operation, \texttt{searchCustomer}, retrieves a customer using a telephone number as input. In the searchCustomer case, the \texttt{View} class calls the method \texttt{searchCustomer} with a phone number in free format on \texttt{ReceptionistController} can be first written. Since a customer object needs to be returned, the receptionist controller class should find the corresponding customer. This can be done by calling \texttt{CustomerRegistry} that stores and handles customer informations, the function \texttt{find} is called by passing a phone number in canonical E164 format. In this case, the given phone must be converted from any format into canonical E164 format through \texttt{TelephoneNumber} class, before handing it into CustomerRegistry. The full process of is visualized in Figure~\ref{fig:search-customer}.
 
 \begin{figure}[h!]
   \begin{center}
@@ -204,17 +197,6 @@ In the searchCustomer case, the \texttt{View} class calling the method \texttt{s
   \end{center}
 \end{figure}
 
-% todo (Finished): The start sequence in the main method, the figure should be added.
-
-Additionally, in order for the program to produce results, the start sequence must also be implemented. During initialization, all relevant classes in each layer should be initialized during startup. This includes initializing \texttt{RegistryCreator}, \texttt{Printer}, \texttt{ControllerCreator} and \texttt{View} class which represents the fundamental classes of each layer. In integration layer, \texttt{RegistryCreator} starts up \texttt{CustomerRegistry} and \texttt{RepairOrderRegistry}, as well as \texttt{ControllerCreator} starting up \texttt{TechnicianController} and \texttt{ReceptionistController}.
-
-\begin{figure}[h!]
-  \begin{center}
-    \includegraphics[width=\textwidth]{figures/startup.png}
-    \caption{A simplified and tailored diagram for program startup after implementing \texttt{searchCustomer} system operation. this diagram only illustrates the subset of classes used in this operation of startup, but only shows the relevant classes for the current system operation.}
-    \label{fig:startup}
-  \end{center}
-\end{figure}
 
 % Old words are commented out. May recover if necessary
 % During developing the system, there are problems in terms of guidelines, and how these are resolved:
@@ -230,17 +212,7 @@ Both \texttt{CustomerDTO} and \texttt{BikeDTO} are immutable DTO classes located
 
 Cohesion is increased since each class performs only the task it is intended for: \texttt{TelephoneNumber} formats numbers, \texttt{CustomerRegistry} retrieves customer information, and the controller coordinates flow without performing logic. Coupling is minimized by ensuring that the controller does not take responsibility in customer storage, nor how telephone numbers are validated.
 
-The class diagram is maintained that includes all relevant classes. Classes and their relationships are added progressively as sequence diagrams for each system operation are developed. However, certain classes, such as data transfer objects (DTOs), may be omitted, along with attributes that are not relevant or contribute little to the understanding of the design.
-
-For instance, in Figure~\ref{fig:class-diagram-search-customer}, the class diagram includes the relevant classes involved in the searchCustomer system operation illustrated in Figure~\ref{fig:search-customer}.
-
-\begin{figure}[h!]
-  \begin{center}
-    \includegraphics[width=\textwidth]{figures/class-diagram1.png}
-    \caption{A class diagram with relevant classes that is involved in \texttt{searchCustomer} system operation. The diagram does not show the layout of final class diagram.}
-    \label{fig:class-diagram-search-customer}
-  \end{center}
-\end{figure}
+% todo: this figure should be updated.
 
 
 \subsection{The \texttt{createRepairOrder} system operation}
@@ -354,7 +326,7 @@ The full class diagram can be visualized in Figure~\ref{fig:class-diagram}, whic
 
 \begin{figure}[h!]
   \begin{center}
-    \includegraphics[width=\textwidth]{figures/class-diagram-i1.png}
+    \includegraphics[width=\textwidth]{figures/class-diagram.png}
     \caption{A sample diagram to illustrate caption (this text), numbering and reference in text.}
     \label{fig:class-diagram}
   \end{center}
@@ -386,26 +358,68 @@ The design follows the MVC and Layer patterns, by separation into View, Controll
 Furthermore, the design contains all necessary layers: View, Controller, Model, Integration, and Startup. Multiple controller classes (\texttt{ReceptionistController} and \texttt{TechnicianController}) shows that there are enough classes to separate responsibilities, and none of the controllers contain core business logic, which stays consistent with the guideline that the controller does not take responsibility in granular and detailed core logic.
 The Integration layer holds the DTOs and registry classes, ensuring that data access is completely separated from the model logic. This matches the Layer pattern expectations and maintains correct dependency flow.
 
-The design produces high cohesion, low coupling, and good encapsulation. Cohesion is ensured since each class takes only one responsibility. For instance, \texttt{ProposedRepairTask} encapsulates only task description and cost while \texttt{RepairOrder} manages only repair-order state, diagnostic results, and repair tasks. Low coupling is achieved by ensuring that controllers depend only on registry interfaces and control flows, rather than internal implementation of model entities. As a result, model entities can evolve without affecting other layers. Encapsulation is strengthened through the consistent use of immutable DTOs, which prevent View from mutating internal states, as well as model objects never leak internal references, and all state transitions occur through dedicated domain methods rather than updating them externally.
-
-
+\subsection{Evaluation of high cohesion, low coupling, and good encapsulation}
 
 The design produces high cohesion, low coupling, and good encapsulation.
 
-Cohesion is ensured since each class takes only one single responsibility. For exqmple, \texttt{TelephoneNumber} is dedicated solely to validating and normalizing phone numbers, while \texttt{Cost} encapsulates amount and currency without mixing in additional behavior. Even supporting classes such as \texttt{Printer} focus strictly on formatting and printing repair-order summaries,
-rather than performing any model or controller logic.
+\paragraph{High cohesion}
+High cohesion means that each class has a single, clearly defined responsibility and contains only behavior that belongs to its abstraction. The design achieves this through several structural choices:
+
+\begin{itemize}
+  \item \textbf{Entities model one domain abstraction.}  
+        The \texttt{RepairOrder} entity is cohesive because it encapsulates only the logic associated with the lifecycle of a repair order—its creation, acceptance, rejection, and state transitions. The detailed implementations of updating problems, adding record diagnostic results, and adding repair tasks are intentionally delegated to dedicated classes that handle each detailed responsibility such as \texttt{Problem}, \texttt{DiagnosticReport}, and \texttt{RepairTask}. Additionally, \texttt{RepairOrder} does not contain any external responsibilities outside the scope of repair order, such as actions related to printing, telephone formatting, or JSON processing. Instead, these concerns properly belong to other parts of the system.
+
+  \item \textbf{Supporting classes serve only their intended purpose.}  
+        The \texttt{Printer} class focuses strictly on formatting and printing \texttt{RepairOrder} summaries. It does not query registries, compute costs, or change order state, which ensures a clean separation between presentation and domain logic.
+
+  \item \textbf{DTOs does not contain any behavior except representation.}  
+        Records such as \texttt{CustomerDTO}, \texttt{BikeDTO}, and \texttt{RepairOrderDTO} are immutable and does not contain any business logic. Their only purpose is to transfer data from the model to the view, while preserving cohesion in both layers.
+
+  \item \textbf{Registries manage only their own data.}  
+        \texttt{CustomerRegistry} and \texttt{RepairOrderRegistry} are responsible only for storing, retrieving, and updating domain objects. However, they do not interpret and take responsibility in high-level business rules, phone number validations, or perform calculations. As a result, registry code remains cohesive and easy to maintain.
+
+  \item \textbf{Utility classes do only one focused job.}  
+        The \texttt{TelephoneNumber} class is responsible solely for validating and normalizing Swedish telephone numbers. As a result, it does not contain any logic related to customer search, registries, or formatting of any other domain concepts. As phone-number formats are changed, only this class is updated.
+
+  \item \textbf{Value objects encapsulate one concept.}  
+        The \texttt{Cost} class encapsulates the monetary amount and currency, without mixing in unrelated behavior such as formatting, printing, or persistence. This reduces scattered primitive values that are harder to maintain. Additionally, all operations related to combining costs are placed inside \texttt{Cost}, ensuring that no other class repeats the same logic.
+\end{itemize}
 
 % todo: talk more about high cohesion (split up the model RepairOrder class -> ).
 % For instance, \texttt{ProposedRepairTask} encapsulates only task description, cost, and estimated duration, while \texttt{RepairOrder} manages only repair-order state, diagnostic results, and attached repair tasks.
 
 % todo: DO NOT COPY: Low coupling means there are as **few dependencies** as possible in the program
 
-Low coupling is achieved by ensuring that controllers depend only on registry interfaces and high-level operations, rather than the internal implementation of model entities. For example, the \texttt{ReceptionistController} never inspects the internal fields of \texttt{RepairOrder}; instead, it calls well-defined model methods such as \texttt{accept()} or \texttt{addDiagnosticResult()}. Likewise, the \texttt{TechnicianController} does not need to know how proposed tasks are stored internally; it simply invokes \texttt{addProposedTask()} on \texttt{RepairOrder}. Because of this, model entities can evolve—such as replacing a list with a more advanced collection structure—without requiring any changes in controllers or the View.
+\paragraph{Low coupling}
+Low coupling means keeping as few dependencies to other classes and that a program works better when its components rely on each other as little as possible. The design applies this principle in several ways:
 
+\begin{itemize}
+  \item \textbf{Controllers never modify entity internals.}  
+        Controllers depend only on high-level operations, never on the internal structure of model classes. For example, the \texttt{ReceptionistController} never traverses fields of \texttt{RepairOrder}. Instead, it calls domain methods such as \texttt{accept()} and \texttt{reject()} which hiding all internal low-level logic mechanisms. Similarly, the technician does not inspect internal diagnostic task lists but calls \texttt{updateDiagnosticResult()}, letting the model to decide how the update is performed.
+  \item \textbf{Entities does not know about controllers or view.}  
+        The model layer remains independent of higher layers. For instance, \texttt{RepairOrder} has no references to \texttt{ReceptionistController} or \texttt{TechnicianController}, and \texttt{DiagnosticReport} does not rely on how the view displays its data. This allows the model with core business logic to change freely. For instance, switching from an \texttt{ArrayList} to a priority queue in \texttt{RepairTaskCollection} would not affect controllers or the view. The reversed also applies: replacing a simple hardcoded view with a GUI interface view does not either affect the underlying model and its logic.
+  \item \textbf{No logic in View.}  
+        The \texttt{View} only forwards user input and prints results. As a result, it never computes costs, formats telephone numbers, or manipulates repair orders. For example, when the receptionist enters a phone number, the view simply passes it to the controller. All normalization into E.164 format happens in the \texttt{TelephoneNumber} class, ensuring the view layer stays thin and decoupled from business rules.
+  \item \textbf{RegistryCreator only creates registries.}  
+        The \texttt{RegistryCreator} is responsible only for constructing registries, but not for maintaining them or performing domain logic. It simply instantiates \texttt{CustomerRegistry} and \texttt{RepairOrderRegistry} and provides access through getters. This separation allows the model and integration layers to evolve - e.g., adding in-memory cache storages, database connections, or lazy loading proxy objects in the registries - without modifying the controller or startup code.
+  \item \textbf{DTOs isolate the model from external dependencies.}  
+        Because DTOs such as \texttt{CustomerDTO}, \texttt{RepairOrderDTO}, and \texttt{DiagnosticTaskDTO} are immutable, controllers and views cannot accidentally modify model state. For example, the view may display a \texttt{RepairOrderDTO}, but modifying it has no effect on the underlying \texttt{RepairOrder} entity. This reduces coupling by preventing accidental back-references or shared mutable data.
+  \item \textbf{Utility classes encapsulate cross-cutting logic.}  
+        The \texttt{TelephoneNumber} class encapsulates all parsing and validation rules for Swedish phone numbers. Neither controllers nor registries need to  know how many digits a subscriber number must have or how to handle "00" prefixes. If the formatting rules change, only this utility class needs to be updated, leaving all dependent code untouched.
+\end{itemize}
 
 % todo: Encapsulation means hiding a class’s internal details by exposing only its public interface while keeping private implementation code inaccessible to the rest of the program.
 % your examples of public vs private.
-Encapsulation is strengthened through the consistent use of immutable DTOs, which prevent the View from mutating internal system state. For instance, \texttt{CustomerDTO}, \texttt{BikeDTO}, and \texttt{RepairOrderDTO} expose only accessors, never mutators, ensuring that external layers cannot corrupt the model. Model objects also never leak internal references; for example, \texttt{RepairOrder} never exposes its internal task list directly. Instead, all state transitions occur through dedicated domain methods such as \texttt{addTask()}, \texttt{setDiagnosticReport()}, or \texttt{reject()}. This prevents accidental modification from outside the class and ensures that all invariants are checked within the model layer. Together, these choices result in a design where responsibilities are clear, coupling remains minimal, and the system maintains a strong and robust encapsulation boundary.
+
+\paragraph{High encapsulation} Encapsulation refers to hiding the internal details of a class by exposing only its public interface, while keeping the private implementation code inaccessible to the rest of the program. And it is also strengthened through the consistent use of immutable DTOs, which prevent the View from mutating internal system state.
+
+\begin{itemize}
+  \item \textbf{Private class fields} All of the member variables in the class are kept private. This protects the object invariants from external corruption.
+  \item \textbf{Immutable DTOs} \texttt{CustomerDTO}, \texttt{BikeDTO}, and \texttt{RepairOrderDTO} expose only accessors and not mutators ensuring that external layers cannot corrupt the model.
+  \item \textbf{Modifications only via entity methods} Model objects also never leak internal references. As an example, \texttt{RepairOrder} does not expose its internal detailed functions directly. Instead, all state transitions occur through dedicated methods such as \texttt{addRepairTask()}, \texttt{accept()}, or \texttt{reject()}, which prevents accidental external modification of the class and ensures that all invariants are checked within the model layer.
+\end{itemize}
+
+ Putting it together, by using these structural choices, these implentations result in a design where responsibilities are clear, coupling remains minimal, and the system maintains a strong and robust encapsulation boundary.
 
 \subsection{Evaluation of Type Correctness, Object Usage, and Data Encapsulation}
 % 4.2 Evaluation of Type Correctness, Object Usage, and Data Encapsulation
@@ -415,14 +429,21 @@ Encapsulation is strengthened through the consistent use of immutable DTOs, whic
 % - Objects shall be kept intact as much as possible. Is that the case, or do objects hand out their attributes?
 % - Are Java naming conventions followed?
 
+This section evaluates how the design handles types, object usage, static elements, data integrity, and naming conventions in accordance with the Seminar~2 assessment criteria.
+
+\paragraph{Correct use of parameters, return values, and type clarity}
 All system operations use parameters whose origins are clearly documented. For instance, the \texttt{searchCustomer} operation receives a phone number originating from the View, which is then normalized through the \texttt{TelephoneNumber} class before being passed to the \texttt{CustomerRegistry}. This ensures that values never "appear out of nowhere" and that their origins are always visible in the interaction diagrams. Return values are also clearly defined: model entities are never returned directly to the View; instead, DTOs such as \texttt{CustomerDTO} and \texttt{RepairOrderDTO} are used, ensuring a well-typed and explicit data flow.
 
+\paragraph{Use of objects instead of primitive data}
 Primitive data is used only when semantically appropriate, for example strings for names and description. In most cases, the design introduces dedicated value objects to avoid primitive obsession. For example, \texttt{ProblemDTO} groups the problem description with the bike identifier using \texttt{BikeDTO} because both are needed to create a \texttt{RepairOrder} while \texttt{Cost} encapsulates amount and currency. Using these classes, multiple primitive parameters can be avoided. These choices improve cohesion, reduce duplicated logic, and make method signatures more stable.
 
+\paragraph{Avoidance of static methods and attributes}
 The design generally avoids static methods and fields since they create hidden dependencies, and make software harder to understand, test, and evolve. Static fields are shared across all objects and therefore break the idea that each instance should manage its own internal state. For this reason, instance attributes are preferred in the codebase, for example \texttt{ControllerCreator} and \texttt{RegistryCreator} storing their configuration as instance fields instead of static variables. However, the only exception with static fields is printout format strings. The reason is that these fields are immutable and intended for globally defined variables which are necessary for \texttt{toString} methods in different classes. Additionally, using static field here removes deduplication of string constants in every instance, which reduces unnecessary memory footprint.
 
+\paragraph{Keeping objects intact and protecting internal state}
 Objects are kept intact. DTOs are immutable and expose their internal state only through getters, preventing accidental modification by the View or Controller. Model entities such as \texttt{RepairOrder} maintain private fields and update their state exclusively through behavioral methods such as \texttt{addTask()} or \texttt{setDiagnosticReport()}. Internal collections and entities are never leaked to View layer; instead, the entity provides methods that operate on the data in a controlled manner.
 
+\paragraph{Compliance with Java naming conventions}
 The naming conventions in the design also follows standard Java guidelines. Classes use PascalCase (for example \texttt{RepairOrder}, \texttt{CustomerRegistry}), methods and fields use camelCase (for example \texttt{findRepairOrder()}, \texttt{totalCost}), constants use uppercase with underscores if needed while package names are lowercase. This ensures consistency and readability throughout the design.
 
 % DTO-policy
@@ -439,7 +460,7 @@ The naming conventions in the design also follows standard Java guidelines. Clas
 
 Overall, the report method clearly explains the design by following the OOD approach using MVC and layer patterns, designing one system operation at a time, applying cohesion-coupling-encapsulation guidelines and finally maintaining a class diagrams. These steps are clearly described and presented in a correct order, which makes design process clean and easy to follow.
 
-The result chapter is also clean and explains the outcome of each methodological step, including each system operation. Each system operation design is described using a corresponding interaction diagram and a short explanation of how messages flow across layers. Additionally, in the end of result section, a full class diagram and the startup sequence are laid out, which shows the overeall mechanism of the program. 
+The result chapter is also clean and explains the outcome of each methodological step, including each system operation. Each system operation design is described using a corresponding interaction diagram and a short explanation of how messages flow across layers. Additionally, in the end of result section, a full class diagram and the startup sequence are laid out, which shows the overall mechanism of the program. 
 
 Additionally, a discussion section evaluates the solution against the assessment criteria. It addresses MVC layered architecture, cohesion, coupling, encapsulation, DTO immutability and the separation of concerns across different layers in the architecture. It also includes strengths and limitations, such as the insight that the controller responsibilities are separated by role (ReceptionistController and TechnicianController), which reduces coupling and improving cohesion.
 
