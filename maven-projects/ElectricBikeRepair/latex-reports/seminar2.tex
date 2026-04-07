@@ -322,12 +322,12 @@ Furthermore, in integration layer, \texttt{RegistryCreator} starts up \texttt{Cu
 
 \subsection{Full class diagram}
 
-The full class diagram can be visualized in Figure~\ref{fig:class-diagram}, which represents a layered system architecture with five main packages: startup, view, controller, model, and integration. The data package is omitted since the program currently does not store any data into secondary storage, such as disk and database. Each package takes a specific and unambiguous responsibility inside the system, which ensures separation of concerns and maintainability.
+The full class diagram can be visualized in Figure~\ref{fig:class-diagram}, which represents a layered system architecture with five main packages: startup, view, controller, model, and integration. The data package is omitted since the program currently does not store any data into secondary storage, such as disk and database. Each package takes a specific and unambiguous responsibility inside the system, which ensures separation of concerns and maintainability. Additionally, methods with public, protected and default visibility are displayed in the class diagram, while the private ones are hidden, in order to keep the diagram compact with relevant details. Class member fields are omitted from the diagram as well, since all class members are kept private to protect themselves from being corrupted by external factors.
 
 \begin{figure}[h!]
   \begin{center}
     \includegraphics[width=\textwidth]{figures/class-diagram.png}
-    \caption{A sample diagram to illustrate caption (this text), numbering and reference in text.}
+    \caption{A full class diagram containing the necessary package for each layer. Classes in each layer are visualized as well as their relationships. Class member fields and private methods are not shown in order to make the diagram compact with relevant details.}
     \label{fig:class-diagram}
   \end{center}
 \end{figure}
