@@ -1,17 +1,427 @@
-# ElectricBikeRepair
+# Electric Bike Repair System
 
-## Run in WSL Ubuntu
+## Introduction
 
-### Using Java directly
+ElectricBikeRepair System is a Java application that simulates the repair workflow for an electric bike repair shop. It models the end-to-end process from customer reception through technician diagnostics to repair order confirmation, following a layered MVC architecture with clear separation of concerns.
 
-```bash
-cd maven-projects/ElectricBikeRepair
-mkdir -p target/classes
-javac -d target/classes src/main/java/se/ebikerepair/startup/Main.java
-java -cp target/classes se.ebikerepair.startup.Main
+The application is built as a course project for **Object-Oriented Design (IV1350)**, demonstrating key OOD principles including high cohesion, low coupling, encapsulation, and the use of design patterns such as Creator and DTO (Data Transfer Object). The codebase is accompanied by LaTeX seminar reports documenting the design rationale.
+
+### Workflow
+
+The system supports the following repair workflow:
+
+1. **Customer Search** — The receptionist looks up a customer by telephone number.
+2. **Repair Order Creation** — A new repair order is created for the customer's bike with a problem description.
+3. **Technician Diagnostics** — The technician retrieves the repair order, runs predefined diagnostic tasks, and records results.
+4. **Proposed Repair Tasks** — Based on diagnostics, the technician proposes repair tasks with cost and time estimates.
+5. **Order Acceptance / Rejection** — The receptionist reviews the repair order and accepts or rejects it. Accepted orders are printed.
+
+### Key Features
+
+- Role-based controllers for receptionists and technicians
+- In-memory data registries (no external database required)
+- JSON-based data loading for customers and diagnostic task templates (via Gson)
+- Telephone number normalization to E.164 format
+- Formatted console output with word-wrapped descriptions
+- Comprehensive JUnit 5 test coverage across all layers
+
+## Project Structure
+
+```
+ElectricBikeRepair/
+├── src/
+│   ├── main/
+│   │   ├── java/se/ebikerepair/
+│   │   │   ├── startup/         # Application entry point (Main)
+│   │   │   ├── view/            # View layer (hardcoded CLI workflow)
+│   │   │   ├── controller/      # Controller layer (system operations)
+│   │   │   ├── model/           # Domain model (business logic & entities)
+│   │   │   ├── integration/     # Integration layer (registries, DTOs, printer)
+│   │   │   ├── constant/        # Printout format constants
+│   │   │   └── util/            # Utilities (JSON file handler, phone parser)
+│   │   └── resources/           # JSON data files (customers, diagnostic tasks)
+│   └── test/java/se/ebikerepair/  # JUnit 5 tests mirroring main structure
+├── latex-reports/               # LaTeX seminar reports
+├── seminars/                    # Seminar assignment materials
+├── pom.xml                      # Maven build configuration
+└── README.md
 ```
 
-### Using Maven
+### Architecture Layers
+
+| Layer | Package | Responsibility |
+|-------|---------|----------------|
+| **Startup** | `se.ebikerepair.startup` | Application entry point; wires all layers together |
+| **View** | `se.ebikerepair.view` | Simulated UI with hardcoded calls and console output |
+| **Controller** | `se.ebikerepair.controller` | Coordinates system operations; role-based (Receptionist, Technician) |
+| **Model** | `se.ebikerepair.model` | Core business logic: RepairOrder, DiagnosticReport, Cost, etc. |
+| **Integration** | `se.ebikerepair.integration` | Data registries, DTOs, and external system placeholders (Printer) |
+| **Util** | `se.ebikerepair.util` | Cross-cutting utilities (JSON loading, phone number parsing) |
+| **Constant** | `se.ebikerepair.constant` | Printout format string constants |
+
+## Tech Stack
+
+- **Java 21**
+- **Maven** for build and dependency management
+- **JUnit Jupiter 5.10.2** for unit testing
+- **Gson 2.10.1** for JSON persistence
+
+## UML Diagrams
+
+### Class Diagram
+
+```mermaid
+classDiagram
+    direction TB
+
+    %% ── Startup ──
+    class Main {
+        +main(String[] args)$
+    }
+
+    %% ── View ──
+    class View {
+        +View(ControllerCreator)
+        +proceedActions(String, String)
+    }
+
+    %% ── Controller ──
+    class ControllerCreator {
+        +ControllerCreator(RegistryCreator, Printer)
+        +getReceptionistController() ReceptionistController
+        +getTechnicianController() TechnicianController
+    }
+
+    class Controller {
+        +Controller(RepairOrderRegistry)
+        +findRepairOrder(String) RepairOrderDTO
+    }
+
+    class ReceptionistController {
+        +ReceptionistController(RegistryCreator, Printer)
+        +searchCustomer(String) CustomerDTO
+        +createRepairOrder(String, ProblemDTO) String
+        +acceptRepairOrder(String)
+        +rejectRepairOrder(String)
+    }
+
+    class TechnicianController {
+        +TechnicianController(RegistryCreator)
+        +addDiagnosticResult(String, String, ResultDTO)
+        +addRepairTask(String, RepairTaskDTO)
+    }
+
+    %% ── Model ──
+    class RepairOrder {
+        +RepairOrder(CustomerDTO)
+        +getId() String
+        +getCustomerDTO() CustomerDTO
+        +getProblem() Problem
+        +getCreatedDate() Date
+        +getEstimatedCompleteDate() Date
+        +getTotalCost() Cost
+        +getRepairOrderState() RepairOrderState
+        +getDiagnosticReport() DiagnosticReport
+        +getRepairTaskCollection() RepairTaskCollection
+        +updateProblem(ProblemDTO)
+        +updateDiagnosticResult(String, ResultDTO)
+        +addRepairTask(RepairTaskDTO)
+        +accept()
+        +reject()
+        +toDTO() RepairOrderDTO
+    }
+
+    class DiagnosticReport {
+        +DiagnosticReport()
+        +getDescription() String
+        +getDiagnosticTasks() List~DiagnosticTask~
+        +toDTO() DiagnosticReportDTO
+    }
+
+    class DiagnosticTask {
+        +DiagnosticTask(String, String, Cost, int)
+        +getName() String
+        +getDescription() String
+        +getCost() Cost
+        +getResult() Result
+        +getDays() int
+        +toDTO() DiagnosticTaskDTO
+    }
+
+    class Problem {
+        +Problem(String, BikeDTO)
+        +Problem()
+        +setDescription(String)
+        +getDescription() String
+        +setBrokenBike(BikeDTO)
+        +getBrokenBike() BikeDTO
+        +toDTO() ProblemDTO
+    }
+
+    class RepairTask {
+        +RepairTask(String, String, Cost, int)
+        +RepairTask(RepairTaskDTO)
+        +getName() String
+        +getDescription() String
+        +getCost() Cost
+        +getState() ProposedRepairTaskState
+        +getEstimatedDays() int
+        +toDTO() RepairTaskDTO
+    }
+
+    class RepairTaskCollection {
+        +RepairTaskCollection()
+        +toDTO() RepairTaskCollectionDTO
+    }
+
+    class Cost {
+        +Cost(float, String)
+        +Cost()
+        +getAmount() float
+        +getCurrency() String
+        +calculate(Cost)
+    }
+
+    class Result {
+        +Result(boolean, boolean, String)
+        +Result()
+        +getChecked() boolean
+        +getToBeRepaired() boolean
+        +getDescription() String
+        +setChecked(boolean)
+        +setToBeRepaired(boolean)
+        +setDescription(String)
+        +update(ResultDTO)
+        +toDTO() ResultDTO
+    }
+
+    class RepairOrderState {
+        <<enumeration>>
+        NewlyCreated
+        ReadyForApproval
+        Rejected
+        Accepted
+        Completed
+        Payed
+    }
+
+    class ProposedRepairTaskState {
+        <<enumeration>>
+        Completed
+        Incompleted
+    }
+
+    %% ── Integration ──
+    class RegistryCreator {
+        +RegistryCreator()
+        +getCustomerRegistry() CustomerRegistry
+        +getRepairOrderRegistry() RepairOrderRegistry
+    }
+
+    class CustomerRegistry {
+        +CustomerRegistry()
+        +find(String) CustomerDTO
+        +save(CustomerDTO)
+    }
+
+    class RepairOrderRegistry {
+        +RepairOrderRegistry()
+        +findRepairOrdersByTelephoneNumber(String) List~RepairOrder~
+        +findByRepairOrderId(String) RepairOrder
+        +save(RepairOrder)
+    }
+
+    class Printer {
+        +print(RepairOrder)
+    }
+
+    %% ── Util ──
+    class JsonFileHandler {
+        +JsonFileHandler(String)
+        +readList(Class~T~) List~T~
+        +writeList(List~T~)
+    }
+
+    class TelephoneNumber {
+        +TelephoneNumber(String)
+        +getCc() String
+        +getAc() String
+        +getSn() String
+        +toE164() String
+    }
+
+    %% ── Constant ──
+    class PrintoutFormat {
+        +wrapText(String, int)$ String
+    }
+
+    %% ── Relationships ──
+    Main --> RegistryCreator : creates
+    Main --> Printer : creates
+    Main --> ControllerCreator : creates
+    Main --> View : creates
+
+    View --> ControllerCreator
+    View --> ReceptionistController : uses
+    View --> TechnicianController : uses
+
+    ControllerCreator --> ReceptionistController : creates
+    ControllerCreator --> TechnicianController : creates
+
+    Controller <|-- ReceptionistController
+    Controller <|-- TechnicianController
+    Controller --> RepairOrderRegistry
+
+    ReceptionistController --> CustomerRegistry
+    ReceptionistController --> Printer
+
+    RegistryCreator --> CustomerRegistry : creates
+    RegistryCreator --> RepairOrderRegistry : creates
+
+    CustomerRegistry --> JsonFileHandler : uses
+
+    RepairOrder --> Problem
+    RepairOrder --> DiagnosticReport
+    RepairOrder --> RepairTaskCollection
+    RepairOrder --> RepairOrderState
+    RepairOrder --> Cost
+
+    DiagnosticReport --> DiagnosticTask : contains *
+    DiagnosticReport --> JsonFileHandler : uses
+
+    DiagnosticTask --> Cost
+    DiagnosticTask --> Result
+
+    RepairTaskCollection --> RepairTask : contains *
+
+    RepairTask --> Cost
+    RepairTask --> ProposedRepairTaskState
+```
+
+### Sequence Diagrams
+
+The following SSDs show the interactions between the actors (Receptionist, Technician) and the system for each system operation in the basic flow.
+
+#### Startup Sequence
+
+```mermaid
+sequenceDiagram
+    participant Main
+    participant RegistryCreator
+    participant Printer
+    participant ControllerCreator
+    participant View
+
+    Main ->> RegistryCreator: new RegistryCreator()
+    Main ->> Printer: new Printer()
+    Main ->> ControllerCreator: new ControllerCreator(registryCreator, printer)
+    Main ->> View: new View(controllerCreator)
+    Main ->> View: proceedActions(telephoneNumber, bikeSerialNumber)
+```
+
+#### searchCustomer
+
+```mermaid
+sequenceDiagram
+    actor Receptionist
+    participant System
+
+    Receptionist ->> System: searchCustomer(telephoneNumber)
+    System -->> Receptionist: CustomerDTO
+```
+
+#### createRepairOrder
+
+```mermaid
+sequenceDiagram
+    actor Receptionist
+    participant System
+
+    Receptionist ->> System: createRepairOrder(telephoneNumber, problemDTO)
+    System -->> Receptionist: repairOrderId
+```
+
+#### findRepairOrder
+
+```mermaid
+sequenceDiagram
+    actor Technician
+    participant System
+
+    Technician ->> System: findRepairOrder(telephoneNumber)
+    System -->> Technician: RepairOrderDTO
+```
+
+#### addDiagnosticResult
+
+```mermaid
+sequenceDiagram
+    actor Technician
+    participant System
+
+    Technician ->> System: addDiagnosticResult(repairOrderId, diagnosticTaskName, resultDTO)
+    System -->> Technician: void
+```
+
+#### addRepairTask
+
+```mermaid
+sequenceDiagram
+    actor Technician
+    participant System
+
+    Technician ->> System: addRepairTask(repairOrderId, repairTaskDTO)
+    System -->> Technician: void
+```
+
+#### acceptRepairOrder
+
+```mermaid
+sequenceDiagram
+    actor Receptionist
+    participant System
+
+    Receptionist ->> System: findRepairOrder(telephoneNumber)
+    System -->> Receptionist: RepairOrderDTO
+    Receptionist ->> System: acceptRepairOrder(repairOrderId)
+    System -->> Receptionist: void (prints repair order)
+```
+
+#### rejectRepairOrder
+
+```mermaid
+sequenceDiagram
+    actor Receptionist
+    participant System
+
+    Receptionist ->> System: findRepairOrder(telephoneNumber)
+    System -->> Receptionist: RepairOrderDTO
+    Receptionist ->> System: rejectRepairOrder(repairOrderId)
+    System -->> Receptionist: void
+```
+
+## Getting Started
+
+### Prerequisites
+
+- Java 21 (or the version specified in `pom.xml`)
+- Maven 3.x
+
+**Installing on WSL Ubuntu:**
+
+```bash
+sudo apt update
+sudo apt install openjdk-21-jdk maven -y
+```
+
+Verify installation:
+
+```bash
+java -version
+mvn -version
+```
+
+### Build and Run
 
 ```bash
 cd maven-projects/ElectricBikeRepair
@@ -19,118 +429,46 @@ mvn compile
 mvn exec:java -Dexec.mainClass="se.ebikerepair.startup.Main"
 ```
 
-## Run Tests in WSL Ubuntu
+### Run Tests
 
 ```bash
-cd maven-projects/ElectricBikeRepair
-mvn test
-```
-or
-```bash
-cd maven-projects/ElectricBikeRepair
-mvn package
-```
-
-# How to run mvn in wsl ubutun
-
-Here's how to set up and run Maven in WSL Ubuntu:
-
-## 1. Install Java (if not already installed)
-```bash
-sudo apt update
-sudo apt install default-jdk -y
-```
-
-## 2. Install Maven
-```bash
-sudo apt install maven -y
-```
-
-## 3. Verify installation
-```bash
-java -version
-mvn -version
-```
-
-## 4. Navigate to your project and run
-In WSL, your Windows drives are mounted under `/mnt/`. So:
-```bash
-cd "your/maven/folder" <In this folder there is pom.xml>
-mvn compile
 mvn test
 ```
 
-**Tip:** The path has spaces, so wrap it in quotes.
+### Common Maven Commands
 
-## Quick reference of common Maven commands
-- `mvn compile` — compile source code
-- `mvn test` — run tests
-- `mvn package` — build a JAR/WAR
-- `mvn clean` — remove the `target/` directory
-- `mvn clean install` — clean, compile, test, and install to local repo
+| Command | Description |
+|---------|-------------|
+| `mvn compile` | Compile source code |
+| `mvn test` | Run unit tests |
+| `mvn package` | Build a JAR |
+| `mvn clean` | Remove the `target/` directory |
+| `mvn clean install` | Clean, compile, test, and install to local repo |
 
+## Switching Java Versions
 
-# Java version in pom.xml
-
-In current Java version defined in pom.xml is as below:
-
-```xml
-    <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-```
-
-So the default Java version is 11, which has been installed by the ubuntu command:
-
-```bash
-sudo apt install default-jdk -y
-```
-
-If you want to use Java 17 new feature, it should be do as below:
-
-1, Install Java 17 in wsl ubuntu using:
-
-```bash
-sudo apt install openjdk-17-jdk
-```
-
-2, update pom.xml to version 17:
+The Java version is configured in `pom.xml`:
 
 ```xml
-    <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+<properties>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+</properties>
 ```
 
-If you want to use Java 21 new feature, it should be do as below:
-
-1, Install Java 21 in wsl ubuntu using:
+To use a different version (e.g., 11 or 17), update both `source` and `target` values in `pom.xml` and install the corresponding JDK:
 
 ```bash
-sudo apt update
-sudo apt install openjdk-21-jdk -y
+sudo apt install openjdk-17-jdk -y   # for Java 17
+sudo apt install default-jdk -y      # for Java 11
 ```
 
-2, update pom.xml to version 21:
-
-```xml
-    <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-```
-
-To switch between multiple installed Java versions:
+To switch between installed versions:
 
 ```bash
 sudo update-alternatives --config java
 ```
 
-# Disabled java problem visibility
-In VS Code, press Ctrl+, to open Settings, then search for "problems visibility" and uncheck the option to disable it.
+## IDE Notes
 
+- **VS Code**: To disable Java problem visibility, press `Ctrl+,`, search for "problems visibility", and uncheck the option.
