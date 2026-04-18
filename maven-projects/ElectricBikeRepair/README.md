@@ -12,12 +12,14 @@ The system supports the following repair workflow:
 
 1. **Customer Search** — The receptionist looks up a customer by telephone number.
 2. **Repair Order Creation** — A new repair order is created for the customer's bike with a problem description.
-3. **Technician Diagnostics** — The technician retrieves the repair order, runs predefined diagnostic tasks, and records results.
-4. **Proposed Repair Tasks** — Based on diagnostics, the technician proposes repair tasks with cost and time estimates.
-5. **Order Acceptance / Rejection** — The receptionist reviews the repair order and accepts or rejects it. Accepted orders are printed.
+3. **Find Repair Order** — The technician or receptionist retrieves an existing repair order by telephone number.
+4. **Technician Diagnostics** — The technician runs predefined diagnostic tasks on the repair order and records results.
+5. **Proposed Repair Tasks** — Based on diagnostics, the technician proposes repair tasks with cost and time estimates.
+6. **Order Acceptance / Rejection** — The receptionist reviews the repair order and accepts or rejects it. Accepted orders are printed.
 
 ### Key Features
 
+- The software analysis, design, implementation and testing follow OOD (Object-Oriented Design) principles
 - Role-based controllers for receptionists and technicians
 - In-memory data registries (no external database required)
 - JSON-based data loading for customers and diagnostic task templates (via Gson)
