@@ -452,6 +452,240 @@ sequenceDiagram
     System -->> Receptionist: void
 ```
 
+## Sample Output
+
+Below is the console output of a complete workflow run, broken down by each step. Dynamic values such as UUIDs and dates change on each run and are shown as `<generated-uuid>`, `<created-date>`, and `<estimated-complete-date>`.
+
+### Step 1 — Search Customer
+
+The receptionist searches for a customer by telephone number. The system normalizes the input to E.164 format and returns the matching customer with their registered bikes.
+
+```
+1. Reception - Found customer:
+
+=================================
+  Customer Information
+=================================
+  Name:      Astrid Johansson
+  Phone:     +46707654321
+  Email:     astrid.johansson@example.com
+  Bikes:
+    - Brand: Monark, Model: E-Karin (S/N: MO-2024-010)
+    - Brand: Skeppshult, Model: Elit (S/N: SK-2024-055)
+=================================
+```
+
+### Step 2 — Create Repair Order
+
+The receptionist creates a new repair order for the customer's broken bike. The system generates a unique order ID and stores the order in the registry.
+
+```
+2. Reception - Created repair order with id:
+<generated-uuid>
+```
+
+### Step 3 — Find Repair Order (Technician)
+
+The technician retrieves the most recent repair order for the customer. The order is displayed with all details including the newly created problem description and the full set of unchecked diagnostic tasks.
+
+```
+3. Technician - Requested repair order:
+
+=================================
+  Repair Order
+=================================
+  Order ID:       <generated-uuid>
+  Status:         NewlyCreated
+  Created:        <created-date>
+  Est. Complete:  N/A
+  Total Cost:     0.00 SEK
+********************************
+  Customer:
+  - Name:      Astrid Johansson
+  - Phone:     +46707654321
+  - Email:     astrid.johansson@example.com
+  - Bikes:
+    - Brand: Monark, Model: E-Karin (S/N: MO-2024-010)
+    - Brand: Skeppshult, Model: Elit (S/N: SK-2024-055)
+********************************
+  Problem:
+    - Description: Broken bike chain
+    - Broken bike: Skeppshult Elit (S/N: SK-2024-055)
+********************************
+  Diagnostic Report:
+    Days: 0
+    Cost: 0.00 SEK
+    Description: This report contains pre-defined diagnostic tasks
+    for e-bike inspection. Only tasks marked with [X] have been
+    performed and contribute to the repair cost.
+      --------------------------------
+      [ ] 0.Basic Electrical System Check
+            A general inspection of the e-bike's electrical
+            components, including wiring, connectors, sensors, and
+            display functionality. ...
+      [ ] Cost: 300.00 SEK | Est. days: 1 | Result: have not checked yet
+      --------------------------------
+      [ ] 1.Battery Health & Capacity Test
+            ...
+      [ ] Cost: 425.00 SEK | Est. days: 2 | Result: have not checked yet
+      --------------------------------
+      [ ] 2.Motor Diagnostic & Noise Analysis
+            ...
+      [ ] Cost: 500.00 SEK | Est. days: 2 | Result: have not checked yet
+      --------------------------------
+      [ ] 3.Charger Functionality Test
+            ...
+      [ ] Cost: 200.00 SEK | Est. days: 1 | Result: have not checked yet
+      --------------------------------
+      [ ] 4.Drivetrain & Mechanical Safety Check
+            Ensures gears, chain, brakes, bearings, and frame
+            components work correctly with the electric assist system.
+            Identifies mechanical issues affecting motor load.
+      [ ] Cost: 275.00 SEK | Est. days: 1 | Result: have not checked yet
+********************************
+  Proposed Repair Tasks:
+      (none)
+=================================
+```
+
+### Step 4 — Add Diagnostic Result
+
+The technician records the result of the "Mechanical Safety Check" diagnostic task, marking it as checked and flagging it for repair.
+
+```
+4. Technician - Updated diagnostic task:
+Mechanical Safety Check
+```
+
+### Step 5 & 6 — Add Proposed Repair Tasks
+
+Based on the diagnostic findings, the technician proposes two repair tasks with cost and time estimates: replacing the chain and replacing the gears.
+
+```
+5. Technician - Created proposed repair tasks 01:
+
+    --------------------------------
+    [ ] Replace Chain
+        Removal of worn or stretched chain and installation of a new
+        compatible e-bike chain. Includes lubrication, tension
+        adjustment, and drivetrain alignment check.
+         Cost: 500.00 SEK | Est. days: 1
+
+
+6. Technician - Created proposed repair tasks 02:
+    --------------------------------
+    [ ] Replace gears
+        Replacement of worn or damaged rear cassette/freewheel or
+        front chainrings. Includes removal of old components,
+        installation of new gear set, indexing and tuning of
+        derailleur(s).
+         Cost: 400.00 SEK | Est. days: 2
+```
+
+### Step 7 — Find Repair Order (Receptionist)
+
+The receptionist retrieves the updated repair order to review the diagnostic results and proposed repair tasks before presenting them to the customer. The total cost now reflects both diagnostic and repair costs, and the estimated completion date is calculated.
+
+```
+7. Reception - found repair order:
+
+=================================
+  Repair Order
+=================================
+  Order ID:       <generated-uuid>
+  Status:         NewlyCreated
+  Created:        <created-date>
+  Est. Complete:  <estimated-complete-date>
+  Total Cost:     1175.00 SEK
+********************************
+  Customer:
+  - Name:      Astrid Johansson
+  ...
+********************************
+  Problem:
+    - Description: Broken bike chain
+    - Broken bike: Skeppshult Elit (S/N: SK-2024-055)
+********************************
+  Diagnostic Report:
+    Days: 1
+    Cost: 275.00 SEK
+    ...
+      --------------------------------
+      [X] 4.Drivetrain & Mechanical Safety Check
+            Ensures gears, chain, brakes, bearings, and frame
+            components work correctly with the electric assist system.
+            Identifies mechanical issues affecting motor load.
+      [TO BE REPAIRED] Cost: 275.00 SEK | Est. days: 1
+            | Result: Chain and gears should be replaced.
+********************************
+  Proposed Repair Tasks:
+    Days: 3
+    Cost: 900.00 SEK
+    --------------------------------
+    [ ] Replace Chain
+        ...
+         Cost: 500.00 SEK | Est. days: 1
+    --------------------------------
+    [ ] Replace gears
+        ...
+         Cost: 400.00 SEK | Est. days: 2
+=================================
+```
+
+### Step 8 — Accept Repair Order & Print
+
+The customer accepts the proposed repair. The system updates the order state to "Accepted" and sends it to the Printer, which outputs the final repair order.
+
+```
+8. Reception - Accepted order
+
+**** Printing repair order ****
+
+=================================
+  Repair Order
+=================================
+  Order ID:       <generated-uuid>
+  Status:         Accepted
+  Created:        <created-date>
+  Est. Complete:  <estimated-complete-date>
+  Total Cost:     1175.00 SEK
+********************************
+  Customer:
+  - Name:      Astrid Johansson
+  ...
+********************************
+  Problem:
+    - Description: Broken bike chain
+    - Broken bike: Skeppshult Elit (S/N: SK-2024-055)
+********************************
+  Diagnostic Report:
+    Days: 1
+    Cost: 275.00 SEK
+    ...
+      --------------------------------
+      [X] 4.Drivetrain & Mechanical Safety Check
+            Ensures gears, chain, brakes, bearings, and frame
+            components work correctly with the electric assist system.
+            Identifies mechanical issues affecting motor load.
+      [TO BE REPAIRED] Cost: 275.00 SEK | Est. days: 1
+            | Result: Chain and gears should be replaced.
+********************************
+  Proposed Repair Tasks:
+    Days: 3
+    Cost: 900.00 SEK
+    --------------------------------
+    [ ] Replace Chain
+        ...
+         Cost: 500.00 SEK | Est. days: 1
+    --------------------------------
+    [ ] Replace gears
+        ...
+         Cost: 400.00 SEK | Est. days: 2
+=================================
+```
+
+> **Note:** Sections shown as `...` are abbreviated for brevity — unchecked diagnostic tasks and repeated details are identical to earlier steps.
+
 ## Getting Started
 
 ### Prerequisites
