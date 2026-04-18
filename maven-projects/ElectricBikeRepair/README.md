@@ -300,9 +300,57 @@ classDiagram
 
 ### Sequence Diagrams
 
-The following SSDs show the interactions between the actors (Receptionist, Technician) and the system for each system operation in the basic flow.
+#### System Sequence Diagram (SSD)
+
+The SSD shows the interactions between the external actors (Receptionist, Technician) and the system treated as a black box. Each system operation corresponds to a public method on the controller layer.
+
+```mermaid
+sequenceDiagram
+    actor Receptionist
+    actor Technician
+    participant System
+    participant Printer
+
+    rect rgb(230, 245, 255)
+        Note over Receptionist, System: Reception — Preparation
+        Receptionist ->> System: searchCustomer(telephoneNumber)
+        System -->> Receptionist: customerDTO
+
+        Receptionist ->> System: createRepairOrder(telephoneNumber, problemDTO)
+        System -->> Receptionist: repairOrderId
+    end
+
+    rect rgb(245, 240, 255)
+        Note over Technician, System: Technician — Diagnostics & Repair Planning
+        Technician ->> System: findRepairOrder(telephoneNumber)
+        System -->> Technician: repairOrderDTO
+
+        Technician ->> System: addDiagnosticResult(repairOrderId, diagnosticTaskName, resultDTO)
+        System -->> Technician: void
+
+        Technician ->> System: addRepairTask(repairOrderId, repairTaskDTO)
+        System -->> Technician: void
+    end
+
+    rect rgb(230, 255, 230)
+        Note over Receptionist, Printer: Reception — Confirmation
+        Receptionist ->> System: findRepairOrder(telephoneNumber)
+        System -->> Receptionist: repairOrderDTO
+
+        alt Customer accepts
+            Receptionist ->> System: acceptRepairOrder(repairOrderId)
+            System ->> Printer: print(repairOrder)
+            System -->> Receptionist: void
+        else Customer declines
+            Receptionist ->> System: rejectRepairOrder(repairOrderId)
+            System -->> Receptionist: void
+        end
+    end
+```
 
 #### Startup Sequence
+
+The startup sequence shows how the application entry point wires all layers together before triggering the workflow.
 
 ```mermaid
 sequenceDiagram
@@ -327,7 +375,7 @@ sequenceDiagram
     participant System
 
     Receptionist ->> System: searchCustomer(telephoneNumber)
-    System -->> Receptionist: CustomerDTO
+    System -->> Receptionist: customerDTO
 ```
 
 #### createRepairOrder
@@ -345,11 +393,15 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
+    actor Receptionist
     actor Technician
     participant System
 
+    Receptionist ->> System: findRepairOrder(telephoneNumber)
+    System -->> Receptionist: repairOrderDTO
+
     Technician ->> System: findRepairOrder(telephoneNumber)
-    System -->> Technician: RepairOrderDTO
+    System -->> Technician: repairOrderDTO
 ```
 
 #### addDiagnosticResult
@@ -380,11 +432,11 @@ sequenceDiagram
 sequenceDiagram
     actor Receptionist
     participant System
+    participant Printer
 
-    Receptionist ->> System: findRepairOrder(telephoneNumber)
-    System -->> Receptionist: RepairOrderDTO
     Receptionist ->> System: acceptRepairOrder(repairOrderId)
-    System -->> Receptionist: void (prints repair order)
+    System ->> Printer: print(repairOrder)
+    System -->> Receptionist: void
 ```
 
 #### rejectRepairOrder
@@ -394,8 +446,6 @@ sequenceDiagram
     actor Receptionist
     participant System
 
-    Receptionist ->> System: findRepairOrder(telephoneNumber)
-    System -->> Receptionist: RepairOrderDTO
     Receptionist ->> System: rejectRepairOrder(repairOrderId)
     System -->> Receptionist: void
 ```
