@@ -1,0 +1,1042 @@
+\documentclass[a4paper]{scrartcl}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{textcomp}
+\usepackage{amsmath}
+\usepackage{lastpage}
+\usepackage{pgf}
+\usepackage{wrapfig}
+\usepackage{fancyvrb}
+
+% Listing header
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{lightgray}{gray}{0.95}
+
+\lstdefinestyle{javastyle}{
+    backgroundcolor=\color{lightgray},
+    basicstyle=\ttfamily\small,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=8pt,
+    frame=single,
+    showstringspaces=false,
+    breaklines=true,
+    breakautoindent=true,
+    breakindent=2em,
+    keepspaces=true,
+    columns=fullflexible,
+    tabsize=4,
+    language=Java,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray!70},
+    stringstyle=\color{orange!90!black}
+}
+
+% Create header and footer
+\headheight 27pt
+\pagestyle{fancyplain}
+\lhead{\footnotesize{Object-Oriented Design, IV1350}}
+\chead{\footnotesize{Seminar 2 Solution}}
+\rhead{}
+\lfoot{}
+\cfoot{\thepage\ (\pageref{LastPage})}
+\rfoot{}
+
+% Create title page
+\title{Seminar 3}
+\subtitle{Object-Oriented Design, IV1350}
+\author{Mo Wang mowang@ug.kth.se}
+%\date{\today} Prints today's date
+\date{2026-04-01}
+
+\begin{document}
+
+\maketitle
+\noindent\textbf{Project Members:} \\ \hfill
+% \tableofcontents %Generates the TOC
+[Mo Wang, mowang@ug.kth.se]
+
+\section*{Declaration:}
+
+By submitting this assignment, it is hereby declared that all group members listed above have contributed to the solution. It is also declared that all project members fully understand all parts of the final solution and can explain it upon request.
+
+It is furthermore declared that no part of the solution has been copied from any other source (except for resources presented in the Canvas page for the course IV1350), and that no part of the solution has been provided by someone not listed as a project member above.
+
+\section{Introduction}
+\label{sec:intro}
+
+% \textbf{This chapter tells \textit{what} are you going to do.} Explain the task and the requirements on the solution. It's important to clearly state the requirements.
+
+This report delves into the implementation of a software system that manages electric bike repair processes in code. The code implementation are based on class diagrams in terms of structure as well as the communication diagram for each system operation in terms of functionality and behavior. Using these methods, the structure of the program can be outlined. Additionally, rigorous testing using JUnit tests are also included in code implementations.
+
+\subsection{Requirements of Seminar 3}
+
+The requirements of seminar 3 consists of two main task: program implementation and unit tests. In terms of code implementation, only the basic flow and startup sequences needs to be designed, whereas alternative flows can be currently omitted. These tasks are mainly covered in course literature \texttt{A First Course in Object-Oriented Development}, particularily Chapter~6 and Chapter~7.
+
+The programming requirements includes:
+\begin{itemize}
+    \item The program must be compilable and executable, producing the intended behavior as the customer specification, whereas all the implementation are written in Java.
+    \item The user interface is replaced by a single View class that contains hard-coded calls to the controller. The class prints out all outputs returned by the controller, including the repair order printout, to \texttt{System.out}.
+    \item Database and external systems can be omitted in this seminar. Instead of storing relevant data into database or secondary storage, the integration layer classes stores the data in memory. In this case, external systems are represented by placeholder objects.
+    \item Exceptions are not used
+    \item The code follows all guidelines from Chapter 6 of the course book, including naming conventions, cohesion, coupling, encapsulation and one Javadoc comment for each public method interface declaration.
+\end{itemize}
+
+Unit Testing Requirements includes writing unit tests that cover all classes in the controller, model and integration layers, except DTO classes that only contains simple constructors and getters. Additionally, methods that prints out to \texttt{System.out} does not need to be tested.
+
+\subsection{Implementing code based on class diagrams and system operation diagrams}
+
+Class diagrams and system operations from Seminar 2 can help with producing the implementation of the program structure, by translating the diagrams into code. The diagrams provides a clear overview of both the static architectural structure with classes as well as the dynamic system functionality, which facilitates the transition from design to code. 
+
+The class diagram is used mostly as a blueprint for defining the application architecture. It contains the main classes with their repsonsibilities and their relationships, as well as their positions to their packages such as controller, model and integration. In this case, each class and package in the diagram can be directly translated into a corresponding Java class or package.
+
+The system operation diagrams, represented as communication diagrams, are used to implement the system behavior once the basic package and class skeleton structures are implemented. Since the diagrams describe how objects interact during functional execution, by following the message flow in the diagrams, the functionality can easily be translated and implemented. This can be accomplished by putting the relevant code statements with each functionality in its desired method of a specific class. 
+
+Additionally, the communication diagrams above helped ensure that the control flow of the program followed the intended sequence of execution events of a functionality, which reduced ambiguity when implementing methods in the controller and model layers, as each step in a system operation could be traced back to a corresponding message in the diagram.
+
+\section{Method}
+
+% \textbf{This chapter tells \textit{how} you solved the task.} Explain how you worked and what tools you used when solving the tasks. \textit{Do not explain your solution and do not present entire sub-results in detail. It's enough to explain which steps you performed and perhaps give a short example.} For example, some of the things to explain in the report for seminar one, is that you used a category list and noun identification to find class candidates for the domain model, and to tell which UML editor you used.
+% Goal: Explain how you worked (not the solution itself)
+
+% Slight help:
+% In the Method chapter of this report, the development process must be explained, including how code structure, layering, and design decisions were made. 
+% The Method chapter must explain how the tests were designed and how test cases were selected.
+
+The implementation method includes translating the UML diagrams from Seminar 2 into the executable Java Code. The process involves establishing overall structure of application based on the class diagram, followed by implementation of the behavior of each system operation using communication diagram.
+
+The development starts with writing out the skeleton architecture with empty packages and class skeletons from class diagram. Afterwards, the development continues incrementally. Each system operation is designed from every corresponding communication diagram, beginning with the basic startup sequence where all relevant and necessary classes are initialized. 
+
+The development also contains several programming guidelines for code readability and extensibility, such as dividing code into packages, following code conventions, adhering to naming conventions. 
+
+Throughout the implementation, after each system operation, tests are written and conducted to detect potential errors, which are resolved and patched before continuing onto next system operation, in order to ensure code stability and quality. Refactoring is also important after every system operation to improve readability, cohesion and maintainability.
+
+\subsection{Dividing code in packages}
+
+The code is organized into packages based on the layered MVC-architecture in the class diagram. The main packages include controller, model and integration layers, where each layer has a clearly defined responsibility.
+
+For instance, the controller package contains classes responsible for handling system operations and coordinating interactions between different parts of the system. The model package includes the core domain logic and represents the main business entities of the application. The integration package is responsible for handling external systems and data storage, which in this implementation are represented by in-memory objects.
+
+However, some classes, including string parsing, file handling and printout format constants, don't fit into a specific package since they provide general-purpose functionality that is necessary across multiple layers. As a result, they are collected into a separate package named \texttt{util}.
+
+The separation into layers leads to low coupling and high cohesion, where each package has a well-defined responsibility, which contributes to readability, maintainability and extensibility.
+
+
+\subsection{Following code conventions}
+
+During code implementation, code conventions and guidelines are followed for readability and extensibility. For instance, code packages are started in lowercase, beginning with reversed internet domain, followed by product name and specific packages. For instance, the \texttt{startup} class has the package name \texttt{se.ebikerepair.startup.Main}.
+
+se.ebikerepair does not produce a reversed internet domain???
+
+Classes and interfaces contains a full descriptive name. Each class starts with an uppercase letter and written in PascalCase, for instance \texttt{ControllerCreator} and \texttt{CustomerDTO}. 
+
+Method names contains a full description in its name in terms of its functionality and follows camelCase, starting with a lower case letter. For example, the method \texttt{addProposedRepairTask} in the class \texttt{RepairOrder} adds a proposed repair task with the class type \texttt{ProposedRepairTaskDTO} into a repair order.
+
+Variables, fields and parameters applies same rules as methods: descriptive names and camelCase notation. For instance, a variable \texttt{estimatedCompleteDate} describes the date when the repair order is estimated to be completed, which clearly states the meaning of the \texttt{Date} object. This contributes and enhances code readability, where each variable name explains its intent.
+
+Constants, \texttt{final static} fields, are written in all uppercase letters, separated by underscores. For instance, the constant \texttt{BIKE\_PRINTOUT\_FORMAT} holds the format of a format string showing the detail information of a \texttt{BikeDTO}.
+
+\subsection{Writing comments and Javadoc}
+
+All public interfaces are included in Javadoc comments in order to generate Java API documentation. On the other hand, inline comments inside each function are avoided since they are obscure and focus only on its internal functional mechanism. In Javadoc documentation, each method or class has a brief description about its intended functionality and behavior in a high-level abstraction. It also includes given parameters, return values and exceptions being thrown.
+
+For instance, in \texttt{RepairOrderRegistry} class, the Javadoc for the method \texttt{findRepairOrdersByTelephoneNumber} only states that the method finds all repair orders for a customer by a given telephone number, as well as the method takes in a \texttt{telephoneNumber} in string and returns a list of \texttt{repairOrder}s in \texttt{List\textless RepairOrder\textgreater}. However, it does not state how the registry stores the repair orders and how it is found using a telephone number, whether storing all telephone numbers in a long list without indexing and found by linear scan or using a clever hash-index for constant time search. In this case, the internal logic is encapsulated and can be optimized when the program evolves without changing the existing API interface.
+
+\subsection{Code smell and refactoring}
+
+Another important aspect of code implementation is recognizing code smell, which are symptoms of poor design of a program, as well as adressing them by refactoring in order to improve code quality, as well as better readability and maintainability. 
+
+One common code smell is duplicated code, where similar logic appears in different methods. This can be resolved by extracting the shared functionality logic into separate helper methods, some are private methods if these are not used elsewhere. For instance, the formatting styles are common between the class \texttt{RepairOrder} and \texttt{RepairOrderDTO}, whereas the \texttt{format} function, that is only responsible for formatting the repair order string, can be extracted and placed in \texttt{RepairOrderDTO} class.
+
+Another common code smell is long methods, which can be defined as a method taking responsibility of more than one functionality without explicit hierarchy of method calling. This can be resolved by splitting up each logic of the method that concerns each repsonsibility into its intended well-named method. This improves readability and make the control flow easier to follow and understand. For instance, classes in control layer does not take resposibility in controller logic...
+
+Additionally, primitive obsession is another code smell, where primitive values are favoured than regular objects. This can be adressed by introducing small data classes, DTOs, that wrap up multiple variables into one, such as \texttt{Cost} class that holds both a amount value and a currency value. This avoids primitive variables and fields to be scattered across the logic, which does not only cause low readability, but also harder to maintain since multiple variables have to be considered without an explicit relationship written as code syntax.
+
+Detecting code smells and refactoring is a continous and ongoing process during code implementation. After each system operation, the process is done in order to ensure clean and maintainable code, while preserving its functionality. As a result, the final design adhere stronger to the OOP guidelines and produces higher cohesion, lower coupling and high encapsulation, which makes code easier to extend, improve and optimize.
+
+
+% To be removed !!!
+\iffalse
+## 6.4 Code Smell and Refactoring
+**Code smells** signal poor design and should be removed through refactoring to improve code quality without changing behavior.
+
+* **Duplicated Code**: Duplicated code is a severe code smell that must be eliminated because even a single repeated statement can lead to errors, inefficiency, and maintenance disasters.
+* **Long Method**:
+  * A method is too long if its name cannot fully explain it — use **smaller, well‑named** methods instead of comments to make code clearer.
+  * Reducing method calls does **not meaningfully improve performance**, so optimizing by avoiding them is pointless.
+* **Large Class**: A class is too large when its cohesion is low — splitting related fields into a new class improves clarity and design.
+* **Long Parameter List**:
+  * Long parameter lists are a code smell — **replace primitive parameters with objects** to improve cohesion, encapsulation, and maintainable design. Sometimes the object itself has already contains the paramter, use **this** to get it.
+  * Remove unnecessary parameters by letting the method obtain the needed data itself instead of passing it in.
+* **Excessive Use of Primitive Variables**: Primitive Obsession is a code smell—use objects instead of excessive primitive fields to improve cohesion, encapsulation, and overall design quality.
+  * **Group** closely related fields and methods into a new class to improve cohesion and ensure data is always valid.
+  * Never use arrays to store unrelated primitive values—replace them with objects so each piece of data has a clear, meaningful name.
+  * Use **enumerations** instead of strings or integers to avoid errors and make code meanings explicit.
+* **Meaningless Names**: All declared program elements must have meaningful names. (packages, classes, interfaces, methods, fields, parameters, local variables, etc.).
+  * **Avoid one‑letter identifiers**
+      *   Prefer `Person person = new Person();` over `Person p = new Person();`.
+      *   **Exceptions:**
+          *   When the abstraction is naturally one letter (e.g., coordinate `x`).
+          *   Loop variables (`i`, `j`, `k`, …) in nested loops.
+  *   **Do not use meaningless temporary names like `tmp` or `temp`**
+        *   Use descriptive names even for short‑lived variables (e.g., during swaps).
+  *   **Never distinguish identifiers by adding numbers**
+        *   Use meaningful names such as `fromAccount` and `toAccount`, **not** `account1` and `account2`.
+  *   **Do not fear long names**
+        *   What matters is clarity.
+        *   Example: `firstCustomerBuyingCampaignItem` is acceptable if it clearly explains the variable’s purpose.
+* **Anonymous Values**:
+  *   **Always give every value an explaining name**
+      *   Unnamed values (literals) make code hard to understand and maintain.
+      *   Named values are safer than comments because the compiler enforces correctness, while comments can become outdated.
+  *   **Do not place raw numeric values directly in method calls**
+      *   Example: avoid `connect(10000)`.
+      *   Prefer meaningful named constants like:
+          *   `private static final int MILLIS_PER_SECOND = 1000;`
+          *   `private static final int CONNECT_TIMEOUT_SECS = 10;`
+      *   Use them in expressions such as:
+          *   `connect(CONNECT_TIMEOUT_SECS * MILLIS_PER_SECOND);`
+  *   **This naming practice applies to all primitive values—including strings**
+      *   Example: avoid raw string values like `"\""` when building file paths.
+      *   Use a constant:
+          *   `private static final String PATH_SEPARATOR = "\\";`
+      *   Then write:
+          *   `openFile(dirName + PATH_SEPARATOR + fileName);`
+  *   **Sometimes a method provides the clearest name for a value**
+      *   Especially useful in conditional expressions (`if` statements).
+      *   Example: instead of checking `if (c == 10)` for Unix end‑of‑line, create:
+          *   `boolean isUnixEol(char c)`
+      *   Use it as:
+          *   `if (isUnixEol(ch))`
+* **Complicated Flow Control**: Poorly structured **if‑statements and loops** become confusing when deeply nested or filled with unnecessary flags, making the logic hard to understand.
+\fi
+
+\subsection{Testing}
+
+Unit testing is conducted to verify the correctness of the program behavior. Tests are written for all public methods, except simple methods such as getters and setters, in all layers, controller, model and integration.
+
+Test cases are designed to cover typical usage scenarios, as well as edge cases where incorrect or unexpected input could occur. For example, methods that retrieve repair orders are tested with both existing and non-existing identifiers to ensure correct behavior in all situations.
+
+The tests are implemented using JUnit and executed after each system operation are completed. This ensured that incorrect program behavior are detected early in development stage and that newly added functionality does not interfere with existing behavior. Methods that only produce output to \texttt{System.out} are not tested.
+
+
+\section{Result}
+\label{sec:result}
+
+% \textbf{This chapter explains \textit{the result} of what you did.} \textbf{The report must show that you have done the work yourself and that you have understood what you have done}, both of these goals are met by explaining your solution here in the result chapter. Include links to your code in your Git repository (for seminars 3 and 4), and also include diagrams, see Figure \ref{fig:diag}, and other figures to illustrate your reasoning. All figures must be referenced in the text. Ask yourself if the solution is clearly explained, and if the reader will understand the application. What would you yourself want to know if you read about the application, is that included in the report? More specific instructions for the content can be found in each assignment.
+
+Based on the design diagrams from seminar 2, the code implementation covers the basic flow and startup sequence. Additionally, the code implementation is structurally divided into multiple packages, where each of them corresponds to a layer in the MVC-layered architecture. 
+
+Each system operation is described in terms of its purpose and execution flow through the different layers of the system. Relevant parts of the implementation are illustrated with code snippets, and the interaction between the controller, model, and integration layers is explained.
+
+\subsection{\texttt{startup} sequence}
+
+The startup sequence involves instantiation of the necessary entity class objects of the program, which can be mapped to the communication diagram of the start sequence. The sequence is important during development as the first to implement, since otherwise the program does not have a clear starting point and can be harder to track as the code grows large. Additionally, it also provides a possibility for manually checking program behavior during implementation. 
+
+The sequence consists mainly of View, Controller classes and Registry classes, which are three large parts of the system construction. On the top of the layered MVC architecture, the View class contains code for a dummy view interface with hardcoded entry input and output to the command line, since the program is only a minimal. Controller classes contains the necessary code for each system operation. Since there are two different roles, two separate classes \texttt{ReceptionistController} and \texttt{TechnicianController} are created, according to the design. However, some of their authorization actions are overlapped, both classes share a common superclass. In integration layer, the registry classes handles the data registry. Since the code does not handle databases, the implementation will store the data in-memory instead.
+
+In this case, the fundamental functional skeleton of the program can be placed out, whereas each system operation can easily be added by extending the existing structure.
+
+The View class currently contains a dummy view interface with hardcoded input as well as output to command line interface by using system print.
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+package se.ebikerepair.view;
+
+import se.ebikerepair.controller.ControllerCreator;
+import se.ebikerepair.controller.ReceptionistController;
+import se.ebikerepair.controller.TechnicianController;
+
+/**
+ * View layer that orchestrates the repair workflow: reception preparation, technician diagnostics,
+ * and reception confirmation. Catches and displays user-facing errors.
+ */
+public class View {
+    private static final String ERROR_PREFIX = "Error: ";
+    private final ReceptionistController receptionistController;
+    private final TechnicianController technicianController;
+
+    /**
+     * Creates a view with controllers from the given controller creator.
+     *
+     * @param controllerCreator the factory providing access to controllers
+     */
+    public View(ControllerCreator controllerCreator) {
+        receptionistController = controllerCreator.getReceptionistController();
+        technicianController = controllerCreator.getTechnicianController();
+    }
+
+    /**
+     * Runs the full repair workflow: reception preparation, technician diagnostics, and reception confirmation.
+     *
+     * @param telephoneNumber the customer's telephone number
+     * @param bikeSerialNumber the serial number of the broken bike
+     */
+    public void proceedActions(String telephoneNumber, String bikeSerialNumber) {
+        proceedReceptionPreparationActions(telephoneNumber, bikeSerialNumber);
+    }
+
+    private void proceedReceptionPreparationActions(String telephoneNumber, String bikeSerialNumber) {
+        // ...
+    }
+}
+
+\end{lstlisting}
+
+A common and shared \texttt{Controller} superclass is designed for both the controller role classes to extract out the common functionality.
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+package se.ebikerepair.controller;
+
+import se.ebikerepair.integration.RepairOrderRegistry;
+
+/**
+ * Base controller providing shared repair order lookup functionality.
+ */
+public class Controller {
+    protected final RepairOrderRegistry repairOrderRegistry;
+
+    /**
+     * Creates a controller with the given repair order registry.
+     *
+     * @param repairOrderRegistry the registry for storing and retrieving repair orders
+     */
+    public Controller(RepairOrderRegistry repairOrderRegistry){
+        this.repairOrderRegistry = repairOrderRegistry;
+    }
+    
+}
+
+\end{lstlisting}
+
+The two different controllers consists of technician controller and receptionist controller. Both controller classes comprehends a list of actions each role is authorized for.
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+package se.ebikerepair.controller;
+
+import se.ebikerepair.integration.RegistryCreator;
+
+/**
+ * Controller handling technician operations: diagnostic results and proposed repair tasks.
+ */
+public class TechnicianController extends Controller {
+    /**
+     * Creates a technician controller with access to registries.
+     *
+     * @param registryCreator the creator providing access to data registries
+     */
+    public TechnicianController(RegistryCreator registryCreator) {
+        super(registryCreator.getRepairOrderRegistry());
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+package se.ebikerepair.controller;
+
+import se.ebikerepair.integration.CustomerRegistry;
+import se.ebikerepair.integration.RegistryCreator;
+import se.ebikerepair.integration.Printer;
+
+/**
+ * Controller handling receptionist operations: customer search, repair order creation, acceptance and rejection.
+ */
+public class ReceptionistController{
+    private final CustomerRegistry customerRegistry;
+    private final Printer printer;
+    
+    /**
+     * Creates a receptionist controller with access to registries and a printer.
+     *
+     * @param registryCreator the creator providing access to data registries
+     * @param printer the printer for printing accepted repair orders
+     */
+    public ReceptionistController(RegistryCreator registryCreator, Printer printer){
+        super(registryCreator.getRepairOrderRegistry());
+        customerRegistry = registryCreator.getCustomerRegistry();
+        this.printer = printer;
+    }
+}
+
+\end{lstlisting}
+
+Both controllers are initialized and handled collectively by a \texttt{ControllerCreator} class. In this case, only the creator class needs to be initialized instead of separately initializing each class. As number of roles as well as different controllers grows, bundling together is easier to extend and maintain than keeping them as separate classes.
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+package se.ebikerepair.controller;
+
+import se.ebikerepair.integration.RegistryCreator;
+import se.ebikerepair.integration.Printer;
+
+/**
+ * Factory class that creates and provides access to all controllers.
+ */
+public class ControllerCreator {
+    private final ReceptionistController receptionistController;
+    private final TechnicianController technicianController;
+
+    /**
+     * Creates all controllers using the given registry creator and printer.
+     *
+     * @param registryCreator the creator providing access to data registries
+     * @param printer the printer for printing repair orders
+     */
+    public ControllerCreator(RegistryCreator registryCreator, Printer printer){
+        receptionistController = new ReceptionistController(registryCreator, printer);
+        technicianController = new TechnicianController(registryCreator);
+    }
+
+    /**
+     * Returns the receptionist controller.
+     *
+     * @return the receptionist controller
+     */
+    public ReceptionistController getReceptionistController(){
+        return receptionistController;
+    }
+
+    /**
+     * Returns the technician controller.
+     *
+     * @return the technician controller
+     */
+    public TechnicianController getTechnicianController(){
+        return technicianController;
+    }
+}
+\end{lstlisting}
+
+The registry classes consists of \texttt{CustomerRegistry} and \texttt{RepairOrderRegistry}. \texttt{CustomerRegistry} manages customer data and detailed information, while \texttt{RepairOrderRegistry} manages repair orders as well as their details. Both registry classes are collectively handled by a \texttt{RegistryCreator}, which is a class that manages both registry classes, with the same pattern as for handling controllers.
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+package se.ebikerepair.integration;
+
+import se.ebikerepair.util.JsonFileHandler;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Registry for storing and retrieving customers. Loads initial data from customers.json.
+ */
+public class CustomerRegistry{
+    private final Map<String, CustomerDTO> customers = new HashMap<>();
+    private final JsonFileHandler jsonFileHandler;
+
+    /**
+     * Creates a customer registry and loads customers from the JSON resource file.
+     */
+    public CustomerRegistry() {
+        jsonFileHandler = new JsonFileHandler("customers.json");
+        for (CustomerDTO customerDTO : jsonFileHandler.readList(CustomerDTO.class)){
+            customers.put(customerDTO.telephoneNumber(), customerDTO);
+        }
+    }
+}
+
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+package se.ebikerepair.integration;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+
+import se.ebikerepair.model.RepairOrder;
+
+/**
+ * Registry for storing and retrieving repair orders, indexed by order ID and customer telephone number.
+ */
+public class RepairOrderRegistry{
+    private final Map<String, RepairOrder> repairOrdersByRepairOrderId;
+    private final Map<String, List<RepairOrder>> repairOrdersByTelephoneNumber;
+
+    /**
+     * Creates an empty repair order registry.
+     */
+    public RepairOrderRegistry(){
+        repairOrdersByRepairOrderId = new HashMap<>();
+        repairOrdersByTelephoneNumber = new HashMap<>();
+    }
+}
+
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+/**
+ * Factory class that creates and provides access to all data registries.
+ */
+public class RegistryCreator {
+    private final CustomerRegistry customerRegistry;
+    private final RepairOrderRegistry repairOrderRegistry;
+
+    /**
+     * Creates all registries.
+     */
+    public RegistryCreator(){
+        customerRegistry = new CustomerRegistry();
+        repairOrderRegistry = new RepairOrderRegistry();
+    }
+
+    /**
+     * Returns the customer registry.
+     *
+     * @return the customer registry
+     */
+    public CustomerRegistry getCustomerRegistry(){
+        return customerRegistry;
+    }
+
+    /**
+     * Returns the repair order registry.
+     *
+     * @return the repair order registry
+     */
+    public RepairOrderRegistry getRepairOrderRegistry(){
+        return repairOrderRegistry;
+    }
+}
+\end{lstlisting}
+
+The main class initializes all the class object and acts as the application entry point. It establishes the overall program structure by creating instances of the integration, controller, and view layers, while connecting them together as a starting point integration.
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+/**
+ * Application entry point. Initializes registries, controllers, and view, 
+ * then runs the repair workflow.
+ */
+public class Main {
+    /**
+     * Starts the electric bike repair application.
+     *
+     * @param args command line arguments (not used)
+     */
+    public static void main(String[] args) {
+        RegistryCreator registryCreator = new RegistryCreator();
+        Printer printer = new Printer();
+        ControllerCreator controllerCreator = new ControllerCreator(registryCreator, printer);
+        View view = new View(controllerCreator);
+        view.proceedActions("0707654321", "SK-2024-055");
+    }
+}
+\end{lstlisting}
+
+
+\subsection{The \texttt{searchCustomer} system operation}
+
+The first implemented system operation is \texttt{searchCustomer}, which involves retrieving customer information based on a provided telephone number. This operation is initiated from the View layer and handled by the \texttt{ReceptionistController}, following the interaction defined in the communication diagram.
+
+The execution of this operation begins with the View calls \texttt{searchCustomer(telephoneNumber)} in the controller. The controller normalizes the input telephone number into E.164 format using the \texttt{TelephoneNumber} utility class. The number is used as a key to find the customer in \texttt{CustomerRegistry}, which returns the corresponding \texttt{CustomerDTO}, or \texttt{null} if no match is found. In the end, the controller validates the result: If a customer is found, it is returned to the caller. Otherwise, an \texttt{IllegalArgumentException} is thrown.
+
+This applies the separation of concern, where the input normalization is handled by a utility class, outside of the main logic. Additionally, data access is handled by the registry, while the control flow and validation are handled by the controller. In terms of encapsulation, internal data structure of registry are hidden from controller. 
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+public class View {
+    private void proceedReceptionPreparationActions(String telephoneNumber, String bikeSerialNumber) {
+        try {
+            CustomerDTO foundCustomer = receptionistController.searchCustomer(telephoneNumber);
+            printout("1. Reception - Found customer:", foundCustomer);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            System.out.println(ERROR_PREFIX + e.getMessage());
+        }
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+public class ReceptionistController extends Controller{
+    private final CustomerRegistry customerRegistry;
+    private final Printer printer;
+
+    /**
+     * Searches for a customer by telephone number.
+     *
+     * @param telephoneNumber the customer's telephone number (any Swedish format)
+     * @return the found customer DTO
+     * @throws IllegalArgumentException if the phone number format is invalid or customer not found
+     */
+    public CustomerDTO searchCustomer(String telephoneNumber) throws IllegalArgumentException{
+        String phoneNumberE164 = new TelephoneNumber(telephoneNumber).toE164();
+        CustomerDTO foundCustomer = customerRegistry.find(phoneNumberE164);
+        if (foundCustomer == null) {
+            throw new IllegalArgumentException("No customer found for telephone number: " + telephoneNumber);
+        }
+        return foundCustomer;
+    }
+}
+\end{lstlisting}
+
+\subsection{The \texttt{createRepairOrder} system operation}
+
+The \texttt{createRepairOrder} operation is responsible for creating a new repair order for a specific customer and their bike. The operation is initiated by the View after a customer has been successfully retrieved. The View provides the telephone number and a \texttt{ProblemDTO}, which contains both the bike and a description of the issue.
+
+To start with, the View calls \texttt{createRepairOrder} in the \texttt{ReceptionistController}. The controller retrieves the customer using the telephone number, as a new \texttt{RepairOrder} object is created in the model layer. The problem description is added to the repair order, which is stored in the \texttt{RepairOrderRegistry}. In the end, the unique repair order id is returned back to the View
+
+This operation shows how responsibilities are distributed across layers. The controller coordinates the process while the model encapsulates business logic, and the registry manages persistence. By generating a unique id for each repair order, the system ensures traceability and enables future operations such as diagnostics and task management.
+
+As a result, a new repair order is successfully created and stored, allowing the workflow to proceed to the diagnostic phase.
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+public class View {
+    private void proceedReceptionPreparationActions(String telephoneNumber, String bikeSerialNumber) {
+        try {
+            CustomerDTO foundCustomer = receptionistController.searchCustomer(telephoneNumber);
+            printout("1. Reception - Found customer:", foundCustomer);
+
+            BikeDTO foundBike = foundCustomer.getBikeBySerialNumber(bikeSerialNumber);
+            String repairOrderId = receptionistController.createRepairOrder(telephoneNumber, new ProblemDTO("Broken bike chain", foundBike));
+            printout("2. Reception - Created repair order with id: ", repairOrderId);
+
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            System.out.println(ERROR_PREFIX + e.getMessage());
+        }
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+package se.ebikerepair.integration;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import se.ebikerepair.constant.PrintoutFormat;
+
+/**
+ * Immutable data transfer object representing a customer with their bikes.
+ *
+ * @param name the customer's full name
+ * @param telephoneNumber the customer's telephone number in E.164 format
+ * @param emailAddress the customer's email address
+ * @param bikes the list of bikes owned by the customer
+ */
+public record CustomerDTO(String name, String telephoneNumber, String emailAddress, List<BikeDTO> bikes) {
+
+    /**
+     * Finds a bike by its serial number.
+     *
+     * @param serialNumber the serial number to search for
+     * @return the matching bike
+     * @throws IllegalArgumentException if the serial number is not found
+     */
+    public BikeDTO getBikeBySerialNumber(String serialNumber) throws IllegalArgumentException {
+        for (BikeDTO bike : bikes) {
+            if (bike.serialNumber().equals(serialNumber)) {
+                return bike;
+            }
+        }
+        throw new IllegalArgumentException(String.format("No bike found with serial number %s", serialNumber));
+    }
+}
+
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+
+/**
+ * Controller handling receptionist operations: customer search, repair order creation, acceptance and rejection.
+ */
+public class ReceptionistController extends Controller{
+    /**
+     * Creates a new repair order for the customer identified by telephone number.
+     *
+     * @param telephoneNumber the customer's telephone number (any Swedish format)
+     * @param problemDTO the problem description with the broken bike
+     * @return the generated repair order ID
+     * @throws IllegalArgumentException if the customer is not found or phone format is invalid
+     */
+    public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws IllegalArgumentException{
+        CustomerDTO foundCustomer = searchCustomer(telephoneNumber);
+        RepairOrder repairOrder = new RepairOrder(foundCustomer);
+        repairOrder.updateProblem(problemDTO);
+        repairOrderRegistry.save(repairOrder);
+        return repairOrder.getId();
+    }
+}
+
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+    package se.ebikerepair.model;
+
+import java.util.Date;
+import java.util.UUID;
+
+import se.ebikerepair.integration.CustomerDTO;
+import se.ebikerepair.integration.RepairOrderDTO;
+import se.ebikerepair.integration.ProblemDTO;
+import se.ebikerepair.integration.ResultDTO;
+import se.ebikerepair.integration.RepairTaskDTO;
+
+
+/**
+ * Represents a repair order with customer, problem, diagnostic report, proposed tasks, and lifecycle state.
+ */
+public class RepairOrder {
+    private static final int MILLIS_PER_DAY = 24 * 60 * 60 * 1000;
+
+    private CustomerDTO customerDTO;
+    private Problem problem;
+    private Date createdDate;
+    private RepairOrderState repairOrderState;
+    private DiagnosticReport diagnosticReport;
+    private RepairTaskCollection repairTaskCollection;
+    private String id;
+
+    /**
+     * Creates a new repair order with the given customer.
+     *
+     * @param customerDTO the customer who owns the repair order
+     */
+    public RepairOrder(CustomerDTO customerDTO) {
+        this.customerDTO = customerDTO;
+        this.problem = new Problem();
+        this.createdDate = new Date();
+        this.repairOrderState = RepairOrderState.NewlyCreated;
+        this.diagnosticReport = new DiagnosticReport();
+        this.repairTaskCollection = new RepairTaskCollection();
+        this.id = UUID.randomUUID().toString();
+    }
+
+    /**
+     * Updates the problem with values from a ProblemDTO.
+     *
+     * @param problemDTO the DTO containing the new problem values
+     */
+    public void updateProblem(ProblemDTO problemDTO) {
+        this.problem.update(problemDTO);
+    }
+}
+
+\end{lstlisting}
+
+\subsection{The \texttt{findRepairOrder} system operation}
+
+The \texttt{findRepairOrder} operation is responsible for retrieving an existing repair order associated with a specific customer. This operation is essential for continuing the workflow after a repair order has been created, as it allows subsequent actions such as diagnostics and task creation to be performed on the correct entity.
+
+The operation is initiated from the View layer by providing a telephone number and is handled by the controller. The controller first normalizes the telephone number into E.164 format to ensure consistency. It then retrieves all repair order identifiers associated with the customer from the \texttt{RepairOrderRegistry}. From this set, the most recent repair order is selected and fetched from the registry. The retrieved repair order is converted into a \texttt{RepairOrderDTO} before being returned to the View.
+
+If no repair orders exist for the given customer, an \texttt{IllegalArgumentException} is thrown. In the case of data inconsistency, where an identifier exists without a corresponding repair order, an \texttt{IllegalStateException} is raised.
+
+This operation demonstrates how the system maintains continuity in the workflow by consistently retrieving the most recent repair order. The use of DTOs ensures that internal model data is not exposed directly to the View, preserving encapsulation. As a result, the system provides access to the current state of a repair order, enabling further processing in subsequent operations.
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+package se.ebikerepair.controller;
+
+/**
+ * Base controller providing shared repair order lookup functionality.
+ */
+public class Controller {
+    protected final RepairOrderRegistry repairOrderRegistry;
+
+    /**
+     * Finds the most recent repair order for the given telephone number.
+     *
+     * @param telephoneNumber the customer's telephone number (any Swedish format)
+     * @return the most recent repair order as a DTO
+     * @throws IllegalArgumentException if no repair orders exist for the customer or phone format is invalid
+     * @throws IllegalStateException if the repair order ID exists but the order cannot be found (data inconsistency)
+     */
+    public RepairOrderDTO findRepairOrder(String telephoneNumber) throws IllegalArgumentException, IllegalStateException{
+        List<String> repairOrderIds = findRepairOrderIds(telephoneNumber);
+        if (repairOrderIds.isEmpty()) {
+            throw new IllegalArgumentException("There is no repair order created for this customer.");
+        }
+        String id = repairOrderIds.get(0);
+        RepairOrder repairOrder = repairOrderRegistry.findByRepairOrderId(id);
+        if (repairOrder == null) {
+            throw new IllegalStateException("Repair order not found for id: " + id);
+        }
+        return repairOrder.toDTO();
+    }
+    
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+package se.ebikerepair.integration;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+
+import se.ebikerepair.model.RepairOrder;
+
+/**
+ * Registry for storing and retrieving repair orders, indexed by order ID and customer telephone number.
+ */
+public class RepairOrderRegistry{
+    private final Map<String, RepairOrder> repairOrdersByRepairOrderId;
+    private final Map<String, List<RepairOrder>> repairOrdersByTelephoneNumber;
+
+    /**
+     * Creates an empty repair order registry.
+     */
+    public RepairOrderRegistry(){
+        repairOrdersByRepairOrderId = new HashMap<>();
+        repairOrdersByTelephoneNumber = new HashMap<>();
+    }
+
+    /**
+     * Finds all repair orders for a customer by telephone number.
+     *
+     * @param telephoneNumber the telephone number in E.164 format
+     * @return list of repair orders, or empty list if none found
+     */
+    public List<RepairOrder> findRepairOrdersByTelephoneNumber(String telephoneNumber){
+        return repairOrdersByTelephoneNumber.getOrDefault(telephoneNumber, Collections.emptyList());
+    }
+
+    /**
+     * Finds a repair order by its unique ID.
+     *
+     * @param repairOrderId the repair order ID
+     * @return the repair order, or null if not found
+     */
+    public RepairOrder findByRepairOrderId(String repairOrderId){
+        return repairOrdersByRepairOrderId.get(repairOrderId);
+    }
+}
+
+\end{lstlisting}
+
+\subsection{The \texttt{addDiagnosticResult} system operation}
+
+The \texttt{addDiagnosticResult} operation allows a technician to record the outcome of a diagnostic task for a specific repair order. This operation represents the inspection phase of the workflow, where the condition of the bike is evaluated and documented.
+
+The operation is initiated from the View layer after a repair order has been retrieved. The technician provides the repair order identifier, the name of the diagnostic task, and a \texttt{ResultDTO} describing the outcome. The controller retrieves the corresponding \texttt{RepairOrder} from the \texttt{RepairOrderRegistry} and delegates the update to the model layer. The \texttt{RepairOrder} then updates its internal \texttt{DiagnosticReport} by locating the specified task and applying the result. Once the update is complete, the modified repair order is saved back into the registry.
+
+The responsibility for modifying diagnostic data is encapsulated within the model, ensuring that business rules remain centralized and protected from external layers. The controller acts only as a coordinator of the operation, without directly manipulating internal data structures.
+
+As a result, the repair order is updated with new diagnostic information, which directly influences later stages of the workflow such as repair task creation and cost estimation.
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+package se.ebikerepair.view;
+
+import se.ebikerepair.controller.ControllerCreator;
+import se.ebikerepair.controller.ReceptionistController;
+import se.ebikerepair.controller.TechnicianController;
+import se.ebikerepair.integration.CustomerDTO;
+import se.ebikerepair.integration.BikeDTO;
+import se.ebikerepair.integration.ProblemDTO;
+import se.ebikerepair.integration.RepairOrderDTO;
+import se.ebikerepair.integration.RepairTaskDTO;
+import se.ebikerepair.model.Cost;
+import se.ebikerepair.integration.ResultDTO;
+
+/**
+ * View layer that orchestrates the repair workflow: reception preparation, technician diagnostics,
+ * and reception confirmation. Catches and displays user-facing errors.
+ */
+public class View {
+    private static final String ERROR_PREFIX = "Error: ";
+    private final ReceptionistController receptionistController;
+    private final TechnicianController technicianController;
+
+    private void proceedTechnicianDiagnosticActions(String telephoneNumber) {
+        try {
+            RepairOrderDTO repairOrderDTO = technicianController.findRepairOrder(telephoneNumber);
+            printout("3. Technician - Requested repair order: ", repairOrderDTO);
+
+            String repairOrderId = repairOrderDTO.id();
+            String diagnosticTaskName = "Mechanical Safety Check";
+            ResultDTO result = new ResultDTO(true, true, "Chain and gears should be replaced.");
+            technicianController.addDiagnosticResult(repairOrderId, diagnosticTaskName, result);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            System.out.println(ERROR_PREFIX + e.getMessage());
+        }
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+package se.ebikerepair.model;
+
+import java.util.Date;
+import java.util.UUID;
+
+import se.ebikerepair.integration.CustomerDTO;
+import se.ebikerepair.integration.RepairOrderDTO;
+import se.ebikerepair.integration.ProblemDTO;
+import se.ebikerepair.integration.ResultDTO;
+import se.ebikerepair.integration.RepairTaskDTO;
+
+/**
+ * Represents a repair order with customer, problem, diagnostic report, proposed tasks, and lifecycle state.
+ */
+public class RepairOrder {
+    private static final int MILLIS_PER_DAY = 24 * 60 * 60 * 1000;
+
+    private CustomerDTO customerDTO;
+    private Problem problem;
+    private Date createdDate;
+    private RepairOrderState repairOrderState;
+    private DiagnosticReport diagnosticReport;
+    private RepairTaskCollection repairTaskCollection;
+    private String id;
+
+    /**
+     * Updates a diagnostic task result identified by name.
+     *
+     * @param name the diagnostic task name (partial match)
+     * @param result the result to apply to the diagnostic task
+     * @throws IllegalArgumentException if no diagnostic task matches the given name
+     */
+    public void updateDiagnosticResult(String name, ResultDTO result) {
+        getDiagnosticReport().updateDiagnosticResult(name, result);
+    }
+}
+
+\end{lstlisting}
+
+\subsection{The \texttt{createProposedRepairTask} system operation}
+
+The \texttt{createProposedRepairTask} operation allows a technician to define repair actions based on the results of the diagnostic phase. This operation represents the transition from inspection to repair planning, where identified issues are translated into concrete repair tasks.
+
+The operation is initiated from the View layer after diagnostic results have been recorded. The technician provides a \texttt{RepairTaskDTO} containing a description of the repair, along with its associated cost and estimated duration. The controller retrieves the corresponding \texttt{RepairOrder} from the registry and delegates the responsibility of adding the task to the model layer. The \texttt{RepairOrder} then adds the new task to its \texttt{RepairTaskCollection}, ensuring that it becomes part of the overall repair plan. The updated repair order is subsequently stored in the registry.
+
+The model layer manages the internal collection of repair tasks, ensuring consistency and preventing unauthorized access to internal data structures. This encapsulation allows the system to evolve without affecting higher-level components.
+
+As a result, the repair order is extended with proposed tasks, forming the basis for customer approval and enabling the next stage of the workflow.
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+package se.ebikerepair.view;
+
+import se.ebikerepair.controller.ControllerCreator;
+import se.ebikerepair.controller.ReceptionistController;
+import se.ebikerepair.controller.TechnicianController;
+import se.ebikerepair.integration.CustomerDTO;
+import se.ebikerepair.integration.BikeDTO;
+import se.ebikerepair.integration.ProblemDTO;
+import se.ebikerepair.integration.RepairOrderDTO;
+import se.ebikerepair.integration.RepairTaskDTO;
+import se.ebikerepair.model.Cost;
+import se.ebikerepair.integration.ResultDTO;
+
+/**
+ * View layer that orchestrates the repair workflow: reception preparation, technician diagnostics,
+ * and reception confirmation. Catches and displays user-facing errors.
+ */
+public class View {
+    private static final String ERROR_PREFIX = "Error: ";
+    private final ReceptionistController receptionistController;
+    private final TechnicianController technicianController;
+
+    private void proceedTechnicianDiagnosticActions(String telephoneNumber) {
+        try {
+            RepairOrderDTO repairOrderDTO = technicianController.findRepairOrder(telephoneNumber);
+            printout("3. Technician - Requested repair order: ", repairOrderDTO);
+
+            String repairOrderId = repairOrderDTO.id();
+            String diagnosticTaskName = "Mechanical Safety Check";
+            ResultDTO result = new ResultDTO(true, true, "Chain and gears should be replaced.");
+            technicianController.addDiagnosticResult(repairOrderId, diagnosticTaskName, result);
+            printout("4. Technician - Updated diagnostic task: ", diagnosticTaskName);
+
+            RepairTaskDTO repairTask1 = new RepairTaskDTO("Replace Chain", "Removal of worn or stretched chain and installation of a new compatible e\u2011bike chain. Includes lubrication, tension adjustment, and drivetrain alignment check.", new Cost(500, "SEK"), 1);
+            RepairTaskDTO repairTask2 = new RepairTaskDTO("Replace gears", "Replacement of worn or damaged rear cassette/freewheel or front chainrings. Includes removal of old components, installation of new gear set, indexing and tuning of derailleur(s).", new Cost(400, "SEK"), 2);
+            technicianController.addRepairTask(repairOrderId, repairTask1);
+            technicianController.addRepairTask(repairOrderId, repairTask2);
+            printout("5. Technician - Created proposed repair tasks 01: ", repairTask1);
+            printout("6. Technician - Created proposed repair tasks 02: ", repairTask2);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            System.out.println(ERROR_PREFIX + e.getMessage());
+        }
+    }
+}
+
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+package se.ebikerepair.model;
+
+public class RepairOrder {
+    /**
+     * Adds a repair task to the collection from a RepairTaskDTO.
+     *
+     * @param repairTask the repair task DTO to add
+     */
+    public void addRepairTask(RepairTaskDTO repairTask) {
+        getRepairTaskCollection().addRepairTask(repairTask);
+    }
+}
+
+\end{lstlisting}
+
+\subsection{The \texttt{acceptRepairOrder} system operation}
+
+The \texttt{acceptRepairOrder} operation is performed when a customer accepts the proposed repair tasks.
+
+The operation is initiated from the View layer after the proposed repair tasks have been presented to the customer. The controller retrieves the corresponding \texttt{RepairOrder} from the registry and updates its state to \texttt{Accepted}. This state transition is handled within the model, ensuring that the lifecycle of the repair order remains consistent. After updating the state, the controller sends the repair order to the \texttt{Printer}, producing a formal output. The updated repair order is then saved in the registry.
+
+As a result, the repair order is marked as accepted and confirmed, ready for execution while a formal record of the accepted repair is generated.
+
+\begin{lstlisting}[style=javastyle, caption={Main class entry point}]
+package se.ebikerepair.model;
+
+import java.util.Date;
+import java.util.UUID;
+
+import se.ebikerepair.integration.CustomerDTO;
+import se.ebikerepair.integration.RepairOrderDTO;
+import se.ebikerepair.integration.ProblemDTO;
+import se.ebikerepair.integration.ResultDTO;
+import se.ebikerepair.integration.RepairTaskDTO;
+
+
+/**
+ * Represents a repair order with customer, problem, diagnostic report, proposed tasks, and lifecycle state.
+ */
+public class RepairOrder {
+    private RepairOrderState repairOrderState;
+
+    /**
+     * Sets the repair order state to Accepted.
+     */
+    public void accept() {
+        repairOrderState = RepairOrderState.Accepted;
+    }
+
+    /**
+     * Sets the repair order state to Rejected.
+     */
+    public void reject() {
+        repairOrderState = RepairOrderState.Rejected;
+    }
+}
+
+\end{lstlisting}
+
+\subsection{The \texttt{rejectRepairOrder} system operation}
+
+The \texttt{rejectRepairOrder} operation is used when a customer declines the proposed repair tasks. This operation represents an alternative outcome in the workflow, where the repair process is not approved.
+
+The operation is initiated from the View layer when the customer decides not to proceed. The controller retrieves the corresponding \texttt{RepairOrder} from the registry and updates its state to \texttt{Rejected}. This state change is performed within the model layer, ensuring that all lifecycle transitions are handled consistently. The updated repair order is then saved back into the registry.
+
+By supporting both acceptance and rejection scenarios, the system provides a complete representation of the decision-making process within the repair workflow. The encapsulation of state changes within the model ensures that the system remains robust and maintainable.
+
+As a result, the repair order is marked as rejected, and no further actions are performed on it.
+
+\section{Discussion}
+
+% \textbf{This chapter evaluates your solution} according to the assessment criteria found in the assessment-criteria documents, which are available under each seminar (sections 4.1-4.4) on the \texttt{Seminar Tasks} page of the course web. To get 2p, it's important that the evaluation is extensive, and \textbf{motivated with concrete examples from your solution}. General statements, that could be applied to any solution, will not contribute to a higher score.
+
+\section*{References}
+
+\textbf{It's mandatory to list here all sources from where you have collected information}, for example course material and YouTube videos. \textbf{Remember that all AI usage must be specified}. There are examples of how AI usage can be specified in Canvas, on the course front page.
+
+You can use any reference style you wish. \textbf{Don't mention other students you have collaborated with}, that shall instead be mentioned in the \textit{Project Members} section at the top of the report.
+
+\end{document}
