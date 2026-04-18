@@ -87,7 +87,7 @@ Write tests for your program.
 
 *   In the *Result* chapter of your report, briefly explain the tests. Include links to your git repository, and make sure the repository is public.
 
-*   In the *Discussion* chapter of your report, evaluate your unit tests using applicable assessment criteria from the document *assessment-criteria-seminar3.pdf*, which is available on the *Seminar Tasks* page in Canvas.
+*   In the *Discussion* chapter of your report, evaluate your unit tests using applicable assessment criteria from the document *assessment-criteria-seminar3.pdf* (Assessment Criteria For Seminar 3, Implementation), which is available on the *Seminar Tasks* page in Canvas.
 
 ***
 
