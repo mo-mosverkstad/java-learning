@@ -30,7 +30,8 @@ public record RepairTaskDTO(String name, String description, Cost cost, Proposed
     @Override
     public String toString() {
         String status = state == ProposedRepairTaskState.Completed ? "X" : " ";
+        String wrappedDescription = PrintoutFormat.wrapText(description, 8);
         return String.format(PrintoutFormat.PROPOSED_REPAIR_TASK_PRINTOUT_FORMAT,
-                status, name, description, cost, estimatedDays);
+                status, name, wrappedDescription, cost, estimatedDays);
     }
 }

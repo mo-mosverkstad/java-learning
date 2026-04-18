@@ -28,7 +28,8 @@ public record DiagnosticTaskDTO(String name, String description, Cost cost, int 
     public String toString() {
         String status = result.checked() ? "X" : " ";
         String repairStatus = result.toBeRepaired() ? "TO BE REPAIRED" : " ";
+        String wrappedDescription = PrintoutFormat.wrapText(description, 12);
         return String.format(PrintoutFormat.DIAGNOSTIC_TASK_PRINTOUT_FORMAT,
-                status, name, description, repairStatus, cost, days, result.description());
+                status, name, wrappedDescription, repairStatus, cost, days, result.description());
     }
 }

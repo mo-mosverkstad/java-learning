@@ -14,7 +14,7 @@ import se.ebikerepair.util.JsonFileHandler;
  * Mutable entity representing a diagnostic report containing pre-defined diagnostic tasks.
  */
 public class DiagnosticReport {
-    private static final String DEFAULT_DESCRIPTION = "This report contains pre-defined diagnostic tasks for e-bike inspection. Please check each task and record the result.";
+    private static final String DEFAULT_DESCRIPTION = "This report contains pre-defined diagnostic tasks for e-bike inspection. Only tasks marked with [X] have been performed and contribute to the repair cost.";
     private static final List<DiagnosticTask> DIAGNOSTIC_TASKS = new JsonFileHandler("diagnosticTasks.json").readList(DiagnosticTask.class);
 
     private String description = DEFAULT_DESCRIPTION;

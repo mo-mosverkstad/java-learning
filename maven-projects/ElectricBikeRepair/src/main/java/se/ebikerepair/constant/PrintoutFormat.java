@@ -6,7 +6,44 @@ package se.ebikerepair.constant;
  */
 public final class PrintoutFormat {
 
+    private static final int MAX_LINE_WIDTH = 80;
+
     private PrintoutFormat() {}
+
+    /**
+     * Wraps text to fit within maxWidth, prefixing continuation lines with the given indent.
+     *
+     * @param text the text to wrap
+     * @param indent number of leading spaces for continuation lines
+     * @return the wrapped text
+     */
+    public static String wrapText(String text, int indent) {
+        int contentWidth = MAX_LINE_WIDTH - indent;
+        if (text.length() <= contentWidth) {
+            return text;
+        }
+        String pad = " ".repeat(indent);
+        StringBuilder sb = new StringBuilder();
+        int start = 0;
+        while (start < text.length()) {
+            int end = Math.min(start + contentWidth, text.length());
+            if (end < text.length()) {
+                int lastSpace = text.lastIndexOf(' ', end);
+                if (lastSpace > start) {
+                    end = lastSpace;
+                }
+            }
+            if (start > 0) {
+                sb.append(System.lineSeparator()).append(pad);
+            }
+            sb.append(text, start, end);
+            start = end;
+            if (start < text.length() && text.charAt(start) == ' ') {
+                start++;
+            }
+        }
+        return sb.toString();
+    }
 
     public static final String BIKE_PRINTOUT_FORMAT =
             "    - Brand: %s, Model: %s (S/N: %s)%n";

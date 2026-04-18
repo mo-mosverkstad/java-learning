@@ -50,7 +50,7 @@ class DiagnosticReportDTOTest {
         DiagnosticReportDTO dto = new DiagnosticReport().toDTO();
         assertNotNull(dto.description());
         assertTrue(dto.description().contains("pre-defined diagnostic tasks"));
-        assertTrue(dto.description().contains("Please check"));
+        assertTrue(dto.description().contains("Only tasks marked with [X]"));
     }
 
     @Test
