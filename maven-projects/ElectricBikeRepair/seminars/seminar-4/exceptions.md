@@ -354,3 +354,266 @@ These methods only call `technicianController.findRepairOrder()` / `receptionist
 **File:** `se.ebikerepair.integration.NonExistentTelephoneNumberException`
 
 Per §8.6 and §1.2 of the notes, "customer not found" is a business rule violation, not a technical failure. The notes suggest domain exceptions should be thrown by model or controller, while integration exceptions represent technical failures (registry unavailable, data corruption). `NonExistentTelephoneNumberException` is currently in the `integration` package because `CustomerRegistry` throws it, which is pragmatic. However, conceptually it's a domain exception. This is fine for now but worth considering if you restructure for Seminar 8.
+
+### 5. The take-away (in §8.6):
+
+The **Controller** is the translation layer — it should translate technical/unchecked exceptions into domain-level checked exceptions before they reach the View
+
+The **View** should only catch checked exceptions that it knows how to present
+
+This prevents the **View** from catching IllegalArgumentException / IllegalStateException directly (which was flagged as issue #2 in the review)
+
+
+---
+
+# Unchecked Exceptions (work in progress)
+
+## 3. ResourceNotFoundException (new)
+
+### Added: `se.ebikerepair.util.ResourceNotFoundException`
+
+```java
+package se.ebikerepair.util;
+
+class ResourceNotFoundException extends RuntimeException{
+    public ResourceNotFoundException(String resourceName) {
+        super(String.format("%s not found in resources", resourceName));
+    }
+}
+```
+
+### Throws in: `se.ebikerepair.util.JsonFileHandler` — constructor
+
+```java
+public JsonFileHandler(String resourceName) {
+    URL resource = getClass().getClassLoader().getResource(resourceName);
+    if (resource == null) {
+        throw new ResourceNotFoundException(resourceName);
+    }
+    File file;
+    try {
+        file = new File(resource.toURI());
+    } catch (URISyntaxException e) {
+        throw new InvalidResourceURIException(resourceName, e);
+    }
+    jsonFile = file;
+}
+```
+
+---
+
+## 4. InvalidResourceURIException (new)
+
+### Added: `se.ebikerepair.util.InvalidResourceURIException`
+
+```java
+package se.ebikerepair.util;
+
+class InvalidResourceURIException extends RuntimeException{
+    public InvalidResourceURIException(String resourceName, Exception exception) {
+        super(String.format("Invalid resource URI: %s", resourceName), exception);
+    }
+
+    public InvalidResourceURIException(String resourceName) {
+        new InvalidResourceURIException(String.format("Invalid resource URI: %s", resourceName), null);
+    }
+}
+```
+
+### Throws in: `se.ebikerepair.util.JsonFileHandler` — constructor
+
+```java
+public JsonFileHandler(String resourceName) {
+    URL resource = getClass().getClassLoader().getResource(resourceName);
+    if (resource == null) {
+        throw new ResourceNotFoundException(resourceName);
+    }
+    File file;
+    try {
+        file = new File(resource.toURI());
+    } catch (URISyntaxException e) {
+        throw new InvalidResourceURIException(resourceName, e);
+    }
+    jsonFile = file;
+}
+```
+
+### Throws in: `se.ebikerepair.util.JsonFileHandler` — readList
+
+```java
+public <T> List<T> readList(Class<T> clazz) {
+    if (jsonFile == null) throw new InvalidResourceURIException(jsonFile.getName());
+    try (Reader reader = new InputStreamReader(new FileInputStream(jsonFile), StandardCharsets.UTF_8)) {
+        Type listType = TypeToken.getParameterized(List.class, clazz).getType();
+        List<T> list = GSON.fromJson(reader, listType);
+        return list != null ? list : Collections.emptyList();
+    } catch (IOException e) {
+        throw new CannotReadFileException(jsonFile.getName(), e);
+    }
+}
+```
+
+### Throws in: `se.ebikerepair.util.JsonFileHandler` — writeList
+
+```java
+public <T> void writeList(List<T> list) {
+    if (jsonFile == null) {
+        throw new InvalidResourceURIException(jsonFile.getName());
+    }
+    try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
+        GSON.toJson(list, writer);
+    } catch (IOException e) {
+        throw new CannotWriteFileException(jsonFile.getName(), e);
+    }
+}
+```
+
+---
+
+## 5. CannotReadFileException (new)
+
+### Added: `se.ebikerepair.util.CannotReadFileException`
+
+```java
+package se.ebikerepair.util;
+
+public class CannotReadFileException extends RuntimeException {
+    public CannotReadFileException(String name, Exception exception){
+        super(String.format("Failed to read %s : %s", name, exception.getMessage()), exception);
+    }
+}
+```
+
+### Throws in: `se.ebikerepair.util.JsonFileHandler` — readList
+
+```java
+public <T> List<T> readList(Class<T> clazz) {
+    if (jsonFile == null) throw new InvalidResourceURIException(jsonFile.getName());
+    try (Reader reader = new InputStreamReader(new FileInputStream(jsonFile), StandardCharsets.UTF_8)) {
+        Type listType = TypeToken.getParameterized(List.class, clazz).getType();
+        List<T> list = GSON.fromJson(reader, listType);
+        return list != null ? list : Collections.emptyList();
+    } catch (IOException e) {
+        throw new CannotReadFileException(jsonFile.getName(), e);
+    }
+}
+```
+
+---
+
+## 6. CannotWriteFileException (new)
+
+### Added: `se.ebikerepair.util.CannotWriteFileException`
+
+```java
+package se.ebikerepair.util;
+
+public class CannotWriteFileException extends RuntimeException {
+    public CannotWriteFileException(String name, Exception exception){
+        super(String.format("Failed to write %s : %s", name, exception.getMessage()), exception);
+    }
+}
+```
+
+### Throws in: `se.ebikerepair.util.JsonFileHandler` — writeList
+
+```java
+public <T> void writeList(List<T> list) {
+    if (jsonFile == null) {
+        throw new InvalidResourceURIException(jsonFile.getName());
+    }
+    try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
+        GSON.toJson(list, writer);
+    } catch (IOException e) {
+        throw new CannotWriteFileException(jsonFile.getName(), e);
+    }
+}
+```
+
+---
+
+## Half-finished: Catching unchecked exceptions in Controller
+
+### `se.ebikerepair.controller.ReceptionistController` — createRepairOrder (has TODO comment)
+
+```java
+public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException{
+    // try catch unchecked exceptions...
+    CustomerDTO foundCustomer = searchCustomer(telephoneNumber);
+    RepairOrder repairOrder = new RepairOrder(foundCustomer);
+    repairOrder.updateProblem(problemDTO);
+    repairOrderRegistry.save(repairOrder);
+    return repairOrder.getId();
+}
+```
+
+### TODO: Methods that still need unchecked exception wrapping in Controller
+
+The following public controller methods interact with registries (which now throw unchecked exceptions) and should wrap `RuntimeException` into a checked `OperationFailedException`:
+
+`se.ebikerepair.controller.Controller` — findRepairOrder
+
+```java
+public RepairOrderDTO findRepairOrder(String telephoneNumber) throws InvalidTelephoneNumberException, IllegalArgumentException, IllegalStateException{
+    List<String> repairOrderIds = findRepairOrderIds(telephoneNumber);
+    if (repairOrderIds.isEmpty()) {
+        throw new IllegalArgumentException("There is no repair order created for this customer.");
+    }
+    String id = repairOrderIds.get(0);
+    RepairOrder repairOrder = repairOrderRegistry.findByRepairOrderId(id);
+    if (repairOrder == null) {
+        throw new IllegalStateException("Repair order not found for id: " + id);
+    }
+    return repairOrder.toDTO();
+}
+```
+
+`se.ebikerepair.controller.ReceptionistController` — searchCustomer
+
+```java
+public CustomerDTO searchCustomer(String telephoneNumber) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException{
+    String phoneNumberE164 = new TelephoneNumber(telephoneNumber).toE164();
+    CustomerDTO foundCustomer = customerRegistry.find(phoneNumberE164);
+    return foundCustomer;
+}
+```
+
+`se.ebikerepair.controller.ReceptionistController` — createRepairOrder
+
+```java
+public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException{
+    // try catch unchecked exceptions...
+    CustomerDTO foundCustomer = searchCustomer(telephoneNumber);
+    RepairOrder repairOrder = new RepairOrder(foundCustomer);
+    repairOrder.updateProblem(problemDTO);
+    repairOrderRegistry.save(repairOrder);
+    return repairOrder.getId();
+}
+```
+
+`se.ebikerepair.controller.ReceptionistController` — acceptRepairOrder
+
+```java
+public void acceptRepairOrder(String repairOrderId) throws IllegalStateException{
+    RepairOrder repairOrder = repairOrderRegistry.findByRepairOrderId(repairOrderId);
+    if (repairOrder == null) {
+        throw new IllegalStateException("Repair order not found for id: " + repairOrderId);
+    }
+    repairOrder.accept();
+    repairOrderRegistry.save(repairOrder);
+    printer.print(repairOrder);
+}
+```
+
+`se.ebikerepair.controller.ReceptionistController` — rejectRepairOrder
+
+```java
+public void rejectRepairOrder(String repairOrderId) throws IllegalStateException{
+    RepairOrder repairOrder = repairOrderRegistry.findByRepairOrderId(repairOrderId);
+    if (repairOrder == null) {
+        throw new IllegalStateException("Repair order not found for id: " + repairOrderId);
+    }
+    repairOrder.reject();
+    repairOrderRegistry.save(repairOrder);
+}
+```
