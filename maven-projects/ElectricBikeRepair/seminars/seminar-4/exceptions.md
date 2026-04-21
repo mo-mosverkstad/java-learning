@@ -617,3 +617,113 @@ public void rejectRepairOrder(String repairOrderId) throws IllegalStateException
     repairOrderRegistry.save(repairOrder);
 }
 ```
+
+
+---
+
+# Code Review: Unchecked Exception Wrapping (work in progress)
+
+## 1. [High] FailedOperationException is incomplete — missing package, superclass, and constructor
+
+**File:** `se.ebikerepair.controller.FailedOperationException`
+
+The class is empty — it doesn't extend `Exception` or `RuntimeException`, has no package declaration, and no constructor. It needs to extend `Exception` (checked) to serve as the controller-level wrapper, and needs a constructor accepting a message and cause for exception chaining (§8.8).
+
+Current:
+
+```java
+public class FailedOperationException {
+
+}
+```
+
+Should be:
+
+```java
+package se.ebikerepair.controller;
+
+public class FailedOperationException extends Exception {
+    public FailedOperationException(String message, RuntimeException cause) {
+        super(message, cause);
+    }
+}
+```
+
+## 2. [High] createRepairOrder catches unchecked exceptions but swallows them (empty catch body)
+
+**File:** `se.ebikerepair.controller.ReceptionistController` — `createRepairOrder`
+
+The catch block catches 4 specific unchecked exception types but the body is empty — the exception is swallowed silently. Per §8.10 this is a common mistake: *"Catching exceptions and doing nothing."* It should rethrow as a checked `FailedOperationException`.
+
+Also, catching 4 specific types is fragile — if a new `RuntimeException` is added in the future it won't be caught. Catch `RuntimeException` instead and wrap it.
+
+Current:
+
+```java
+public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException{
+    try{
+        CustomerDTO foundCustomer = searchCustomer(telephoneNumber);
+        RepairOrder repairOrder = new RepairOrder(foundCustomer);
+        repairOrder.updateProblem(problemDTO);
+        repairOrderRegistry.save(repairOrder);
+        return repairOrder.getId();
+    }
+    catch (ResourceNotFoundException | InvalidResourceURIException | CannotReadFileException | CannotWriteFileException exception){
+        
+    }
+    
+}
+```
+
+Should be:
+
+```java
+public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException, FailedOperationException{
+    try{
+        CustomerDTO foundCustomer = searchCustomer(telephoneNumber);
+        RepairOrder repairOrder = new RepairOrder(foundCustomer);
+        repairOrder.updateProblem(problemDTO);
+        repairOrderRegistry.save(repairOrder);
+        return repairOrder.getId();
+    } catch (RuntimeException e) {
+        throw new FailedOperationException("Failed to create repair order", e);
+    }
+}
+```
+
+## 3. [High] createRepairOrder will not compile — missing return after catch block
+
+**File:** `se.ebikerepair.controller.ReceptionistController` — `createRepairOrder`
+
+The method has a `return` inside the try block, but the catch block is empty with no return or throw. The compiler requires all code paths to return a `String`. Rethrowing as `FailedOperationException` in the catch block fixes this since `throw` terminates the method.
+
+## 4. [Medium] Catch references package-private exception types from another package — won't compile
+
+**File:** `se.ebikerepair.controller.ReceptionistController` — `createRepairOrder` (line 70)
+
+The catch references `ResourceNotFoundException`, `InvalidResourceURIException`, `CannotReadFileException`, and `CannotWriteFileException` but none are imported. More importantly, `ResourceNotFoundException` and `InvalidResourceURIException` are declared as package-private (`class`, not `public class`) in `se.ebikerepair.util`, so they are **not accessible** from `se.ebikerepair.controller`. Catching `RuntimeException` instead solves both the import and accessibility issues — and this is the correct approach per §8.8 (no implementation details leaking across layers).
+
+## 5. [Medium] Other public controller methods still lack unchecked exception wrapping
+
+**File:** `se.ebikerepair.controller.ReceptionistController` and `se.ebikerepair.controller.Controller`
+
+Only `createRepairOrder` has the try-catch so far. The following methods also call registry methods that can throw the same unchecked exceptions but have no wrapping yet:
+
+- `se.ebikerepair.controller.Controller` — `findRepairOrder`
+- `se.ebikerepair.controller.ReceptionistController` — `searchCustomer`
+- `se.ebikerepair.controller.ReceptionistController` — `acceptRepairOrder`
+- `se.ebikerepair.controller.ReceptionistController` — `rejectRepairOrder`
+
+## 6. [Low] View catch clause not yet updated to use FailedOperationException
+
+**File:** `se.ebikerepair.view.View` — `proceedActions`
+
+Once `FailedOperationException` is properly implemented and thrown from controllers, the View should catch it instead of `IllegalArgumentException | IllegalStateException`. Currently the View still catches those unchecked types directly, which was flagged in the previous review (issue #2).
+
+Target:
+
+```java
+catch (NonExistentTelephoneNumberException | InvalidTelephoneNumberException | FailedOperationException e) {
+    System.out.println(ERROR_PREFIX + e.getMessage());
+}
+```

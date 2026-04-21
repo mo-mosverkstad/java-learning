@@ -56,12 +56,17 @@ public class ReceptionistController extends Controller{
      * @throws NonExistentTelephoneNumberException if the customer is not found or phone format is invalid
      */
     public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException{
-        // try catch unchecked exceptions...
-        CustomerDTO foundCustomer = searchCustomer(telephoneNumber);
-        RepairOrder repairOrder = new RepairOrder(foundCustomer);
-        repairOrder.updateProblem(problemDTO);
-        repairOrderRegistry.save(repairOrder);
-        return repairOrder.getId();
+        try{
+            CustomerDTO foundCustomer = searchCustomer(telephoneNumber);
+            RepairOrder repairOrder = new RepairOrder(foundCustomer);
+            repairOrder.updateProblem(problemDTO);
+            repairOrderRegistry.save(repairOrder);
+            return repairOrder.getId();
+        }
+        catch (ResourceNotFoundException | InvalidResourceURIException | CannotReadFileException | CannotWriteFileException exception){
+            
+        }
+        
     }
 
     /**
