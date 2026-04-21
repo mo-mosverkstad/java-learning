@@ -1,6 +1,6 @@
 package se.ebikerepair.util;
 
-class InvalidResourceURIException extends RuntimeException{
+public class InvalidResourceURIException extends RuntimeException{
     public InvalidResourceURIException(String resourceName, Exception exception) {
         super(String.format("Invalid resource URI: %s", resourceName), exception);
     }

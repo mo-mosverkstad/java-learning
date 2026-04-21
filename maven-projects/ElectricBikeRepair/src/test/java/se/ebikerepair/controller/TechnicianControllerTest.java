@@ -23,7 +23,7 @@ class TechnicianControllerTest {
     private String repairOrderId;
 
     @BeforeEach
-    void setUp() throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException {
+    void setUp() throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException, FailedOperationException {
         RegistryCreator registryCreator = new RegistryCreator();
         recController = new ReceptionistController(registryCreator, new Printer());
         techController = new TechnicianController(registryCreator);

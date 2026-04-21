@@ -12,6 +12,7 @@ import se.ebikerepair.integration.RepairTaskDTO;
 import se.ebikerepair.model.Cost;
 import se.ebikerepair.util.InvalidTelephoneNumberException;
 import se.ebikerepair.integration.ResultDTO;
+import se.ebikerepair.controller.FailedOperationException;
 
 /**
  * View layer that orchestrates the repair workflow: reception preparation, technician diagnostics,
@@ -43,12 +44,12 @@ public class View {
             proceedReceptionPreparationActions(telephoneNumber, bikeSerialNumber);
             proceedTechnicianDiagnosticActions(telephoneNumber);
             proceedReceptionConfirmationActions(telephoneNumber);
-        } catch (NonExistentTelephoneNumberException | InvalidTelephoneNumberException | IllegalArgumentException | IllegalStateException e) {
+        } catch (NonExistentTelephoneNumberException | InvalidTelephoneNumberException | FailedOperationException | IllegalArgumentException | IllegalStateException e) {
             System.out.println(ERROR_PREFIX + e.getMessage());
         }
     }
 
-    private void proceedReceptionPreparationActions(String telephoneNumber, String bikeSerialNumber) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException {
+    private void proceedReceptionPreparationActions(String telephoneNumber, String bikeSerialNumber) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException, FailedOperationException {
         CustomerDTO foundCustomer = receptionistController.searchCustomer(telephoneNumber);
         printout("1. Reception - Found customer:", foundCustomer);
 

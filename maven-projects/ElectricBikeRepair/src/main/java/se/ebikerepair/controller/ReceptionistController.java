@@ -12,6 +12,10 @@ import se.ebikerepair.util.TelephoneNumber;
 import se.ebikerepair.integration.ProblemDTO;
 import se.ebikerepair.integration.RepairOrderDTO;
 import se.ebikerepair.integration.Printer;
+import se.ebikerepair.util.ResourceNotFoundException;
+import se.ebikerepair.util.InvalidResourceURIException;
+import se.ebikerepair.util.CannotReadFileException;
+import se.ebikerepair.util.CannotWriteFileException;
 
 /**
  * Controller handling receptionist operations: customer search, repair order creation, acceptance and rejection.
@@ -55,7 +59,7 @@ public class ReceptionistController extends Controller{
      * @return the generated repair order ID
      * @throws NonExistentTelephoneNumberException if the customer is not found or phone format is invalid
      */
-    public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException{
+    public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException, FailedOperationException{
         try{
             CustomerDTO foundCustomer = searchCustomer(telephoneNumber);
             RepairOrder repairOrder = new RepairOrder(foundCustomer);
@@ -64,7 +68,7 @@ public class ReceptionistController extends Controller{
             return repairOrder.getId();
         }
         catch (ResourceNotFoundException | InvalidResourceURIException | CannotReadFileException | CannotWriteFileException exception){
-            
+            throw new FailedOperationException("Fail to create repair order", exception);
         }
         
     }

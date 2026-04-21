@@ -29,9 +29,10 @@ class JsonFileHandlerTest {
 
     @Test
     void testReadNonExistentFile() {
-        JsonFileHandler handler = new JsonFileHandler("nonexistent.json");
-        List<CustomerDTO> result = handler.readList(CustomerDTO.class);
-        assertTrue(result.isEmpty());
+        assertThrows(ResourceNotFoundException.class, () -> {
+            JsonFileHandler handler = new JsonFileHandler("nonexistent.json");
+        });
+        
     }
 
     @Test
