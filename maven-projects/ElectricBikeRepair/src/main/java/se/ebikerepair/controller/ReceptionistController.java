@@ -2,10 +2,12 @@ package se.ebikerepair.controller;
 
 import se.ebikerepair.integration.CustomerDTO;
 import se.ebikerepair.integration.CustomerRegistry;
+import se.ebikerepair.integration.NonExistentTelephoneNumberException;
 import se.ebikerepair.integration.RegistryCreator;
 import se.ebikerepair.model.RepairOrder;
 import se.ebikerepair.model.Problem;
 import se.ebikerepair.integration.RepairOrderRegistry;
+import se.ebikerepair.util.InvalidTelephoneNumberException;
 import se.ebikerepair.util.TelephoneNumber;
 import se.ebikerepair.integration.ProblemDTO;
 import se.ebikerepair.integration.RepairOrderDTO;
@@ -36,14 +38,12 @@ public class ReceptionistController extends Controller{
      *
      * @param telephoneNumber the customer's telephone number (any Swedish format)
      * @return the found customer DTO
-     * @throws IllegalArgumentException if the phone number format is invalid or customer not found
+     * @throws NonExistentTelephoneNumberException if the phone number does not correspond to a customer
+     * @throws InvalidTelephoneNumberException if the telephone number is empty or invalid
      */
-    public CustomerDTO searchCustomer(String telephoneNumber) throws IllegalArgumentException{
+    public CustomerDTO searchCustomer(String telephoneNumber) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException{
         String phoneNumberE164 = new TelephoneNumber(telephoneNumber).toE164();
         CustomerDTO foundCustomer = customerRegistry.find(phoneNumberE164);
-        if (foundCustomer == null) {
-            throw new IllegalArgumentException("No customer found for telephone number: " + telephoneNumber);
-        }
         return foundCustomer;
     }
 
@@ -53,9 +53,9 @@ public class ReceptionistController extends Controller{
      * @param telephoneNumber the customer's telephone number (any Swedish format)
      * @param problemDTO the problem description with the broken bike
      * @return the generated repair order ID
-     * @throws IllegalArgumentException if the customer is not found or phone format is invalid
+     * @throws NonExistentTelephoneNumberException if the customer is not found or phone format is invalid
      */
-    public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws IllegalArgumentException{
+    public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException{
         CustomerDTO foundCustomer = searchCustomer(telephoneNumber);
         RepairOrder repairOrder = new RepairOrder(foundCustomer);
         repairOrder.updateProblem(problemDTO);

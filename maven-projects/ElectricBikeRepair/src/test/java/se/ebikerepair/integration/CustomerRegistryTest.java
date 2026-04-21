@@ -24,33 +24,39 @@ class CustomerRegistryTest {
 
     @Test
     void testGetExistingCustomer() {
-        CustomerDTO customer = registry.find("+46701234567");
-        assertNotNull(customer);
-        assertEquals("Erik Lindqvist", customer.name());
-        assertEquals("erik.lindqvist@example.com", customer.emailAddress());
+        assertDoesNotThrow(() -> {
+            CustomerDTO customer = registry.find("+46701234567");
+            assertNotNull(customer);
+            assertEquals("Erik Lindqvist", customer.name());
+            assertEquals("erik.lindqvist@example.com", customer.emailAddress());
+        });
     }
 
     @Test
     void testGetNonExistingCustomer() {
-        assertNull(registry.find("+46700000000"));
+        assertThrows(NonExistentTelephoneNumberException.class, () -> registry.find("+46700000000"));
     }
 
     @Test
     void testCustomerHasBikes() {
-        CustomerDTO astrid = registry.find("+46707654321");
-        assertNotNull(astrid);
-        List<BikeDTO> bikes = astrid.bikes();
-        assertNotNull(bikes);
-        assertEquals(2, bikes.size());
+        assertDoesNotThrow(() -> {
+            CustomerDTO astrid = registry.find("+46707654321");
+            assertNotNull(astrid);
+            List<BikeDTO> bikes = astrid.bikes();
+            assertNotNull(bikes);
+            assertEquals(2, bikes.size());
+        });
     }
 
     @Test
     void testBikeDetails() {
-        CustomerDTO erik = registry.find("+46701234567");
-        BikeDTO bike = erik.bikes().get(0);
-        assertEquals("Crescent", bike.brand());
-        assertEquals("Elda", bike.model());
-        assertEquals("CR-2024-001", bike.serialNumber());
+        assertDoesNotThrow(() -> {
+            CustomerDTO erik = registry.find("+46701234567");
+            BikeDTO bike = erik.bikes().get(0);
+            assertEquals("Crescent", bike.brand());
+            assertEquals("Elda", bike.model());
+            assertEquals("CR-2024-001", bike.serialNumber());
+        });
     }
 
     @Test
@@ -59,10 +65,12 @@ class CustomerRegistryTest {
         CustomerDTO newCustomer = new CustomerDTO("Ingrid Svensson", "+46709999999", "ingrid.svensson@example.com", List.of(bike));
         registry.save(newCustomer);
 
-        CustomerDTO retrieved = registry.find("+46709999999");
-        assertNotNull(retrieved);
-        assertEquals("Ingrid Svensson", retrieved.name());
-        assertEquals(1, retrieved.bikes().size());
-        assertEquals("CAKE", retrieved.bikes().get(0).brand());
+        assertDoesNotThrow(() -> {
+            CustomerDTO retrieved = registry.find("+46709999999");
+            assertNotNull(retrieved);
+            assertEquals("Ingrid Svensson", retrieved.name());
+            assertEquals(1, retrieved.bikes().size());
+            assertEquals("CAKE", retrieved.bikes().get(0).brand());
+        });
     }
 }

@@ -11,6 +11,8 @@ import se.ebikerepair.integration.RepairOrderDTO;
 
 import java.util.List;
 
+import se.ebikerepair.util.InvalidTelephoneNumberException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ControllerTest {
@@ -41,8 +43,10 @@ class ControllerTest {
         order2.getProblem().setBrokenBike(bike);
         registry.save(order2);
 
-        RepairOrderDTO dto = controller.findRepairOrder("+46707654321");
-        assertEquals(order2.getId(), dto.id());
+        assertDoesNotThrow(() -> {
+            RepairOrderDTO dto = controller.findRepairOrder("+46707654321");
+            assertEquals(order2.getId(), dto.id());
+        });
     }
 
     @Test
@@ -53,7 +57,7 @@ class ControllerTest {
 
     @Test
     void testFindRepairOrderInvalidPhone() {
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(InvalidTelephoneNumberException.class, () ->
                 controller.findRepairOrder("abc"));
     }
 
@@ -64,9 +68,11 @@ class ControllerTest {
         order.getProblem().setBrokenBike(bike);
         registry.save(order);
 
-        RepairOrderDTO dto = controller.findRepairOrder("+46707654321");
-        assertNotNull(dto);
-        assertEquals(order.getId(), dto.id());
-        assertEquals("Astrid", dto.customerDTO().name());
+        assertDoesNotThrow(() -> {
+            RepairOrderDTO dto = controller.findRepairOrder("+46707654321");
+            assertNotNull(dto);
+            assertEquals(order.getId(), dto.id());
+            assertEquals("Astrid", dto.customerDTO().name());
+        });
     }
 }

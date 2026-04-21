@@ -13,17 +13,18 @@ public class TelephoneNumber {
      * Parses a telephone number string into country code, area code, and subscriber number.
      *
      * @param telephoneNumber the telephone number in any supported Swedish format
-     * @throws IllegalArgumentException if the telephone number is null, empty, or has an invalid format
+     * @throws InvalidTelephoneNumberException if the telephone number is null, empty, or has an invalid format
      */
-    public TelephoneNumber(String telephoneNumber) {
-        if (telephoneNumber == null || telephoneNumber.trim().isEmpty()) {
-            throw new IllegalArgumentException("Telephone number format problem");
+    public TelephoneNumber(String telephoneNumber) throws InvalidTelephoneNumberException {
+        // when (telephoneNumber == null) throw NullPointerException (unchecked exception)
+        if (telephoneNumber.trim().isEmpty()) {
+            throw new InvalidTelephoneNumberException("<empty>");
         }
 
         String digits = telephoneNumber.replaceAll("[\\s\\-\\(\\)]", "");
 
         if (!digits.matches("\\+?[0-9]+")) {
-            throw new IllegalArgumentException("Telephone number format problem");
+            throw new InvalidTelephoneNumberException(telephoneNumber);
         }
 
         String normalized;
@@ -39,21 +40,21 @@ public class TelephoneNumber {
         }
 
         if (normalized.length() < 7) {
-            throw new IllegalArgumentException("Telephone number format problem");
+            throw new InvalidTelephoneNumberException(telephoneNumber);
         }
 
         cc = extractCountryCode(normalized);
         String remaining = normalized.substring(cc.length());
 
         if (remaining.isEmpty() || (remaining.length() < 8 || remaining.length() > 9)) {
-            throw new IllegalArgumentException("Telephone number format problem");
+            throw new InvalidTelephoneNumberException(telephoneNumber);
         }
 
         ac = extractAreaCode(remaining);
         sn = remaining.substring(ac.length());
 
         if (sn.isEmpty()) {
-            throw new IllegalArgumentException("Telephone number format problem");
+            throw new InvalidTelephoneNumberException(telephoneNumber);
         }
     }
 

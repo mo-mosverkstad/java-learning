@@ -6,6 +6,7 @@ import se.ebikerepair.integration.Printer;
 import se.ebikerepair.view.View;
 
 /**
+ * 
  * Application entry point. Initializes registries, controllers, and view, then runs the repair workflow.
  */
 public class Main {
@@ -19,6 +20,13 @@ public class Main {
         Printer printer = new Printer();
         ControllerCreator controllerCreator = new ControllerCreator(registryCreator, printer);
         View view = new View(controllerCreator);
-        view.proceedActions("0707654321", "SK-2024-055");
+        // Normal main use case scenario
+        // view.proceedActions("0707654321", "SK-2024-055");
+
+        // Negative use case, this telephone number could not be used to find the customer
+        // view.proceedActions("0707654322", "SK-2024-055");
+
+        // Negative use case, this telephone number format is invalid
+        view.proceedActions("11707654322", "SK-2024-055");
     }
 }

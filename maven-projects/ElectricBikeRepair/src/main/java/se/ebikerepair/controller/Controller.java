@@ -3,6 +3,7 @@ package se.ebikerepair.controller;
 import se.ebikerepair.model.RepairOrder;
 import se.ebikerepair.integration.RepairOrderDTO;
 import se.ebikerepair.integration.RepairOrderRegistry;
+import se.ebikerepair.util.InvalidTelephoneNumberException;
 import se.ebikerepair.util.TelephoneNumber;
 import java.util.List;
 import java.util.Comparator;
@@ -23,7 +24,7 @@ public class Controller {
         this.repairOrderRegistry = repairOrderRegistry;
     }
 
-    private List<String> findRepairOrderIds(String telephoneNumber){
+    private List<String> findRepairOrderIds(String telephoneNumber) throws InvalidTelephoneNumberException{
         String phoneNumberE164 = new TelephoneNumber(telephoneNumber).toE164();
         List<RepairOrder> repairOrders = repairOrderRegistry.findRepairOrdersByTelephoneNumber(phoneNumberE164);
         return repairOrders.stream()
@@ -37,10 +38,11 @@ public class Controller {
      *
      * @param telephoneNumber the customer's telephone number (any Swedish format)
      * @return the most recent repair order as a DTO
-     * @throws IllegalArgumentException if no repair orders exist for the customer or phone format is invalid
+     * @throws InvalidTelephoneNumberException if the phone number format is invalid
+     * @throws IllegalArgumentException if no repair orders exist for the customer
      * @throws IllegalStateException if the repair order ID exists but the order cannot be found (data inconsistency)
      */
-    public RepairOrderDTO findRepairOrder(String telephoneNumber) throws IllegalArgumentException, IllegalStateException{
+    public RepairOrderDTO findRepairOrder(String telephoneNumber) throws InvalidTelephoneNumberException, IllegalArgumentException, IllegalStateException{
         List<String> repairOrderIds = findRepairOrderIds(telephoneNumber);
         if (repairOrderIds.isEmpty()) {
             throw new IllegalArgumentException("There is no repair order created for this customer.");

@@ -27,10 +27,15 @@ public class CustomerRegistry{
      * Finds a customer by telephone number.
      *
      * @param telephoneNumber the telephone number in E.164 format
-     * @return the customer DTO, or null if not found
+     * @throws NonExistentTelephoneNumberException if the telephone number does not exist in the registry
+     * @return the customer DTO
      */
-    public CustomerDTO find(String telephoneNumber) {
-        return customers.get(telephoneNumber);
+    public CustomerDTO find(String telephoneNumber) throws NonExistentTelephoneNumberException {
+        CustomerDTO customer = customers.get(telephoneNumber);
+        if (customer == null){
+            throw new NonExistentTelephoneNumberException(telephoneNumber);
+        }
+        return customer;
     }
 
     /**

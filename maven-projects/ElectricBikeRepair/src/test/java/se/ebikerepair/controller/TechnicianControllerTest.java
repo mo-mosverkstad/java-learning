@@ -12,6 +12,8 @@ import se.ebikerepair.integration.RepairTaskDTO;
 import se.ebikerepair.integration.ResultDTO;
 import se.ebikerepair.integration.Printer;
 import se.ebikerepair.model.Cost;
+import se.ebikerepair.util.InvalidTelephoneNumberException;
+import se.ebikerepair.integration.NonExistentTelephoneNumberException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,7 +23,7 @@ class TechnicianControllerTest {
     private String repairOrderId;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException {
         RegistryCreator registryCreator = new RegistryCreator();
         recController = new ReceptionistController(registryCreator, new Printer());
         techController = new TechnicianController(registryCreator);
@@ -33,11 +35,13 @@ class TechnicianControllerTest {
 
     @Test
     void testAddDiagnosticResult() {
-        ResultDTO result = new ResultDTO(true, true, "Needs repair");
-        techController.addDiagnosticResult(repairOrderId, "Electrical", result);
+        assertDoesNotThrow(() -> {
+            ResultDTO result = new ResultDTO(true, true, "Needs repair");
+            techController.addDiagnosticResult(repairOrderId, "Electrical", result);
 
-        RepairOrderDTO dto = techController.findRepairOrder("0707654321");
-        assertNotNull(dto.diagnosticReport());
+            RepairOrderDTO dto = techController.findRepairOrder("0707654321");
+            assertNotNull(dto.diagnosticReport());
+        });
     }
 
     @Test
@@ -54,12 +58,14 @@ class TechnicianControllerTest {
 
     @Test
     void testAddRepairTask() {
-        RepairTaskDTO task = new RepairTaskDTO("Replace chain", "Replace worn chain", new Cost(500, "SEK"), 2);
-        techController.addRepairTask(repairOrderId, task);
+        assertDoesNotThrow(() -> {
+            RepairTaskDTO task = new RepairTaskDTO("Replace chain", "Replace worn chain", new Cost(500, "SEK"), 2);
+            techController.addRepairTask(repairOrderId, task);
 
-        RepairOrderDTO dto = techController.findRepairOrder("0707654321");
-        assertEquals(1, dto.repairTaskCollection().repairTasks().size());
-        assertEquals("Replace chain", dto.repairTaskCollection().repairTasks().get(0).name());
+            RepairOrderDTO dto = techController.findRepairOrder("0707654321");
+            assertEquals(1, dto.repairTaskCollection().repairTasks().size());
+            assertEquals("Replace chain", dto.repairTaskCollection().repairTasks().get(0).name());
+        });
     }
 
     @Test
@@ -70,12 +76,14 @@ class TechnicianControllerTest {
 
     @Test
     void testAddMultipleRepairTasks() {
-        RepairTaskDTO task1 = new RepairTaskDTO("Task1", "Desc1", new Cost(300, "SEK"), 1);
-        RepairTaskDTO task2 = new RepairTaskDTO("Task2", "Desc2", new Cost(200, "SEK"), 2);
-        techController.addRepairTask(repairOrderId, task1);
-        techController.addRepairTask(repairOrderId, task2);
+        assertDoesNotThrow(() -> {
+            RepairTaskDTO task1 = new RepairTaskDTO("Task1", "Desc1", new Cost(300, "SEK"), 1);
+            RepairTaskDTO task2 = new RepairTaskDTO("Task2", "Desc2", new Cost(200, "SEK"), 2);
+            techController.addRepairTask(repairOrderId, task1);
+            techController.addRepairTask(repairOrderId, task2);
 
-        RepairOrderDTO dto = techController.findRepairOrder("0707654321");
-        assertEquals(2, dto.repairTaskCollection().repairTasks().size());
+            RepairOrderDTO dto = techController.findRepairOrder("0707654321");
+            assertEquals(2, dto.repairTaskCollection().repairTasks().size());
+        });
     }
 }
