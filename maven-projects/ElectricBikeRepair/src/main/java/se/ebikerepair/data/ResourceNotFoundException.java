@@ -1,4 +1,4 @@
-package se.ebikerepair.util;
+package se.ebikerepair.data;
 
 public class ResourceNotFoundException extends RuntimeException{
     public ResourceNotFoundException(String resourceName) {

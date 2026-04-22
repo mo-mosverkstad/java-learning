@@ -1,4 +1,4 @@
-package se.ebikerepair.util;
+package se.ebikerepair.data;
 
 public class CannotReadFileException extends RuntimeException {
     public CannotReadFileException(String name, Exception exception){

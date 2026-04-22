@@ -1,4 +1,4 @@
-package se.ebikerepair.util;
+package se.ebikerepair.data;
 
 public class CannotWriteFileException extends RuntimeException {
     public CannotWriteFileException(String name, Exception exception){

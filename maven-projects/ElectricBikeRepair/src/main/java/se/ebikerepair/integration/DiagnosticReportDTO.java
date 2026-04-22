@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import se.ebikerepair.constant.PrintoutFormat;
 import se.ebikerepair.model.Cost;
-import se.ebikerepair.util.JsonFileHandler;
+import se.ebikerepair.data.JsonFileHandler;
 
 /**
  * Immutable data transfer object representing a diagnostic report containing pre-defined diagnostic tasks.

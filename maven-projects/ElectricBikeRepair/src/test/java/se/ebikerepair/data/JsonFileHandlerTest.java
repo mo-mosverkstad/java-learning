@@ -1,4 +1,4 @@
-package se.ebikerepair.util;
+package se.ebikerepair.data;
 
 import org.junit.jupiter.api.Test;
 
@@ -11,16 +11,22 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class JsonFileHandlerTest {
 
+    private JsonFileHandler createHandler(String resourceName) {
+        JsonFileHandler handler = new JsonFileHandler();
+        handler.initDataHandler(resourceName);
+        return handler;
+    }
+
     @Test
     void testReadCustomers() {
-        JsonFileHandler handler = new JsonFileHandler("customers.json");
+        JsonFileHandler handler = createHandler("customers");
         List<CustomerDTO> customers = handler.readList(CustomerDTO.class);
         assertFalse(customers.isEmpty());
     }
 
     @Test
     void testReadDiagnosticTasks() {
-        JsonFileHandler handler = new JsonFileHandler("diagnosticTasks.json");
+        JsonFileHandler handler = createHandler("diagnosticTasks");
         List<DiagnosticTaskDTO> tasks = handler.readList(DiagnosticTaskDTO.class);
         assertFalse(tasks.isEmpty());
         assertNotNull(tasks.get(0).name());
@@ -30,14 +36,13 @@ class JsonFileHandlerTest {
     @Test
     void testReadNonExistentFile() {
         assertThrows(ResourceNotFoundException.class, () -> {
-            JsonFileHandler handler = new JsonFileHandler("nonexistent.json");
+            createHandler("nonexistent");
         });
-        
     }
 
     @Test
     void testReadCustomerDetails() {
-        JsonFileHandler handler = new JsonFileHandler("customers.json");
+        JsonFileHandler handler = createHandler("customers");
         List<CustomerDTO> customers = handler.readList(CustomerDTO.class);
         CustomerDTO first = customers.get(0);
         assertNotNull(first.name());

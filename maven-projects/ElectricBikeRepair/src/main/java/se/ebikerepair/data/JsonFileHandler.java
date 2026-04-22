@@ -1,4 +1,4 @@
-package se.ebikerepair.util;
+package se.ebikerepair.data;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -15,8 +15,8 @@ import java.util.List;
 /**
  * Utility for reading and writing JSON files from the classpath resources.
  */
-public class JsonFileHandler {
-    private final File jsonFile;
+public class JsonFileHandler implements DataHandler{
+    private File jsonFile;
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     /**
@@ -24,8 +24,12 @@ public class JsonFileHandler {
      *
      * @param resourceName the name of the JSON resource file on the classpath
      */
-    public JsonFileHandler(String resourceName) {
-        URL resource = getClass().getClassLoader().getResource(resourceName);
+    public JsonFileHandler() {
+        // initDataHandler(resourceName);
+    }
+
+    public void initDataHandler(String resourceName) {
+        URL resource = getClass().getClassLoader().getResource(String.format("%s.json", resourceName));
         if (resource == null) {
             throw new ResourceNotFoundException(resourceName);
         }
@@ -36,6 +40,10 @@ public class JsonFileHandler {
             throw new InvalidResourceURIException(resourceName, e);
         }
         jsonFile = file;
+    }
+
+    public boolean isInitialized() {
+        return jsonFile != null && jsonFile.exists();
     }
 
     /**

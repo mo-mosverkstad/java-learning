@@ -12,10 +12,11 @@ import se.ebikerepair.util.TelephoneNumber;
 import se.ebikerepair.integration.ProblemDTO;
 import se.ebikerepair.integration.RepairOrderDTO;
 import se.ebikerepair.integration.Printer;
-import se.ebikerepair.util.ResourceNotFoundException;
-import se.ebikerepair.util.InvalidResourceURIException;
-import se.ebikerepair.util.CannotReadFileException;
-import se.ebikerepair.util.CannotWriteFileException;
+import se.ebikerepair.data.ResourceNotFoundException;
+import se.ebikerepair.data.InvalidResourceURIException;
+import se.ebikerepair.data.NoDatabaseException;
+import se.ebikerepair.data.CannotReadFileException;
+import se.ebikerepair.data.CannotWriteFileException;
 
 /**
  * Controller handling receptionist operations: customer search, repair order creation, acceptance and rejection.
@@ -45,10 +46,13 @@ public class ReceptionistController extends Controller{
      * @throws NonExistentTelephoneNumberException if the phone number does not correspond to a customer
      * @throws InvalidTelephoneNumberException if the telephone number is empty or invalid
      */
-    public CustomerDTO searchCustomer(String telephoneNumber) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException{
-        String phoneNumberE164 = new TelephoneNumber(telephoneNumber).toE164();
-        CustomerDTO foundCustomer = customerRegistry.find(phoneNumberE164);
-        return foundCustomer;
+    public CustomerDTO searchCustomer(String telephoneNumber) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException, FailedOperationException{
+        try {
+            String phoneNumberE164 = new TelephoneNumber(telephoneNumber).toE164();
+            return customerRegistry.find(phoneNumberE164);
+        } catch (ResourceNotFoundException | InvalidResourceURIException | CannotReadFileException | CannotWriteFileException | NoDatabaseException exception){
+            throw new FailedOperationException("Fail to search customer", exception);
+        }
     }
 
     /**
@@ -60,14 +64,13 @@ public class ReceptionistController extends Controller{
      * @throws NonExistentTelephoneNumberException if the customer is not found or phone format is invalid
      */
     public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException, FailedOperationException{
-        try{
+        try {
             CustomerDTO foundCustomer = searchCustomer(telephoneNumber);
             RepairOrder repairOrder = new RepairOrder(foundCustomer);
             repairOrder.updateProblem(problemDTO);
             repairOrderRegistry.save(repairOrder);
             return repairOrder.getId();
-        }
-        catch (ResourceNotFoundException | InvalidResourceURIException | CannotReadFileException | CannotWriteFileException exception){
+        } catch (ResourceNotFoundException | InvalidResourceURIException | CannotReadFileException | CannotWriteFileException | NoDatabaseException exception){
             throw new FailedOperationException("Fail to create repair order", exception);
         }
         

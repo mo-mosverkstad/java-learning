@@ -8,14 +8,20 @@ import se.ebikerepair.constant.PrintoutFormat;
 import se.ebikerepair.integration.DiagnosticReportDTO;
 import se.ebikerepair.integration.DiagnosticTaskDTO;
 import se.ebikerepair.integration.ResultDTO;
-import se.ebikerepair.util.JsonFileHandler;
+import se.ebikerepair.data.JsonFileHandler;
 
 /**
  * Mutable entity representing a diagnostic report containing pre-defined diagnostic tasks.
  */
 public class DiagnosticReport {
     private static final String DEFAULT_DESCRIPTION = "This report contains pre-defined diagnostic tasks for e-bike inspection. Only tasks marked with [X] have been performed and contribute to the repair cost.";
-    private static final List<DiagnosticTask> DIAGNOSTIC_TASKS = new JsonFileHandler("diagnosticTasks.json").readList(DiagnosticTask.class);
+    private static final List<DiagnosticTask> DIAGNOSTIC_TASKS = loadDiagnosticTasks();
+
+    private static List<DiagnosticTask> loadDiagnosticTasks() {
+        JsonFileHandler handler = new JsonFileHandler();
+        handler.initDataHandler("diagnosticTasks");
+        return handler.readList(DiagnosticTask.class);
+    }
 
     private String description = DEFAULT_DESCRIPTION;
     private List<DiagnosticTask> diagnosticTasks;
