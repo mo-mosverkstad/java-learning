@@ -187,15 +187,15 @@ Additionally, primitive obsession is another code smell, where primitive values 
 
 Unit testing was integrated into the development process and performed iteratively throughout the implementation, following the testing principles described in Chapter~7 of \textit{A First Course in Object-Oriented Development}. Testing was not treated as a separate final activity but as an integral part of each iteration. After completing a system operation, corresponding unit tests were written and executed before continuing with further development.
 
-The primary goal of the unit tests is to verify functional correctness in isolation. Each test focuses on a single unit of behavior and avoids dependencies on external systems or user interfaces. In accordance with the seminar requirements and Chapter~7 guidelines, methods that produce output to \texttt{System.out} are not tested, and tests are instead concentrated on the controller, model, and integration layers where business logic and coordination occur.
+\paragraph{Isolation and correctness} The primary goal of the unit tests is to verify functional correctness in isolation. Each test focuses on a single unit of behavior and avoids dependencies on external systems or user interfaces. In accordance with the seminar requirements and Chapter~7 guidelines, methods that produce output to \texttt{System.out} are not tested, and tests are instead concentrated on the controller, model, and integration layers where business logic and coordination occur.
 
-Test cases were selected to cover both typical execution paths and boundary cases. For example, lookup operations are tested with valid input to verify expected behavior, as well as with invalid or non-existing identifiers to verify that the system reacts correctly in error situations. This ensures that alternative branches in conditional logic are exercised, which increases confidence in the correctness of the implementation.
+\paragraph{Boundary conditions} Test cases were selected to cover both typical execution paths and boundary cases. For example, lookup operations are tested with valid input to verify expected behavior, as well as with invalid or non-existing identifiers to verify that the system reacts correctly in error situations. This ensures that alternative branches in conditional logic are exercised, which increases confidence in the correctness of the implementation.
 
-All tests are self-evaluating, meaning that a test produces an informative failure message when it fails and produces no output when it passes, as recommended in Chapter~7. This makes it possible to verify program behavioral correctness by running the test suite with a single command and immediately identifying failing behavior. The tests thereby also function as regression tests, ensuring that previously working functionality remains intact when the code is modified, extended, or refactored.
+\paragraph{Self-evaluating tests} All tests are self-evaluating, meaning that a test produces an informative failure message when it fails and produces no output when it passes, as recommended in Chapter~7. This makes it possible to verify program behavioral correctness by running the test suite with a single command and immediately identifying failing behavior. The tests thereby also function as regression tests, ensuring that previously working functionality remains intact when the code is modified, extended, or refactored.
 
-Tests are structured so that each test class corresponds to exactly one production class, and test classes are placed in the same package as the system under test but in a parallel test source directory. Simple data transfer objects (DTOs), as well as methods containing only constructors, getters, or setters, are excluded from testing, since they contain no logic to verify and including them would add little value.
+\paragraph{Test structure} Tests are structured so that each test class corresponds to exactly one production class, and test classes are placed in the same package as the system under test but in a parallel test source directory. Simple data transfer objects (DTOs), as well as methods containing only constructors, getters, or setters, are excluded from testing, since they contain no logic to verify and including them would add little value.
 
-This testing strategy supports incremental development by detecting faults early, reducing the risk of introducing regressions, and increasing confidence that the program behaves as intended at each stage of implementation.
+\paragraph{Incremental development quality} This testing strategy supports incremental development by detecting faults early, reducing the risk of introducing regressions, and increasing confidence that the program behaves as intended at each stage of implementation.
 
 
 
@@ -267,7 +267,9 @@ Each system operation is described in terms of its purpose and execution flow th
 
 The complete source code for this seminar is available in the public Git repository at: \texttt{https://github.com/mo-mosverkstad/java-learning/tree/main/maven-projects/ElectricBikeRepair/} \cite{sourcecode}.
 
-\subsection{\texttt{startup} sequence}
+\subsection{Implementation results}
+
+\subsubsection{\texttt{startup} sequence}
 
 The startup sequence involves instantiation of the necessary entity class objects of the program, which can be mapped to the communication diagram of the start sequence. The sequence is important during development as the first to implement, since otherwise the program does not have a clear starting point and can be harder to track as the code grows large. Additionally, it also provides a possibility for manually checking program behavior during implementation. 
 
@@ -334,7 +336,7 @@ public class View {
 }
 \end{lstlisting}
 
-\subsection{The \texttt{searchCustomer} system operation}
+\subsubsection{The \texttt{searchCustomer} system operation}
 
 The first implemented system operation is \texttt{searchCustomer}, which involves retrieving customer information based on a provided telephone number. This operation is initiated from the View layer and handled by the \texttt{ReceptionistController}, following the interaction defined in the communication diagram.
 
@@ -378,7 +380,7 @@ public class ReceptionistController extends Controller{
 }
 \end{lstlisting}
 
-\subsection{The \texttt{createRepairOrder} system operation}
+\subsubsection{The \texttt{createRepairOrder} system operation}
 
 The \texttt{createRepairOrder} operation is responsible for creating a new repair order for a specific customer and their bike. The operation is initiated by the View after a customer has been successfully retrieved. The View provides the telephone number and a \texttt{ProblemDTO}, which contains both the bike and a description of the issue.
 
@@ -424,7 +426,7 @@ public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) t
 }
 \end{lstlisting}
 
-\subsection{The \texttt{findRepairOrder} system operation}
+\subsubsection{The \texttt{findRepairOrder} system operation}
 
 The \texttt{findRepairOrder} operation is responsible for retrieving an existing repair order associated with a specific customer. This operation is essential for continuing the workflow after a repair order has been created, as it allows subsequent actions such as diagnostics and task creation to be performed on the correct entity.
 
@@ -470,7 +472,7 @@ public RepairOrderDTO findRepairOrder(String telephoneNumber) throws IllegalArgu
 }
 \end{lstlisting}
 
-\subsection{The \texttt{addDiagnosticResult} system operation}
+\subsubsection{The \texttt{addDiagnosticResult} system operation}
 
 The \texttt{addDiagnosticResult} operation allows a technician to record the outcome of a diagnostic task for a specific repair order. This operation represents the inspection phase of the workflow, where the condition of the bike is evaluated and documented.
 
@@ -519,7 +521,7 @@ public void addDiagnosticResult(String repairOrderId, String diagnosticTaskName,
 }
 \end{lstlisting}
 
-\subsection{The \texttt{createProposedRepairTask} system operation}
+\subsubsection{The \texttt{createProposedRepairTask} system operation}
 
 The \texttt{createProposedRepairTask} operation allows a technician to define repair actions based on the results of the diagnostic phase. This operation represents the transition from inspection to repair planning, where identified issues are translated into concrete repair tasks.
 
@@ -574,7 +576,7 @@ Detailed implementation of \texttt{addRepairTask} method attaches a specific rep
     }
 \end{lstlisting}
 
-\subsection{The \texttt{acceptRepairOrder} and \texttt{rejectRepairOrder} system operation}
+\subsubsection{The \texttt{acceptRepairOrder} and \texttt{rejectRepairOrder} system operation}
 
 The \texttt{acceptRepairOrder} operation is performed when a customer accepts the proposed repair tasks.
 
@@ -643,6 +645,10 @@ public void rejectRepairOrder(String repairOrderId) throws IllegalStateException
 }
 \end{lstlisting}
 
+\subsection{Test results}
+
+
+
 \subsection{Result printouts}
 In this chapter, the JUnit test result and program execution result are illustrated.
 
@@ -660,7 +666,9 @@ The testing command \texttt{mvn compile test} produces the testing summary \ref{
 \end{lstlisting}
 
 \subsubsection{Sample program execution printout}
-The console output of a complete workflow run is shown, broken down by each step. The output is produced by executing the program using \texttt{mvn compile exec:java -Dexec.mainClass="se.ebikerepair.startup.Main"}.
+The console output of a complete workflow run is shown, broken down by each step. The output is produced by executing the program using
+
+\texttt{mvn compile exec:java -Dexec.mainClass="se.ebikerepair.startup.Main"}.
 
 \paragraph{1. Search customer} 
 The receptionist searches for a customer by telephone number. The system normalizes the input to E.164 format and returns the matching customer with their registered bikes.
