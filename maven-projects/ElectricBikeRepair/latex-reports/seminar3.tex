@@ -649,7 +649,7 @@ public void rejectRepairOrder(String repairOrderId) throws IllegalStateException
 
 Unit testing is conducted continuously throughout the development and implementation process and is treated as an integral part of each iteration. After the implementation of each system operation, unit tests are added for all newly created methods to ensure correctness and stability at an early stage.
 
-In this chapter, one representative class from each architectural layer is selected and presented as an example. This approach keeps the discussion focused and avoids excessive code listings and repetitive explanations, while still demonstrating that all relevant test methods have been implemented and executed to validate the system behavior across layers.
+In this chapter, one representative class from each architectural layer is selected and taken as an example. Using this, the discussion can be kept focused, showing the relevant test cases being implemented and executed to verify system behavior across layers, while avoiding excessive and low-relevant code snippets.
 
 \subsubsection{Integration layer - \texttt{CustomerRegistry} class}
 
@@ -815,6 +815,94 @@ void testSearchInvalidPhoneNumber() {
 }
 \end{lstlisting}
 
+\subsubsection{View layer - \texttt{View} class}
+
+Testing the view layer is more indirect than testing standard function since it produces output to the standard output. The output on standard output buffer is harder to retrieve, since it is given to the terminal. To address this, the standard output stream (\texttt{System.out}) is temporarily redirected to a \texttt{PrintStream} containing a \texttt{ByteArrayOutputStream}. This setup allows the produced output to be captured and asserted as a string. After testing, all changes are restored by setting back the standard output stream to \texttt{System.out}
+
+The tests focus on verifying that the correct messages are printed for different execution scenarios. A full workflow test ensures that all major steps in the interaction sequence are executed and displayed correctly. This includes confirming customer lookup, repair order creation, technician interaction, and final acceptance. The test case \texttt{testProceedActionsFullWorkflow} completes the execution flow and therefore checks several key messages in the output stream which the program produces.
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+class ViewTest {
+    private View view;
+    private ByteArrayOutputStream outputStream;
+    private PrintStream originalOut;
+
+    @BeforeEach
+    void setUp() {
+        RegistryCreator registryCreator = new RegistryCreator();
+        ControllerCreator controllerCreator = new ControllerCreator(registryCreator, new Printer());
+        view = new View(controllerCreator);
+
+        outputStream = new ByteArrayOutputStream();
+        originalOut = System.out;
+        System.setOut(new PrintStream(outputStream));
+    }
+
+    @AfterEach
+    void tearDown() {
+        System.setOut(originalOut);
+    }
+
+    @Test
+    void testConstructor() {
+        assertNotNull(view);
+    }
+
+    @Test
+    void testProceedActionsFullWorkflow() {
+        view.proceedActions("0707654321", "MO-2024-010");
+        String output = outputStream.toString();
+
+        assertTrue(output.contains("1. Reception - Found customer:"));
+        assertTrue(output.contains("Astrid Johansson"));
+        assertTrue(output.contains("2. Reception - Created repair order with id:"));
+        assertTrue(output.contains("3. Technician - Requested repair order:"));
+        assertTrue(output.contains("7. Reception - found repair order:"));
+        assertTrue(output.contains("8. Reception - Accepted order"));
+    }
+}
+\end{lstlisting}
+
+Additionally, cases including accepting a order is tested by the test case \texttt{testProceedActionsWithAcceptedState}. This can be detected by checking the keyword \texttt{Accepted} in the output stream, which marks that the program produces correct messages for having accepted repair order.
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+@Test
+void testProceedActionsWithAcceptedState() {
+    view.proceedActions("0707654321", "MO-2024-010");
+    String output = outputStream.toString();
+
+    assertTrue(output.contains("Accepted"));
+}
+\end{lstlisting}
+
+Also, negative test cases are also conducted. Providing an invalid telephone number produces a buisness logic error, which should therefore contain the keyword \texttt{Error} in the output stream. This can be done by checking the output if it contains such keyword.
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+@Test
+void testProceedActionsInvalidPhone() {
+    view.proceedActions("invalid", "MO-2024-010");
+    String output = outputStream.toString();
+
+    assertTrue(output.contains("Error:"));
+}
+
+@Test
+void testProceedActionsCustomerNotFound() {
+    view.proceedActions("0700000000", "MO-2024-010");
+    String output = outputStream.toString();
+
+    assertTrue(output.contains("Error:"));
+}
+
+@Test
+void testProceedActionsInvalidBikeSerial() {
+    view.proceedActions("0707654321", "NONEXISTENT");
+    String output = outputStream.toString();
+
+    assertTrue(output.contains("1. Reception - Found customer:"));
+}
+\end{lstlisting}
+
 \subsubsection{Utility layer - \texttt{TelephoneNumber} class}
 
 Finally, the utility layer consists of common tools that are necessary and used in all layers of the program. Tests for \texttt{TelephoneNumber} is shown as example, where a provided telephone number is normalized and converted into E164 telephone number format, which acts as the canonical representation.
@@ -863,51 +951,6 @@ void testWrongPrefix() {
     assertThrows(InvalidTelephoneNumberException.class, () -> {
         TelephoneNumber number = new TelephoneNumber("0001234567");
         number.toE164();
-    });
-}
-\end{lstlisting}
-
-\subsubsection{Data layer - \texttt{JsonFileHandler} class}
-
-In data layer, the \texttt{JsonFileHandler} class is tested to verify the correct handling of JSON-based resource files. The tests includes both positive and negative test cases. Positive cases includes validation of successful reading of different resource files, while a negative test ensures an exception handling is thrown when attempting to access non-existing file.
-
-For each test case, \texttt{JsonFileHandler} instance is created and initialized with a specific resource name, which is encapsulated and handled by the private internal method \texttt{createHandler}. After creating the file handler object, each read operation is executed. For testing reading customers (\texttt{testReadCustomers}), the method \texttt{readList} is used to deserialize the JSON content into a list of \texttt{CustomerDTO} objects. The test verifies that the resulting list is not empty, confirming that the data has been successfully loaded.
-
-\begin{lstlisting}[style=javastyle, caption={...}]
-private JsonFileHandler createHandler(String resourceName) {
-    JsonFileHandler handler = new JsonFileHandler();
-    handler.initDataHandler(resourceName);
-    return handler;
-}
-
-@Test
-void testReadCustomers() {
-    JsonFileHandler handler = createHandler("customers");
-    List<CustomerDTO> customers = handler.readList(CustomerDTO.class);
-    assertFalse(customers.isEmpty());
-}
-\end{lstlisting}
-
-Tests for reading diagnostic tasks resource file (\texttt{testReadDiagnosticTasks}) is similar to \texttt{testReadDiagnosticTasks} by reading and deserializing a JSON-based resource file, as well as checking the result as a non-empty list with non-empty fields such as name and cost. The test case is simplified and only checks the name and cost of first element as non-null, to ensure the list is correctly populated.
-
-\begin{lstlisting}[style=javastyle, caption={...}]
-@Test
-void testReadDiagnosticTasks() {
-    JsonFileHandler handler = createHandler("diagnosticTasks");
-    List<DiagnosticTaskDTO> tasks = handler.readList(DiagnosticTaskDTO.class);
-    assertFalse(tasks.isEmpty());
-    assertNotNull(tasks.get(0).name());
-    assertNotNull(tasks.get(0).cost());
-}
-\end{lstlisting}
-
-Finally, a test case for reading a non-existent file is also written, \texttt{testReadNonExistentFile}. Correct program execution involves throwing an unchecked exception \texttt{ResourceNotFoundException} when attempting to read a non-existent file.
-
-\begin{lstlisting}[style=javastyle, caption={...}]
-@Test
-void testReadNonExistentFile() {
-    assertThrows(ResourceNotFoundException.class, () -> {
-        createHandler("nonexistent");
     });
 }
 \end{lstlisting}
