@@ -8,6 +8,7 @@ import se.ebikerepair.model.RepairOrder;
 import se.ebikerepair.model.Problem;
 import se.ebikerepair.integration.RepairOrderRegistry;
 import se.ebikerepair.util.InvalidTelephoneNumberException;
+import se.ebikerepair.util.LogHandler;
 import se.ebikerepair.util.TelephoneNumber;
 import se.ebikerepair.integration.ProblemDTO;
 import se.ebikerepair.integration.RepairOrderDTO;
@@ -51,6 +52,7 @@ public class ReceptionistController extends Controller{
             String phoneNumberE164 = new TelephoneNumber(telephoneNumber).toE164();
             return customerRegistry.find(phoneNumberE164);
         } catch (ResourceNotFoundException | InvalidResourceURIException | CannotReadFileException | CannotWriteFileException | NoDatabaseException exception){
+            LogHandler.getLogger().logException(exception);
             throw new FailedOperationException("Fail to search customer", exception);
         }
     }
@@ -71,6 +73,7 @@ public class ReceptionistController extends Controller{
             repairOrderRegistry.save(repairOrder);
             return repairOrder.getId();
         } catch (ResourceNotFoundException | InvalidResourceURIException | CannotReadFileException | CannotWriteFileException | NoDatabaseException exception){
+            LogHandler.getLogger().logException(exception);
             throw new FailedOperationException("Fail to create repair order", exception);
         }
         
