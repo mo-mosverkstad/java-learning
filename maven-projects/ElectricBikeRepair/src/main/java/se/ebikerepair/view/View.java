@@ -11,6 +11,7 @@ import se.ebikerepair.integration.RepairOrderDTO;
 import se.ebikerepair.integration.RepairTaskDTO;
 import se.ebikerepair.model.Cost;
 import se.ebikerepair.util.InvalidTelephoneNumberException;
+import se.ebikerepair.util.LogHandler;
 import se.ebikerepair.integration.ResultDTO;
 import se.ebikerepair.controller.FailedOperationException;
 
@@ -46,6 +47,7 @@ public class View {
             proceedReceptionConfirmationActions(telephoneNumber);
         } catch (NonExistentTelephoneNumberException | InvalidTelephoneNumberException | FailedOperationException | IllegalArgumentException | IllegalStateException e) {
             System.out.println(ERROR_PREFIX + e.getMessage());
+            LogHandler.getLogger().logException(e);
         }
     }
 
