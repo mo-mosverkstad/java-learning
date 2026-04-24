@@ -298,7 +298,7 @@ public class Main {
 
 The View class currently contains a dummy view interface with hardcoded input as well as output to command line interface by using system print.
 
-Actions proceeded by receptionist and technician are hardcoded and collected in the method \texttt{proceedActions} that calls the internal private functions. Internal functions \texttt{proceedReceptionPreparationActions} and \texttt{proceedReceptionConfirmationActions} are proceeded by receptionist using \texttt{ReceptionistController} while \texttt{proceedTechnicianDiagnosticActions} is performed by the technician using the \texttt{TechnicianController}.
+Actions proceeded by receptionist and technician are hardcoded and collected in the method \texttt{proceedActions} that calls the internal private functions. Internal functions \texttt{proceedReceptionPreparationActions} and \texttt{proceedReceptionConfirmationActions} are proceeded by receptionist using \texttt{ReceptionistController} while \texttt{proceedTechnicianDiagnosticActions} is performed by the technician using the \texttt{TechnicianController}. Each operation may yield exceptions, which can be caused caused by the business logic errors, such as entering a non-existent telephone number. In such case, a try catch block is surronded around the private internal methods where both receptionist and technician actions are performed, while the exceptions are caught and printed to the view with a simple message.
 
 \begin{lstlisting}[style=javastyle, caption={Skeleton code of \texttt{View} class}]
 package se.ebikerepair.view;
@@ -308,6 +308,7 @@ package se.ebikerepair.view;
  * and reception confirmation. Catches and displays user-facing errors.
  */
 public class View {
+    private static final String ERROR_PREFIX = "Error: ";
     private final ReceptionistController receptionistController;
     private final TechnicianController technicianController;
 
@@ -328,9 +329,13 @@ public class View {
      * @param bikeSerialNumber the serial number of the broken bike
      */
     public void proceedActions(String telephoneNumber, String bikeSerialNumber) {
-        proceedReceptionPreparationActions(telephoneNumber, bikeSerialNumber);
-        proceedTechnicianDiagnosticActions(telephoneNumber);
-        proceedReceptionConfirmationActions(telephoneNumber);
+        try{
+            proceedReceptionPreparationActions(telephoneNumber, bikeSerialNumber);
+            proceedTechnicianDiagnosticActions(telephoneNumber);
+            proceedReceptionConfirmationActions(telephoneNumber);
+        } catch (NonExistentTelephoneNumberException | InvalidTelephoneNumberException | FailedOperationException | IllegalArgumentException | IllegalStateException e) {
+            System.out.println(ERROR_PREFIX + e.getMessage());
+        }
     }
     ...
 }
@@ -344,38 +349,43 @@ The execution of this operation begins when the View calls \texttt{searchCustome
 
 This applies the separation of concerns, where the input normalization is handled by a utility class, outside of the main logic. Additionally, data access is handled by the registry, while the control flow and validation are handled by the controller. In terms of encapsulation, data structures of registry are hidden from controller. 
 
-\begin{lstlisting}[style=javastyle, caption={Method \texttt{proceedReceptionPreparationActions} in \texttt{View} for proceeding receptionist preparation tasks}]
-private void proceedReceptionPreparationActions(String telephoneNumber, String bikeSerialNumber) {
-    try {
-        CustomerDTO foundCustomer = receptionistController.searchCustomer(telephoneNumber);
-        printout("1. Reception - Found customer:", foundCustomer);
-    } catch (IllegalArgumentException | IllegalStateException e) {
-        System.out.println(ERROR_PREFIX + e.getMessage());
-    }
-}
-\end{lstlisting}
-
 This code illustrates how input normalization, data access, and validation responsibilities are clearly separated. The controller coordinates the operation, while telephone formatting and data storage are delegated to specialized classes.
 
 \begin{lstlisting}[style=javastyle, caption={Searching a customer using \texttt{searchCustomer} method in \texttt{ReceptionistController}}]
+/**
+ * Controller handling receptionist operations: customer search, repair order creation, acceptance and rejection.
+ */
 public class ReceptionistController extends Controller{
     private final CustomerRegistry customerRegistry;
     private final Printer printer;
+    
+    /**
+     * Creates a receptionist controller with access to registries and a printer.
+     *
+     * @param registryCreator the creator providing access to data registries
+     * @param printer the printer for printing accepted repair orders
+     */
+    public ReceptionistController(RegistryCreator registryCreator, Printer printer){
+        super(registryCreator.getRepairOrderRegistry());
+        customerRegistry = registryCreator.getCustomerRegistry();
+        this.printer = printer;
+    }
 
     /**
      * Searches for a customer by telephone number.
      *
      * @param telephoneNumber the customer's telephone number (any Swedish format)
      * @return the found customer DTO
-     * @throws IllegalArgumentException if the phone number format is invalid or customer not found
+     * @throws NonExistentTelephoneNumberException if the phone number does not correspond to a customer
+     * @throws InvalidTelephoneNumberException if the telephone number is empty or invalid
      */
-    public CustomerDTO searchCustomer(String telephoneNumber) throws IllegalArgumentException{
-        String phoneNumberE164 = new TelephoneNumber(telephoneNumber).toE164();
-        CustomerDTO foundCustomer = customerRegistry.find(phoneNumberE164);
-        if (foundCustomer == null) {
-            throw new IllegalArgumentException("No customer found for telephone number: " + telephoneNumber);
+    public CustomerDTO searchCustomer(String telephoneNumber) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException, FailedOperationException{
+        try {
+            String phoneNumberE164 = new TelephoneNumber(telephoneNumber).toE164();
+            return customerRegistry.find(phoneNumberE164);
+        } catch (ResourceNotFoundException | InvalidResourceURIException | CannotReadFileException | CannotWriteFileException | NoDatabaseException exception){
+            throw new FailedOperationException("Fail to search customer", exception);
         }
-        return foundCustomer;
     }
 }
 \end{lstlisting}
@@ -391,18 +401,13 @@ This operation shows how responsibilities are distributed across layers. The con
 As a result, a new repair order is successfully created and stored, allowing the workflow to proceed to the diagnostic phase.
 
 \begin{lstlisting}[style=javastyle, caption={Method \texttt{proceedReceptionPreparationActions} in \texttt{View} for proceeding receptionist preparation tasks}]
-private void proceedReceptionPreparationActions(String telephoneNumber, String bikeSerialNumber) {
-    try {
-        CustomerDTO foundCustomer = receptionistController.searchCustomer(telephoneNumber);
-        printout("1. Reception - Found customer:", foundCustomer);
+private void proceedReceptionPreparationActions(String telephoneNumber, String bikeSerialNumber) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException, FailedOperationException {
+    CustomerDTO foundCustomer = receptionistController.searchCustomer(telephoneNumber);
+    printout("1. Reception - Found customer:", foundCustomer);
 
-        BikeDTO foundBike = foundCustomer.getBikeBySerialNumber(bikeSerialNumber);
-        String repairOrderId = receptionistController.createRepairOrder(telephoneNumber, new ProblemDTO("Broken bike chain", foundBike));
-        printout("2. Reception - Created repair order with id: ", repairOrderId);
-
-    } catch (IllegalArgumentException | IllegalStateException e) {
-        System.out.println(ERROR_PREFIX + e.getMessage());
-    }
+    BikeDTO foundBike = foundCustomer.getBikeBySerialNumber(bikeSerialNumber);
+    String repairOrderId = receptionistController.createRepairOrder(telephoneNumber, new ProblemDTO("Broken bike chain", foundBike));
+    printout("2. Reception - Created repair order with id: ", repairOrderId);
 }
 \end{lstlisting}
 
@@ -415,14 +420,18 @@ The detailed implementation of \texttt{createRepairOrder} starts by finding a cu
  * @param telephoneNumber the customer's telephone number (any Swedish format)
  * @param problemDTO the problem description with the broken bike
  * @return the generated repair order ID
- * @throws IllegalArgumentException if the customer is not found or phone format is invalid
+ * @throws NonExistentTelephoneNumberException if the customer is not found or phone format is invalid
  */
-public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws IllegalArgumentException{
-    CustomerDTO foundCustomer = searchCustomer(telephoneNumber);
-    RepairOrder repairOrder = new RepairOrder(foundCustomer);
-    repairOrder.updateProblem(problemDTO);
-    repairOrderRegistry.save(repairOrder);
-    return repairOrder.getId();
+public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException, FailedOperationException{
+    try {
+        CustomerDTO foundCustomer = searchCustomer(telephoneNumber);
+        RepairOrder repairOrder = new RepairOrder(foundCustomer);
+        repairOrder.updateProblem(problemDTO);
+        repairOrderRegistry.save(repairOrder);
+        return repairOrder.getId();
+    } catch (ResourceNotFoundException | InvalidResourceURIException | CannotReadFileException | CannotWriteFileException | NoDatabaseException exception){
+        throw new FailedOperationException("Fail to create repair order", exception);
+    }
 }
 \end{lstlisting}
 
@@ -436,29 +445,28 @@ If no repair orders exist for the given customer, an \texttt{IllegalArgumentExce
 
 This operation demonstrates how the system maintains continuity in the workflow by consistently retrieving the most recent repair order. The use of DTOs ensures that internal model data is not exposed directly to the View, preserving encapsulation. As a result, the system provides access to the current state of a repair order, enabling further processing in subsequent system operations.
 
-\begin{lstlisting}[style=javastyle, caption={Method \texttt{proceedTechnicianDiagnosticActions} in \texttt{View} for proceeding receptionist preparation tasks}]
-private void proceedTechnicianDiagnosticActions(String telephoneNumber) {
-    try {
-        RepairOrderDTO repairOrderDTO = technicianController.findRepairOrder(telephoneNumber);
-        printout("3. Technician - Requested repair order: ", repairOrderDTO);
-    } catch (IllegalArgumentException | IllegalStateException e) {
-        System.out.println(ERROR_PREFIX + e.getMessage());
-    }
-}
-\end{lstlisting}
-
 The \texttt{findRepairOrder} operation retrieves the most recently created repair order associated with a customer.
 
 \begin{lstlisting}[style=javastyle, caption={Method for finding a repair order by a given telephone number \texttt{findRepairOrder} in \texttt{Controller} (shared by both technician and receptionist)}]
+private List<String> findRepairOrderIds(String telephoneNumber) throws InvalidTelephoneNumberException{
+    String phoneNumberE164 = new TelephoneNumber(telephoneNumber).toE164();
+    List<RepairOrder> repairOrders = repairOrderRegistry.findRepairOrdersByTelephoneNumber(phoneNumberE164);
+    return repairOrders.stream()
+            .sorted(Comparator.comparing(RepairOrder::getCreatedDate).reversed())
+            .map(RepairOrder::getId)
+            .collect(Collectors.toList());
+}
+
 /**
- * Finds the most recent repair order for the given telephone number.
- *
- * @param telephoneNumber the customer's telephone number (any Swedish format)
- * @return the most recent repair order as a DTO
- * @throws IllegalArgumentException if no repair orders exist for the customer or phone format is invalid
- * @throws IllegalStateException if the repair order ID exists but the order cannot be found (data inconsistency)
- */
-public RepairOrderDTO findRepairOrder(String telephoneNumber) throws IllegalArgumentException, IllegalStateException{
+    * Finds the most recent repair order for the given telephone number.
+    *
+    * @param telephoneNumber the customer's telephone number (any Swedish format)
+    * @return the most recent repair order as a DTO
+    * @throws InvalidTelephoneNumberException if the phone number format is invalid
+    * @throws IllegalArgumentException if no repair orders exist for the customer
+    * @throws IllegalStateException if the repair order ID exists but the order cannot be found (data inconsistency)
+    */
+public RepairOrderDTO findRepairOrder(String telephoneNumber) throws InvalidTelephoneNumberException, IllegalArgumentException, IllegalStateException{
     List<String> repairOrderIds = findRepairOrderIds(telephoneNumber);
     if (repairOrderIds.isEmpty()) {
         throw new IllegalArgumentException("There is no repair order created for this customer.");
@@ -481,23 +489,6 @@ The operation is initiated from the View layer after a repair order has been ret
 The responsibility for modifying diagnostic data is encapsulated within the model, ensuring that business rules remain centralized and protected from external layers. The controller acts only as a coordinator of the operation, without directly manipulating internal data structures.
 
 As a result, the repair order is updated with new diagnostic information, which directly influences later stages of the workflow such as repair task creation and cost estimation.
-
-\begin{lstlisting}[style=javastyle, caption={Method \texttt{proceedTechnicianDiagnosticActions} in \texttt{View} for proceeding receptionist preparation tasks}]
-private void proceedTechnicianDiagnosticActions(String telephoneNumber) {
-    try {
-        RepairOrderDTO repairOrderDTO = technicianController.findRepairOrder(telephoneNumber);
-        printout("3. Technician - Requested repair order: ", repairOrderDTO);
-
-        String repairOrderId = repairOrderDTO.id();
-        String diagnosticTaskName = "Mechanical Safety Check";
-        ResultDTO result = new ResultDTO(true, true, "Chain and gears should be replaced.");
-        technicianController.addDiagnosticResult(repairOrderId, diagnosticTaskName, result);
-        printout("4. Technician - Updated diagnostic task: ", diagnosticTaskName);
-    } catch (IllegalArgumentException | IllegalStateException e) {
-        System.out.println(ERROR_PREFIX + e.getMessage());
-    }
-}
-\end{lstlisting}
 
 The detailed \texttt{addDiagnosticResult} is implemented by adding a diagnostic result to a tied diagnostic task, which is identified using a repair order ID.
 
@@ -532,48 +523,44 @@ The model layer manages the internal collection of repair tasks, ensuring consis
 As a result, the repair order is extended with proposed tasks, forming the basis for customer approval and enabling the next stage of the workflow.
 
 \begin{lstlisting}[style=javastyle, caption={Internal method \texttt{proceedTechnicianDiagnosticActions} in \texttt{View} for proceeding receptionist preparation tasks}]
-private void proceedTechnicianDiagnosticActions(String telephoneNumber) {
-    try {
-        RepairOrderDTO repairOrderDTO = technicianController.findRepairOrder(telephoneNumber);
-        printout("3. Technician - Requested repair order: ", repairOrderDTO);
+private void proceedTechnicianDiagnosticActions(String telephoneNumber) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException {
+    RepairOrderDTO repairOrderDTO = technicianController.findRepairOrder(telephoneNumber);
+    printout("3. Technician - Requested repair order: ", repairOrderDTO);
 
-        String repairOrderId = repairOrderDTO.id();
-        String diagnosticTaskName = "Mechanical Safety Check";
-        ResultDTO result = new ResultDTO(true, true, "Chain and gears should be replaced.");
-        technicianController.addDiagnosticResult(repairOrderId, diagnosticTaskName, result);
-        printout("4. Technician - Updated diagnostic task: ", diagnosticTaskName);
+    String repairOrderId = repairOrderDTO.id();
+    String diagnosticTaskName = "Mechanical Safety Check";
+    ResultDTO result = new ResultDTO(true, true, "Chain and gears should be replaced.");
+    technicianController.addDiagnosticResult(repairOrderId, diagnosticTaskName, result);
+    printout("4. Technician - Updated diagnostic task: ", diagnosticTaskName);
 
-        RepairTaskDTO repairTask1 = new RepairTaskDTO("Replace Chain", "Removal of worn or stretched chain and installation of a new compatible e\u2011bike chain. Includes lubrication, tension adjustment, and drivetrain alignment check.", new Cost(500, "SEK"), 1);
-        RepairTaskDTO repairTask2 = new RepairTaskDTO("Replace gears", "Replacement of worn or damaged rear cassette/freewheel or front chainrings. Includes removal of old components, installation of new gear set, indexing and tuning of derailleur(s).", new Cost(400, "SEK"), 2);
-        technicianController.addRepairTask(repairOrderId, repairTask1);
-        technicianController.addRepairTask(repairOrderId, repairTask2);
-        printout("5. Technician - Created proposed repair tasks 01: ", repairTask1);
-        printout("6. Technician - Created proposed repair tasks 02: ", repairTask2);
-    } catch (IllegalArgumentException | IllegalStateException e) {
-        System.out.println(ERROR_PREFIX + e.getMessage());
-    }
+    RepairTaskDTO repairTask1 = new RepairTaskDTO("Replace Chain", "Removal of worn or stretched chain and installation of a new compatible e\u2011bike chain. Includes lubrication, tension adjustment, and drivetrain alignment check.", new Cost(500, "SEK"), 1);
+    RepairTaskDTO repairTask2 = new RepairTaskDTO("Replace gears", "Replacement of worn or damaged rear cassette/freewheel or front chainrings. Includes removal of old components, installation of new gear set, indexing and tuning of derailleur(s).", new Cost(400, "SEK"), 2);
+    technicianController.addRepairTask(repairOrderId, repairTask1);
+    technicianController.addRepairTask(repairOrderId, repairTask2);
+    printout("5. Technician - Created proposed repair tasks 01: ", repairTask1);
+    printout("6. Technician - Created proposed repair tasks 02: ", repairTask2);
 }
 \end{lstlisting}
 
 Detailed implementation of \texttt{addRepairTask} method attaches a specific repair task onto a repair order.
 
 \begin{lstlisting}[style=javastyle, caption={Add repair task using \texttt{addRepairTask} method in \texttt{TechnicianController}}]
-    /**
-     * Adds a repair task to a repair order.
-     *
-     * @param repairOrderId the ID of the repair order
-     * @param repairTask the repair task to add
-     * @throws IllegalStateException if the repair order is not found
-     */
-    public void addRepairTask(String repairOrderId, RepairTaskDTO repairTask) throws IllegalStateException {
-        RepairOrder repairOrder = repairOrderRegistry.findByRepairOrderId(repairOrderId);
-        if (repairOrder == null) {
-            throw new IllegalStateException("Repair order not found for id: " + repairOrderId);
-        }
-
-        repairOrder.addRepairTask(repairTask);
-        repairOrderRegistry.save(repairOrder);
+/**
+ * Adds a repair task to a repair order.
+ *
+ * @param repairOrderId the ID of the repair order
+ * @param repairTask the repair task to add
+ * @throws IllegalStateException if the repair order is not found
+ */
+public void addRepairTask(String repairOrderId, RepairTaskDTO repairTask) throws IllegalStateException {
+    RepairOrder repairOrder = repairOrderRegistry.findByRepairOrderId(repairOrderId);
+    if (repairOrder == null) {
+        throw new IllegalStateException("Repair order not found for id: " + repairOrderId);
     }
+
+    repairOrder.addRepairTask(repairTask);
+    repairOrderRegistry.save(repairOrder);
+}
 \end{lstlisting}
 
 \subsubsection{The \texttt{acceptRepairOrder} and \texttt{rejectRepairOrder} system operation}
@@ -585,18 +572,13 @@ The operation is initiated from the View layer after the proposed repair tasks h
 As a result, the repair order is marked as accepted and confirmed, ready for execution while a formal record of the accepted repair is generated.
 
 \begin{lstlisting}[style=javastyle, caption={Internal method \texttt{proceedReceptionConfirmationActions} in \texttt{View} that handles receptionist confirmation tasks}]
-private void proceedReceptionConfirmationActions(String telephoneNumber) {
-    try {
-        RepairOrderDTO repairOrderDTO = receptionistController.findRepairOrder(telephoneNumber);
-        printout("7. Reception - found repair order: ", repairOrderDTO);
+private void proceedReceptionConfirmationActions(String telephoneNumber) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException {
+    RepairOrderDTO repairOrderDTO = receptionistController.findRepairOrder(telephoneNumber);
+    printout("7. Reception - found repair order: ", repairOrderDTO);
 
-        printout("8. Reception - Accepted order");
-        String repairOrderId = repairOrderDTO.id();
-        receptionistController.acceptRepairOrder(repairOrderId);
-
-    } catch (IllegalArgumentException | IllegalStateException e) {
-        System.out.println(ERROR_PREFIX + e.getMessage());
-    }
+    printout("8. Reception - Accepted order");
+    String repairOrderId = repairOrderDTO.id();
+    receptionistController.acceptRepairOrder(repairOrderId);
 }
 \end{lstlisting}
 
@@ -646,8 +628,270 @@ public void rejectRepairOrder(String repairOrderId) throws IllegalStateException
 \end{lstlisting}
 
 \subsection{Test results}
+% Write 1 class each layer, all the possible test methods
 
+Unit testing is conducted throughout the development process and implementation and is treated as an integral part of each iteration. After developing each system operation, unit tests for all created methods are added.
 
+\subsubsection{Data layer - \texttt{JsonFileHandler} class}
+
+In data layer, the \texttt{JsonFileHandler} class is tested to verify the correct handling of JSON-based resource files. The tests includes both positive and negative test cases. Positive cases includes validation of successful reading of different resource files, while a negative test ensures an exception handling is thrown when attempting to access non-existing file.
+
+For each test case, \texttt{JsonFileHandler} instance is created and initialized with a specific resource name, which is encapsulated and handled by the private internal method \texttt{createHandler}. After creating the file handler object, each read operation is executed. For testing reading customers (\texttt{testReadCustomers}), the method \texttt{readList} is used to deserialize the JSON content into a list of \texttt{CustomerDTO} objects. The test verifies that the resulting list is not empty, confirming that the data has been successfully loaded.
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+private JsonFileHandler createHandler(String resourceName) {
+    JsonFileHandler handler = new JsonFileHandler();
+    handler.initDataHandler(resourceName);
+    return handler;
+}
+
+@Test
+void testReadCustomers() {
+    JsonFileHandler handler = createHandler("customers");
+    List<CustomerDTO> customers = handler.readList(CustomerDTO.class);
+    assertFalse(customers.isEmpty());
+}
+\end{lstlisting}
+
+Tests for reading diagnostic tasks resource file (\texttt{testReadDiagnosticTasks}) is similar to \texttt{testReadDiagnosticTasks} by reading and deserializing a JSON-based resource file, as well as checking the result as a non-empty list with non-empty fields such as name and cost. The test case is simplified and only checks the name and cost of first element as non-null, to ensure the list is correctly populated.
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+@Test
+void testReadDiagnosticTasks() {
+    JsonFileHandler handler = createHandler("diagnosticTasks");
+    List<DiagnosticTaskDTO> tasks = handler.readList(DiagnosticTaskDTO.class);
+    assertFalse(tasks.isEmpty());
+    assertNotNull(tasks.get(0).name());
+    assertNotNull(tasks.get(0).cost());
+}
+\end{lstlisting}
+
+Finally, a test case for reading a non-existent file is also written, \texttt{testReadNonExistentFile}. Correct program execution involves throwing an unchecked exception \texttt{ResourceNotFoundException} when attempting to read a non-existent file.
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+@Test
+void testReadNonExistentFile() {
+    assertThrows(ResourceNotFoundException.class, () -> {
+        createHandler("nonexistent");
+    });
+}
+\end{lstlisting}
+
+\subsubsection{Integration layer - \texttt{CustomerRegistry} class}
+
+In integration layer, classes are tested to produce the correct data proxy-based storage behavior. In this example, \texttt{CustomerRegistry} class is tested to ensure correct handling of \texttt{CustomerDTO} object storage behavior, which includes search, insert, remove and update operations.
+
+Before each test case, a \texttt{CustomerRegistry} is created, and after each test case for cleaning up resources, the \texttt{registry} reference is set to null, forcing the program to cleanup the resource after use. The first test case involves testing to retrieve an existing customer by a telephone number as a key. Since the registry reads the data resource from a resource file with hard-coded test data, the input can be constructed aligned to the resource. It is known that the telephone number \texttt{+46701234567} correspond to the customer \texttt{Erik Lindqvist} with an email adress \texttt{erik.lindqvist@example.com}.
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+class CustomerRegistryTest {
+
+    private CustomerRegistry registry;
+
+    @BeforeEach
+    void setUp() {
+        registry = new CustomerRegistry();
+    }
+
+    @AfterEach
+    void cleanUp() {
+        registry = null;
+    }
+
+    @Test
+    void testGetExistingCustomer() {
+        assertDoesNotThrow(() -> {
+            CustomerDTO customer = registry.find("+46701234567");
+            assertNotNull(customer);
+            assertEquals("Erik Lindqvist", customer.name());
+            assertEquals("erik.lindqvist@example.com", customer.emailAddress());
+        });
+    }
+}
+\end{lstlisting}
+
+A negative test is also built by entering a telephone number that does not correspond to any stored user. In this case, during intended program execution, a checked exception \texttt{NonExistentTelephoneNumberException} will be thrown. 
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+@Test
+void testGetNonExistingCustomer() {
+    assertThrows(NonExistentTelephoneNumberException.class, () -> registry.find("+46700000000"));
+}
+\end{lstlisting}
+
+Saving and retrieving customer is another test case. The test case involves creating necessary information data with \texttt{CustomerDTO}, with bike details stored in \texttt{BikeDTO}, as well as saving it into the registry. Since saving method does not return values, verifying the correct behavior must be implemented implicitly, by retrieving the customer again and checking the values to the data being stored. In this case, the test case depends on the search test case which is assumed to produce correct behavior.
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+@Test
+void testSaveAndRetrieveCustomer() {
+    BikeDTO bike = new BikeDTO("CAKE", "Åik", "CK-2024-200");
+    CustomerDTO newCustomer = new CustomerDTO("Ingrid Svensson", "+46709999999", "ingrid.svensson@example.com", List.of(bike));
+    registry.save(newCustomer);
+
+    assertDoesNotThrow(() -> {
+        CustomerDTO retrieved = registry.find("+46709999999");
+        assertNotNull(retrieved);
+        assertEquals("Ingrid Svensson", retrieved.name());
+        assertEquals(1, retrieved.bikes().size());
+        assertEquals("CAKE", retrieved.bikes().get(0).brand());
+    });
+}
+\end{lstlisting}
+
+\subsubsection{Model layer - \texttt{RepairOrder} class}
+
+In model layer, test cases for \texttt{RepairOrder} is taken as an example. The test cases involves validating the behavior for common business operation attached to \texttt{RepairOrder} as an entity. It includes tests for creating a repair order, as well as attaching repair tasks to the repair order, as well as checking the correct total cost update and estimated complete date as repair tasks are added.
+
+A basic test, \texttt{testBasic}, creates a repair order using the private helper method \texttt{createOrder}, which initializes a \texttt{RepairOrder} object with example customer and bike data, as well as a problem description. The test verifies that all essential fields are correctly initialized and are non-null.
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+class RepairOrderTest {
+    private RepairOrder createOrder() {
+        BikeDTO bike = new BikeDTO("Brand", "Model", "SN");
+        CustomerDTO customer = new CustomerDTO("Test", "+46701234567", "test@example.com", List.of(bike));
+        RepairOrder order = new RepairOrder(customer);
+        order.getProblem().setDescription("Flat tire");
+        order.getProblem().setBrokenBike(bike);
+        return order;
+    }
+
+    @Test
+    void testBasic() {
+        RepairOrder order = createOrder();
+        assertNotNull(order.getCustomerDTO());
+        assertEquals("Flat tire", order.getProblem().getDescription());
+        assertNotNull(order.getCreatedDate());
+        assertNotNull(order.getTotalCost());
+        assertNotNull(order.getId());
+        assertEquals(RepairOrderState.NewlyCreated, order.getRepairOrderState());
+    }
+}
+\end{lstlisting}
+
+The test case \texttt{testAddRepairTask} verifies that adding a single repair task updates the internal state of the repair order. After adding a task, the test checks that the total cost reflects the added task and that an estimated completion date is calculated.
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+@Test
+void testAddRepairTask() {
+    RepairOrder order = createOrder();
+    order.getRepairTaskCollection().addRepairTask(new RepairTaskDTO("Fix chain", "Replace chain", new Cost(500, "SEK"), 2));
+
+    assertTrue(order.getTotalCost().getAmount() >= 500.0F);
+    assertNotNull(order.getEstimatedCompleteDate());
+}
+\end{lstlisting}
+
+The test case \texttt{testAddMultipleRepairTasks} extends this behavior by adding multiple repair tasks. It ensures that the total cost is accumulated correctly across all tasks, validating that the cost calculation logic handles multiple entries consistently.
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+@Test
+void testAddMultipleRepairTasks() {
+    RepairOrder order = createOrder();
+    order.getRepairTaskCollection().addRepairTask(new RepairTaskDTO("Task1", "Desc1", new Cost(300, "SEK"), 1));
+    order.getRepairTaskCollection().addRepairTask(new RepairTaskDTO("Task2", "Desc2", new Cost(200, "SEK"), 3));
+
+    assertTrue(order.getTotalCost().getAmount() >= 500.0F);
+}
+\end{lstlisting}
+
+\subsubsection{Controller layer - \texttt{ReceptionistController} class}
+
+For testing controller layer, \texttt{ReceptionistController} class is picked out as an example. The tests consists of checking the correct behavior of the system operation tied to receptionist role. The examples is tied to searching a customer by different telephone numbers.
+
+Before each test case, a new instance of \texttt{ReceptionistController} is created using a \texttt{RegistryCreator}, which initializes the required registries, and a \texttt{Printer} dependency. 
+
+The first test case, \texttt{testSearchExistingCustomer}, verifies that searching for an existing customer using a valid telephone number returns the intended result. The test ensures that no exception is thrown and that the returned \texttt{CustomerDTO} contains expected data, such as the customer name.
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+class ReceptionistControllerTest {
+    private ReceptionistController controller;
+
+    @BeforeEach
+    void setUp() {
+        RegistryCreator registryCreator = new RegistryCreator();
+        controller = new ReceptionistController(registryCreator, new Printer());
+    }
+
+    @Test
+    void testSearchExistingCustomer() {
+        assertDoesNotThrow(() -> {
+            CustomerDTO customer = controller.searchCustomer("0707654321");
+            assertNotNull(customer);
+            assertEquals("Astrid Johansson", customer.name());
+        });
+    }
+}
+\end{lstlisting}
+
+The second test case, \texttt{testSearchNonExistingCustomer}, is a negative test case and validates the system behavior when a search is performed with a telephone number that does not correspond to any stored customer. In this case, the controller is expected to throw a \texttt{NonExistentTelephoneNumberException} during correct program execution.
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+@Test
+void testSearchNonExistingCustomer() {
+    assertThrows(NonExistentTelephoneNumberException.class, () -> controller.searchCustomer("0700000000"));
+}
+\end{lstlisting}
+
+Similar to the previous test case, the test case \texttt{testSearchInvalidPhoneNumber} ensures that a malformed telephone number causes the method to throw an \texttt{InvalidTelephoneNumberException}.
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+@Test
+void testSearchInvalidPhoneNumber() {
+    assertThrows(InvalidTelephoneNumberException.class, () -> controller.searchCustomer("abc"));
+}
+\end{lstlisting}
+
+\subsubsection{Utility layer - \texttt{TelephoneNumber} class}
+
+Finally, the utility layer consists of common tools that are necessary and used in all layers of the program. Tests for \texttt{TelephoneNumber} is shown as example, where a provided telephone number is normalized and converted into E164 telephone number format, which acts as the canonical representation.
+
+The test cases includes several positive cases with a valid telephone number in different forms, such as already E164 format in \texttt{testE164} and international format with two leading zeroes in \texttt{testInternationalPrefix}, as well as local prefix with a leading zero in \texttt{testLocalPrefix}. These cases must not throw any exception but a correct E164 conversion during correct program execution.
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+@Test
+void testE164() {
+    assertDoesNotThrow(() -> {
+        TelephoneNumber number = new TelephoneNumber("+46701234567");
+        assertEquals("+46701234567", number.toE164());
+    });
+}
+
+@Test
+void testInternationalPrefix() {
+    assertDoesNotThrow(() -> {
+        TelephoneNumber number = new TelephoneNumber("0046701234567");
+        assertEquals("+46701234567", number.toE164());
+    });
+}
+
+@Test
+void testLocalPrefix() {
+    assertDoesNotThrow(() -> {
+        TelephoneNumber number = new TelephoneNumber("0701234567");
+        assertEquals("+46701234567", number.toE164());
+    });
+}
+\end{lstlisting}
+
+Additionally, negative tests are also conducted and includes malformed telephone number strings. The tests includes \texttt{testNonZeroPrefix} where no leading zero or plus sign is found as well as \texttt{testWrongPrefix} with three leading zeroes. In these cases, a checked exception \texttt{InvalidTelephoneNumberException} will be thrown.
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+@Test
+void testNonZeroPrefix() {
+    assertThrows(InvalidTelephoneNumberException.class, () -> {
+        TelephoneNumber number = new TelephoneNumber("1234567");
+        number.toE164();
+    });
+}
+
+@Test
+void testWrongPrefix() {
+    assertThrows(InvalidTelephoneNumberException.class, () -> {
+        TelephoneNumber number = new TelephoneNumber("0001234567");
+        number.toE164();
+    });
+}
+\end{lstlisting}
 
 \subsection{Result printouts}
 In this chapter, the JUnit test result and program execution result are illustrated.
