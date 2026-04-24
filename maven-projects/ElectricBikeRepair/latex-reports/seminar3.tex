@@ -657,7 +657,7 @@ In integration layer, classes are tested to produce the correct data proxy-based
 
 Before each test case, a \texttt{CustomerRegistry} is created, and after each test case for cleaning up resources, the \texttt{registry} reference is set to null, forcing the program to cleanup the resource after use. The first test case involves testing to retrieve an existing customer by a telephone number as a key. Since the registry reads the data resource from a resource file with hard-coded test data, the input can be constructed aligned to the resource. It is known that the telephone number \texttt{+46701234567} correspond to the customer \texttt{Erik Lindqvist} with an email adress \texttt{erik.lindqvist@example.com}.
 
-\begin{lstlisting}[style=javastyle, caption={...}]
+\begin{lstlisting}[style=javastyle, caption={Integration layer test setup and retrieval of an existing customer in \texttt{CustomerRegistry}}]
 class CustomerRegistryTest {
 
     private CustomerRegistry registry;
@@ -686,7 +686,7 @@ class CustomerRegistryTest {
 
 A negative test is also built by entering a telephone number that does not correspond to any stored user. In this case, during intended program execution, a checked exception \texttt{NonExistentTelephoneNumberException} will be thrown. 
 
-\begin{lstlisting}[style=javastyle, caption={...}]
+\begin{lstlisting}[style=javastyle, caption={Negative test for retrieving a non-existing customer in \texttt{CustomerRegistry}}]
 @Test
 void testGetNonExistingCustomer() {
     assertThrows(NonExistentTelephoneNumberException.class, () -> registry.find("+46700000000"));
@@ -695,7 +695,7 @@ void testGetNonExistingCustomer() {
 
 Saving and retrieving customer is another test case. The test case involves creating necessary information data with \texttt{CustomerDTO}, with bike details stored in \texttt{BikeDTO}, as well as saving it into the registry. Since saving method does not return values, verifying the correct behavior must be implemented implicitly, by retrieving the customer again and checking the values to the data being stored. In this case, the test case depends on the search test case which is assumed to produce correct behavior.
 
-\begin{lstlisting}[style=javastyle, caption={...}]
+\begin{lstlisting}[style=javastyle, caption={Test for saving and retrieving a customer in \texttt{CustomerRegistry}}]
 @Test
 void testSaveAndRetrieveCustomer() {
     BikeDTO bike = new BikeDTO("CAKE", "Åik", "CK-2024-200");
@@ -718,7 +718,7 @@ In model layer, test cases for \texttt{RepairOrder} is taken as an example. The 
 
 A basic test, \texttt{testBasic}, creates a repair order using the private helper method \texttt{createOrder}, which initializes a \texttt{RepairOrder} object with example customer and bike data, as well as a problem description. The test verifies that all essential fields are correctly initialized and are non-null.
 
-\begin{lstlisting}[style=javastyle, caption={...}]
+\begin{lstlisting}[style=javastyle, caption={Basic initialization and state validation test for \texttt{RepairOrder}}]
 class RepairOrderTest {
     private RepairOrder createOrder() {
         BikeDTO bike = new BikeDTO("Brand", "Model", "SN");
@@ -744,7 +744,7 @@ class RepairOrderTest {
 
 The test case \texttt{testAddRepairTask} verifies that adding a single repair task updates the internal state of the repair order. After adding a task, the test checks that the total cost reflects the added task and that an estimated completion date is calculated.
 
-\begin{lstlisting}[style=javastyle, caption={...}]
+\begin{lstlisting}[style=javastyle, caption={Test for adding a single repair task to a \texttt{RepairOrder}}]
 @Test
 void testAddRepairTask() {
     RepairOrder order = createOrder();
@@ -757,7 +757,7 @@ void testAddRepairTask() {
 
 The test case \texttt{testAddMultipleRepairTasks} extends this behavior by adding multiple repair tasks. It ensures that the total cost is accumulated correctly across all tasks, validating that the cost calculation logic handles multiple entries consistently.
 
-\begin{lstlisting}[style=javastyle, caption={...}]
+\begin{lstlisting}[style=javastyle, caption={Test for accumulating total cost when adding multiple repair tasks to a \texttt{RepairOrder}}]
 @Test
 void testAddMultipleRepairTasks() {
     RepairOrder order = createOrder();
@@ -776,7 +776,7 @@ Before each test case, a new instance of \texttt{ReceptionistController} is crea
 
 The first test case, \texttt{testSearchExistingCustomer}, verifies that searching for an existing customer using a valid telephone number returns the intended result. The test ensures that no exception is thrown and that the returned \texttt{CustomerDTO} contains expected data, such as the customer name.
 
-\begin{lstlisting}[style=javastyle, caption={...}]
+\begin{lstlisting}[style=javastyle, caption={Controller layer test for searching an existing customer using \texttt{ReceptionistController}}]
 class ReceptionistControllerTest {
     private ReceptionistController controller;
 
@@ -799,7 +799,7 @@ class ReceptionistControllerTest {
 
 The second test case, \texttt{testSearchNonExistingCustomer}, is a negative test case and validates the system behavior when a search is performed with a telephone number that does not correspond to any stored customer. In this case, the controller is expected to throw a \texttt{NonExistentTelephoneNumberException} during correct program execution.
 
-\begin{lstlisting}[style=javastyle, caption={...}]
+\begin{lstlisting}[style=javastyle, caption={Negative test for searching a non-existing customer in \texttt{ReceptionistController}}]
 @Test
 void testSearchNonExistingCustomer() {
     assertThrows(NonExistentTelephoneNumberException.class, () -> controller.searchCustomer("0700000000"));
@@ -808,7 +808,7 @@ void testSearchNonExistingCustomer() {
 
 Similar to the previous test case, the test case \texttt{testSearchInvalidPhoneNumber} ensures that a malformed telephone number causes the method to throw an \texttt{InvalidTelephoneNumberException}.
 
-\begin{lstlisting}[style=javastyle, caption={...}]
+\begin{lstlisting}[style=javastyle, caption={Negative test for searching with an invalid telephone number in \texttt{ReceptionistController}}]
 @Test
 void testSearchInvalidPhoneNumber() {
     assertThrows(InvalidTelephoneNumberException.class, () -> controller.searchCustomer("abc"));
@@ -821,7 +821,7 @@ Testing the view layer is more indirect than testing standard function since it 
 
 The tests focus on verifying that the correct messages are printed for different execution scenarios. A full workflow test ensures that all major steps in the interaction sequence are executed and displayed correctly. This includes confirming customer lookup, repair order creation, technician interaction, and final acceptance. The test case \texttt{testProceedActionsFullWorkflow} completes the execution flow and therefore checks several key messages in the output stream which the program produces.
 
-\begin{lstlisting}[style=javastyle, caption={...}]
+\begin{lstlisting}[style=javastyle, caption={View layer setup and full workflow execution test capturing standard output}]
 class ViewTest {
     private View view;
     private ByteArrayOutputStream outputStream;
@@ -863,9 +863,9 @@ class ViewTest {
 }
 \end{lstlisting}
 
-Additionally, cases including accepting a order is tested by the test case \texttt{testProceedActionsWithAcceptedState}. This can be detected by checking the keyword \texttt{Accepted} in the output stream, which marks that the program produces correct messages for having accepted repair order.
+Additionally, cases including accepting a order is tested by the test case \linebreak\texttt{testProceedActionsWithAcceptedState}. This can be detected by checking the keyword \texttt{Accepted} in the output stream, which marks that the program produces correct messages for having accepted repair order.
 
-\begin{lstlisting}[style=javastyle, caption={...}]
+\begin{lstlisting}[style=javastyle, caption={View workflow test verifying accepted repair order output}]
 @Test
 void testProceedActionsWithAcceptedState() {
     view.proceedActions("0707654321", "MO-2024-010");
@@ -877,7 +877,7 @@ void testProceedActionsWithAcceptedState() {
 
 Also, negative test cases are also conducted. Providing an invalid telephone number produces a buisness logic error, which should therefore contain the keyword \texttt{Error} in the output stream. This can be done by checking the output if it contains such keyword.
 
-\begin{lstlisting}[style=javastyle, caption={...}]
+\begin{lstlisting}[style=javastyle, caption={View layer negative tests verifying error output for invalid input scenarios}]
 @Test
 void testProceedActionsInvalidPhone() {
     view.proceedActions("invalid", "MO-2024-010");
@@ -909,7 +909,7 @@ Finally, the utility layer consists of common tools that are necessary and used 
 
 The test cases includes several positive cases with a valid telephone number in different forms, such as already E164 format in \texttt{testE164} and international format with two leading zeroes in \texttt{testInternationalPrefix}, as well as local prefix with a leading zero in \texttt{testLocalPrefix}. These cases must not throw any exception but a correct E164 conversion during correct program execution.
 
-\begin{lstlisting}[style=javastyle, caption={...}]
+\begin{lstlisting}[style=javastyle, caption={Positive test cases for E164 telephone number normalization in \texttt{TelephoneNumber}}]
 @Test
 void testE164() {
     assertDoesNotThrow(() -> {
@@ -937,7 +937,7 @@ void testLocalPrefix() {
 
 Additionally, negative tests are also conducted and includes malformed telephone number strings. The tests includes \texttt{testNonZeroPrefix} where no leading zero or plus sign is found as well as \texttt{testWrongPrefix} with three leading zeroes. In these cases, a checked exception \texttt{InvalidTelephoneNumberException} will be thrown.
 
-\begin{lstlisting}[style=javastyle, caption={...}]
+\begin{lstlisting}[style=javastyle, caption={Negative test cases for malformed telephone numbers in \texttt{TelephoneNumber}}]
 @Test
 void testNonZeroPrefix() {
     assertThrows(InvalidTelephoneNumberException.class, () -> {
