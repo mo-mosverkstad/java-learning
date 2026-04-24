@@ -36,7 +36,15 @@
     language=Java,
     keywordstyle=\color{blue},
     commentstyle=\color{gray!70},
-    stringstyle=\color{orange!90!black}
+    stringstyle=\color{orange!90!black},
+    literate=
+      {Å}{{\AA}}1
+      {å}{{\aa}}1
+      {Ä}{{\"A}}1
+      {ä}{{\"a}}1
+      {Ö}{{\"O}}1
+      {ö}{{\"o}}1
+      {‑}{{-}}1
 }
 
 \lstdefinestyle{outputstyle}{
@@ -45,7 +53,15 @@
     breaklines=true,
     columns=fullflexible,
     keepspaces=true,
-    showstringspaces=false
+    showstringspaces=false,
+    literate=
+      {Å}{{\AA}}1
+      {å}{{\aa}}1
+      {Ä}{{\"A}}1
+      {ä}{{\"a}}1
+      {Ö}{{\"O}}1
+      {ö}{{\"o}}1
+      {‑}{{-}}1
 }
 
 % Create header and footer
@@ -178,9 +194,9 @@ object-oriented design principles as the program evolved.
 
 One common code smell is duplicated code, where similar logic appears in different methods. This can be resolved by extracting the shared functionality logic into separate helper methods, some are private methods if these are not used elsewhere. For instance, the formatting styles are common between the class \texttt{RepairOrder} and \texttt{RepairOrderDTO}, whereas the \texttt{format} function, that is only responsible for formatting the repair order string, can be extracted and placed in \texttt{RepairOrderDTO} class.
 
-Another common code smell is long methods, which can be defined as a method taking responsibility of more than one functionality without explicit hierarchy of method calling. This can be resolved by splitting up each logic of the method that concerns each repsonsibility into its intended well-named method. This improves readability and makes the control flow easier to follow and understand. 
+Another common code smell is long methods, which can be defined as a method taking responsibility of more than one functionality without explicit hierarchy of method calling. This can be resolved by splitting up each logic of the method that concerns each responsibility into its intended well-named method. This improves readability and makes the control flow easier to follow and understand. 
 
-Additionally, primitive obsession is another code smell, where primitive values are favoured over objects. This can be adressed by introducing small data classes, DTOs, that wrap up multiple variables into one, such as \texttt{Cost} class that holds both an amount value and a currency value. This avoids primitive variables and fields to be scattered across the logic, which does not only cause low readability, but also harder to maintain since multiple variables have to be considered without an explicit relationship written as code syntax.
+Additionally, primitive obsession is another code smell, where primitive values are favoured over objects. This can be addressed by introducing small data classes, DTOs, that wrap up multiple variables into one, such as \texttt{Cost} class that holds both an amount value and a currency value. This avoids primitive variables and fields to be scattered across the logic, which does not only cause low readability, but also harder to maintain since multiple variables have to be considered without an explicit relationship written as code syntax.
 
 
 \subsection{Testing Strategy}
@@ -630,52 +646,9 @@ public void rejectRepairOrder(String repairOrderId) throws IllegalStateException
 \subsection{Test results}
 % Write 1 class each layer, all the possible test methods
 
-Unit testing is conducted throughout the development process and implementation and is treated as an integral part of each iteration. After developing each system operation, unit tests for all created methods are added.
+Unit testing is conducted continuously throughout the development and implementation process and is treated as an integral part of each iteration. After the implementation of each system operation, unit tests are added for all newly created methods to ensure correctness and stability at an early stage.
 
-\subsubsection{Data layer - \texttt{JsonFileHandler} class}
-
-In data layer, the \texttt{JsonFileHandler} class is tested to verify the correct handling of JSON-based resource files. The tests includes both positive and negative test cases. Positive cases includes validation of successful reading of different resource files, while a negative test ensures an exception handling is thrown when attempting to access non-existing file.
-
-For each test case, \texttt{JsonFileHandler} instance is created and initialized with a specific resource name, which is encapsulated and handled by the private internal method \texttt{createHandler}. After creating the file handler object, each read operation is executed. For testing reading customers (\texttt{testReadCustomers}), the method \texttt{readList} is used to deserialize the JSON content into a list of \texttt{CustomerDTO} objects. The test verifies that the resulting list is not empty, confirming that the data has been successfully loaded.
-
-\begin{lstlisting}[style=javastyle, caption={...}]
-private JsonFileHandler createHandler(String resourceName) {
-    JsonFileHandler handler = new JsonFileHandler();
-    handler.initDataHandler(resourceName);
-    return handler;
-}
-
-@Test
-void testReadCustomers() {
-    JsonFileHandler handler = createHandler("customers");
-    List<CustomerDTO> customers = handler.readList(CustomerDTO.class);
-    assertFalse(customers.isEmpty());
-}
-\end{lstlisting}
-
-Tests for reading diagnostic tasks resource file (\texttt{testReadDiagnosticTasks}) is similar to \texttt{testReadDiagnosticTasks} by reading and deserializing a JSON-based resource file, as well as checking the result as a non-empty list with non-empty fields such as name and cost. The test case is simplified and only checks the name and cost of first element as non-null, to ensure the list is correctly populated.
-
-\begin{lstlisting}[style=javastyle, caption={...}]
-@Test
-void testReadDiagnosticTasks() {
-    JsonFileHandler handler = createHandler("diagnosticTasks");
-    List<DiagnosticTaskDTO> tasks = handler.readList(DiagnosticTaskDTO.class);
-    assertFalse(tasks.isEmpty());
-    assertNotNull(tasks.get(0).name());
-    assertNotNull(tasks.get(0).cost());
-}
-\end{lstlisting}
-
-Finally, a test case for reading a non-existent file is also written, \texttt{testReadNonExistentFile}. Correct program execution involves throwing an unchecked exception \texttt{ResourceNotFoundException} when attempting to read a non-existent file.
-
-\begin{lstlisting}[style=javastyle, caption={...}]
-@Test
-void testReadNonExistentFile() {
-    assertThrows(ResourceNotFoundException.class, () -> {
-        createHandler("nonexistent");
-    });
-}
-\end{lstlisting}
+In this chapter, one representative class from each architectural layer is selected and presented as an example. This approach keeps the discussion focused and avoids excessive code listings and repetitive explanations, while still demonstrating that all relevant test methods have been implemented and executed to validate the system behavior across layers.
 
 \subsubsection{Integration layer - \texttt{CustomerRegistry} class}
 
@@ -889,6 +862,51 @@ void testWrongPrefix() {
     assertThrows(InvalidTelephoneNumberException.class, () -> {
         TelephoneNumber number = new TelephoneNumber("0001234567");
         number.toE164();
+    });
+}
+\end{lstlisting}
+
+\subsubsection{Data layer - \texttt{JsonFileHandler} class}
+
+In data layer, the \texttt{JsonFileHandler} class is tested to verify the correct handling of JSON-based resource files. The tests includes both positive and negative test cases. Positive cases includes validation of successful reading of different resource files, while a negative test ensures an exception handling is thrown when attempting to access non-existing file.
+
+For each test case, \texttt{JsonFileHandler} instance is created and initialized with a specific resource name, which is encapsulated and handled by the private internal method \texttt{createHandler}. After creating the file handler object, each read operation is executed. For testing reading customers (\texttt{testReadCustomers}), the method \texttt{readList} is used to deserialize the JSON content into a list of \texttt{CustomerDTO} objects. The test verifies that the resulting list is not empty, confirming that the data has been successfully loaded.
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+private JsonFileHandler createHandler(String resourceName) {
+    JsonFileHandler handler = new JsonFileHandler();
+    handler.initDataHandler(resourceName);
+    return handler;
+}
+
+@Test
+void testReadCustomers() {
+    JsonFileHandler handler = createHandler("customers");
+    List<CustomerDTO> customers = handler.readList(CustomerDTO.class);
+    assertFalse(customers.isEmpty());
+}
+\end{lstlisting}
+
+Tests for reading diagnostic tasks resource file (\texttt{testReadDiagnosticTasks}) is similar to \texttt{testReadDiagnosticTasks} by reading and deserializing a JSON-based resource file, as well as checking the result as a non-empty list with non-empty fields such as name and cost. The test case is simplified and only checks the name and cost of first element as non-null, to ensure the list is correctly populated.
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+@Test
+void testReadDiagnosticTasks() {
+    JsonFileHandler handler = createHandler("diagnosticTasks");
+    List<DiagnosticTaskDTO> tasks = handler.readList(DiagnosticTaskDTO.class);
+    assertFalse(tasks.isEmpty());
+    assertNotNull(tasks.get(0).name());
+    assertNotNull(tasks.get(0).cost());
+}
+\end{lstlisting}
+
+Finally, a test case for reading a non-existent file is also written, \texttt{testReadNonExistentFile}. Correct program execution involves throwing an unchecked exception \texttt{ResourceNotFoundException} when attempting to read a non-existent file.
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+@Test
+void testReadNonExistentFile() {
+    assertThrows(ResourceNotFoundException.class, () -> {
+        createHandler("nonexistent");
     });
 }
 \end{lstlisting}
