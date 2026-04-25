@@ -100,6 +100,8 @@ public final class PrintoutFormat {
             "  Status:         %s%n" +
             "  Created:        %s%n" +
             "  Est. Complete:  %s%n" +
+            "  -- Costs --%n" +
+            "  %s%n" +
             "  Total Cost:     %s%n" +
             "********************************%n" +
             "  Customer:%n%s" +

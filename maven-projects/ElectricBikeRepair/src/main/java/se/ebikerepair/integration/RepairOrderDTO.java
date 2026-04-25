@@ -4,6 +4,7 @@ import java.util.Date;
 
 import se.ebikerepair.constant.PrintoutFormat;
 import se.ebikerepair.model.Cost;
+import se.ebikerepair.model.PricingResult;
 import se.ebikerepair.model.RepairOrderState;
 
 /**
@@ -24,6 +25,7 @@ public record RepairOrderDTO(
         ProblemDTO problemDTO,
         Date createdDate,
         Date estimatedCompleteDate,
+        PricingResult pricingResult,
         Cost totalCost,
         RepairOrderState repairOrderState,
         DiagnosticReportDTO diagnosticReport,
@@ -37,7 +39,7 @@ public record RepairOrderDTO(
         String diagStr = diagnosticReport != null ? diagnosticReport.toString() : "      (none)\n";
         String tasksStr = repairTaskCollection != null ? repairTaskCollection.toString() : "      (none)\n";
         return String.format(PrintoutFormat.REPAIR_ORDER_PRINTOUT_FORMAT,
-                id, repairOrderState, createdDate, estCompleteStr, totalCost,
+                id, repairOrderState, createdDate, estCompleteStr, pricingResult, totalCost,
                 customerDTO.toInlineString(), problemDTO, diagStr, tasksStr);
     }
 }

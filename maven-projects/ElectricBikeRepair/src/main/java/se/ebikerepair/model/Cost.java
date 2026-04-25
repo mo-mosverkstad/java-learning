@@ -18,6 +18,16 @@ public class Cost {
         this.currency = currency;
     }
 
+    public Cost(float amount){
+        this.amount = amount;
+        this.currency = "SEK";
+    }
+
+    public Cost(Cost cost){
+        this.amount = cost.amount;
+        this.currency = cost.currency;
+    }
+
     /**
      * Creates a cost with zero amount and SEK currency.
      */
@@ -56,6 +66,10 @@ public class Cost {
             throw new IllegalArgumentException(String.format("Currency mismatch between %s and %s", this.currency, another.currency));
         }
         this.amount += another.amount;
+    }
+
+    public void applyDiscount(float discount){
+        this.amount = this.amount * (1 - discount);
     }
 
     @Override

@@ -3,6 +3,10 @@ package se.ebikerepair.model;
 import java.util.Date;
 import java.util.UUID;
 
+import se.ebikerepair.model.MembershipPricingStrategy;
+import se.ebikerepair.model.PricingResult;
+import se.ebikerepair.model.PricingStrategy;
+import se.ebikerepair.model.StandardPricingStrategy;
 import se.ebikerepair.integration.CustomerDTO;
 import se.ebikerepair.integration.RepairOrderDTO;
 import se.ebikerepair.integration.ProblemDTO;
@@ -85,10 +89,18 @@ public class RepairOrder {
      * @return the total cost
      */
     public Cost getTotalCost() {
+        /*
         Cost total = new Cost();
         total.calculate(diagnosticReport.getTotalCost());
         total.calculate(repairTaskCollection.getTotalCost());
         return total;
+        */
+        return getPricingResult().getFinalCost();
+    }
+
+    public PricingResult getPricingResult(){
+        PricingStrategy pricingStrategy = new MembershipPricingStrategy(3);
+        return pricingStrategy.calculateTotalCost(this);
     }
 
     /**
@@ -181,6 +193,7 @@ public class RepairOrder {
             problem.toDTO(),
             new Date(createdDate.getTime()),
             getEstimatedCompleteDate(),
+            getPricingResult(),
             getTotalCost(),
             repairOrderState,
             diagnosticReport.toDTO(),
