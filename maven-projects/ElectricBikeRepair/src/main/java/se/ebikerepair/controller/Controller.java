@@ -1,11 +1,13 @@
 package se.ebikerepair.controller;
 
 import se.ebikerepair.model.RepairOrder;
+import se.ebikerepair.model.RepairOrderObserver;
 import se.ebikerepair.integration.RepairOrderDTO;
 import se.ebikerepair.integration.RepairOrderRegistry;
 import se.ebikerepair.util.InvalidTelephoneNumberException;
 import se.ebikerepair.util.TelephoneNumber;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
@@ -14,6 +16,7 @@ import java.util.stream.Collectors;
  */
 public class Controller {
     protected final RepairOrderRegistry repairOrderRegistry;
+    protected final List<RepairOrderObserver> repairOrderObservers;
 
     /**
      * Creates a controller with the given repair order registry.
@@ -22,6 +25,7 @@ public class Controller {
      */
     public Controller(RepairOrderRegistry repairOrderRegistry){
         this.repairOrderRegistry = repairOrderRegistry;
+        this.repairOrderObservers = new ArrayList<>();
     }
 
     private List<String> findRepairOrderIds(String telephoneNumber) throws InvalidTelephoneNumberException{
@@ -53,6 +57,10 @@ public class Controller {
             throw new IllegalStateException("Repair order not found for id: " + id);
         }
         return repairOrder.toDTO();
+    }
+
+    public void addRepairOrderObserver(RepairOrderObserver repairOrderObserver){
+        repairOrderObservers.add(repairOrderObserver);
     }
     
 }

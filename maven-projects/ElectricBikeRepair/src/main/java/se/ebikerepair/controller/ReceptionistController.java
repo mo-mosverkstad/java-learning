@@ -69,6 +69,7 @@ public class ReceptionistController extends Controller{
         try {
             CustomerDTO foundCustomer = searchCustomer(telephoneNumber);
             RepairOrder repairOrder = new RepairOrder(foundCustomer);
+            repairOrder.addRepairOrderObservers(repairOrderObservers);
             repairOrder.updateProblem(problemDTO);
             repairOrderRegistry.save(repairOrder);
             return repairOrder.getId();

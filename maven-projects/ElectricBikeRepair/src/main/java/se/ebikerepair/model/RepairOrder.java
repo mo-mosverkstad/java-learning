@@ -1,8 +1,11 @@
 package se.ebikerepair.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
+import se.ebikerepair.model.RepairOrderObserver;
 import se.ebikerepair.model.MembershipPricingStrategy;
 import se.ebikerepair.model.PricingResult;
 import se.ebikerepair.model.PricingStrategy;
@@ -27,6 +30,7 @@ public class RepairOrder {
     private DiagnosticReport diagnosticReport;
     private RepairTaskCollection repairTaskCollection;
     private String id;
+    private List<RepairOrderObserver> repairOrderObservers;
 
     /**
      * Creates a new repair order with the given customer.
@@ -40,6 +44,7 @@ public class RepairOrder {
         this.repairOrderState = RepairOrderState.NewlyCreated;
         this.diagnosticReport = new DiagnosticReport();
         this.repairTaskCollection = new RepairTaskCollection();
+        this.repairOrderObservers = new ArrayList<RepairOrderObserver>();
         this.id = UUID.randomUUID().toString();
     }
 
@@ -157,6 +162,7 @@ public class RepairOrder {
      */
     public void updateDiagnosticResult(String name, ResultDTO result) {
         getDiagnosticReport().updateDiagnosticResult(name, result);
+        notifyRepairOrderObservers();
     }
 
     /**
@@ -166,6 +172,7 @@ public class RepairOrder {
      */
     public void addRepairTask(RepairTaskDTO repairTask) {
         getRepairTaskCollection().addRepairTask(repairTask);
+        notifyRepairOrderObservers();
     }
 
     /**
@@ -173,6 +180,7 @@ public class RepairOrder {
      */
     public void accept() {
         repairOrderState = RepairOrderState.Accepted;
+        notifyRepairOrderObservers();
     }
 
     /**
@@ -180,6 +188,31 @@ public class RepairOrder {
      */
     public void reject() {
         repairOrderState = RepairOrderState.Rejected;
+        notifyRepairOrderObservers();
+    }
+
+    /**
+     * The specified observer will be notified when this repair order state has changed.
+     * 
+     * @param repairOrderObserver The observer to notify. 
+     */
+    public void addRepairOrderObserver(RepairOrderObserver repairOrderObserver){
+        repairOrderObservers.add(repairOrderObserver);
+    }
+
+    /**
+     * All the specified observers will be notified when this repair order state has changed.
+     * 
+     * @param observers The observers to notify. 
+     */
+    public void addRepairOrderObservers(List<RepairOrderObserver> observers) {
+        repairOrderObservers.addAll(observers);
+    }
+
+    private void notifyRepairOrderObservers() {
+        for (RepairOrderObserver repairOrderObserver : repairOrderObservers) {
+            repairOrderObserver.updateRepairOrder(toDTO());
+        }
     }
 
     /**

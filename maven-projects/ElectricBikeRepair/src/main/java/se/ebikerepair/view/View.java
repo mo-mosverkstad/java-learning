@@ -32,6 +32,7 @@ public class View {
     public View(ControllerCreator controllerCreator) {
         receptionistController = controllerCreator.getReceptionistController();
         technicianController = controllerCreator.getTechnicianController();
+        receptionistController.addRepairOrderObserver(new RepairOrderView());
     }
 
     /**

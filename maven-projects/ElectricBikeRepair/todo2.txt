@@ -1,0 +1,65 @@
+1. AcceptRepairOrder and RejectRepairOrder still uses the old and stale IllegalArgumentException!!!
+
+\subsection{Tests}
+
+% Write 1 class each layer, all the possible test methods
+
+Unit testing is conducted throughout the development process and implementation and is treated as an integral part of each iteration. After developing each system operation, unit tests for all created methods are added.
+
+\subsection{Data layer - JsonFileHandler}
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+private JsonFileHandler createHandler(String resourceName) {
+    JsonFileHandler handler = new JsonFileHandler();
+    handler.initDataHandler(resourceName);
+    return handler;
+}
+
+@Test
+void testReadCustomers() {
+    JsonFileHandler handler = createHandler("customers");
+    List<CustomerDTO> customers = handler.readList(CustomerDTO.class);
+    assertFalse(customers.isEmpty());
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+@Test
+void testReadDiagnosticTasks() {
+    JsonFileHandler handler = createHandler("diagnosticTasks");
+    List<DiagnosticTaskDTO> tasks = handler.readList(DiagnosticTaskDTO.class);
+    assertFalse(tasks.isEmpty());
+    assertNotNull(tasks.get(0).name());
+    assertNotNull(tasks.get(0).cost());
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+@Test
+void testReadNonExistentFile() {
+    assertThrows(ResourceNotFoundException.class, () -> {
+        createHandler("nonexistent");
+    });
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+@Test
+void testReadCustomerDetails() {
+    JsonFileHandler handler = createHandler("customers");
+    List<CustomerDTO> customers = handler.readList(CustomerDTO.class);
+    CustomerDTO first = customers.get(0);
+    assertNotNull(first.name());
+    assertNotNull(first.telephoneNumber());
+    assertNotNull(first.emailAddress());
+    assertNotNull(first.bikes());
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+
+\end{lstlisting}
