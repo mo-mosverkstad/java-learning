@@ -69,7 +69,8 @@ class RepairOrderTest {
         RepairOrder order = createOrder();
         order.getRepairTaskCollection().addRepairTask(new RepairTaskDTO("Fix chain", "Replace chain", new Cost(500, "SEK"), 2));
 
-        assertTrue(order.getTotalCost().getAmount() >= 500.0F);
+        assertTrue(order.getTotalCost().getAmount() > 0);
+        assertEquals(500.0F, order.getPricingResult().getBaseCost().getAmount());
         assertNotNull(order.getEstimatedCompleteDate());
     }
 
@@ -79,7 +80,9 @@ class RepairOrderTest {
         order.getRepairTaskCollection().addRepairTask(new RepairTaskDTO("Task1", "Desc1", new Cost(300, "SEK"), 1));
         order.getRepairTaskCollection().addRepairTask(new RepairTaskDTO("Task2", "Desc2", new Cost(200, "SEK"), 3));
 
-        assertTrue(order.getTotalCost().getAmount() >= 500.0F);
+        assertEquals(500.0F, order.getPricingResult().getBaseCost().getAmount());
+        assertTrue(order.getTotalCost().getAmount() > 0);
+        assertTrue(order.getTotalCost().getAmount() <= 500.0F);
     }
 
     @Test

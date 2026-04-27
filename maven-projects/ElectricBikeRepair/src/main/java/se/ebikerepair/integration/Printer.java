@@ -12,7 +12,7 @@ public class Printer {
      * @param repairOrder the repair order to print
      */
     public void print(RepairOrder repairOrder){
-        System.out.println("**** Printing repair order ****");
+        System.out.println("\033[32m**** Printing repair order FROM PRINTER ****\033[0m");
         System.out.println(repairOrder);
     }
 }

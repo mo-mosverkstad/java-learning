@@ -151,6 +151,7 @@ public class RepairOrder {
      */
     public void updateProblem(ProblemDTO problemDTO) {
         this.problem.update(problemDTO);
+        notifyRepairOrderObservers();
     }
 
     /**

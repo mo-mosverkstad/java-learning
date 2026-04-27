@@ -46,7 +46,7 @@ class ViewTest {
 
         assertTrue(output.contains("1. Reception - Found customer:"));
         assertTrue(output.contains("Astrid Johansson"));
-        assertTrue(output.contains("2. Reception - Created repair order with id:"));
+        assertTrue(output.contains("2. Reception - Created repair order."));
         assertTrue(output.contains("3. Technician - Requested repair order:"));
         assertTrue(output.contains("7. Reception - found repair order:"));
         assertTrue(output.contains("8. Reception - Accepted order"));

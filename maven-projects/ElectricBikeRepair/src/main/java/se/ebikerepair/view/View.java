@@ -32,7 +32,7 @@ public class View {
     public View(ControllerCreator controllerCreator) {
         receptionistController = controllerCreator.getReceptionistController();
         technicianController = controllerCreator.getTechnicianController();
-        receptionistController.addRepairOrderObserver(new RepairOrderView());
+        receptionistController.addRepairOrderObserver(new RepairOrderCliView());
     }
 
     /**
@@ -56,9 +56,9 @@ public class View {
         CustomerDTO foundCustomer = receptionistController.searchCustomer(telephoneNumber);
         printout("1. Reception - Found customer:", foundCustomer);
 
+        printout("2. Reception - Created repair order.");
         BikeDTO foundBike = foundCustomer.getBikeBySerialNumber(bikeSerialNumber);
         String repairOrderId = receptionistController.createRepairOrder(telephoneNumber, new ProblemDTO("Broken bike chain", foundBike));
-        printout("2. Reception - Created repair order with id: ", repairOrderId);
 
     }
 
@@ -68,16 +68,19 @@ public class View {
 
         String repairOrderId = repairOrderDTO.id();
         String diagnosticTaskName = "Mechanical Safety Check";
+        printout("4. Technician - Updated diagnostic task: ", diagnosticTaskName);
         ResultDTO result = new ResultDTO(true, true, "Chain and gears should be replaced.");
         technicianController.addDiagnosticResult(repairOrderId, diagnosticTaskName, result);
-        printout("4. Technician - Updated diagnostic task: ", diagnosticTaskName);
 
+        printout("5. Technician - Created proposed repair tasks 01: ");
         RepairTaskDTO repairTask1 = new RepairTaskDTO("Replace Chain", "Removal of worn or stretched chain and installation of a new compatible e\u2011bike chain. Includes lubrication, tension adjustment, and drivetrain alignment check.", new Cost(500, "SEK"), 1);
-        RepairTaskDTO repairTask2 = new RepairTaskDTO("Replace gears", "Replacement of worn or damaged rear cassette/freewheel or front chainrings. Includes removal of old components, installation of new gear set, indexing and tuning of derailleur(s).", new Cost(400, "SEK"), 2);
         technicianController.addRepairTask(repairOrderId, repairTask1);
+        printout(repairTask1);
+
+        printout("6. Technician - Created proposed repair tasks 02: ");
+        RepairTaskDTO repairTask2 = new RepairTaskDTO("Replace gears", "Replacement of worn or damaged rear cassette/freewheel or front chainrings. Includes removal of old components, installation of new gear set, indexing and tuning of derailleur(s).", new Cost(400, "SEK"), 2);
         technicianController.addRepairTask(repairOrderId, repairTask2);
-        printout("5. Technician - Created proposed repair tasks 01: ", repairTask1);
-        printout("6. Technician - Created proposed repair tasks 02: ", repairTask2);
+        printout(repairTask2);
     }
 
     private void proceedReceptionConfirmationActions(String telephoneNumber) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException {
