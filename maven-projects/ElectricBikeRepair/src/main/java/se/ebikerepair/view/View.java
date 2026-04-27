@@ -12,6 +12,7 @@ import se.ebikerepair.integration.RepairTaskDTO;
 import se.ebikerepair.model.Cost;
 import se.ebikerepair.util.InvalidTelephoneNumberException;
 import se.ebikerepair.util.LogHandler;
+import se.ebikerepair.util.RepairOrderLogger;
 import se.ebikerepair.integration.ResultDTO;
 import se.ebikerepair.controller.FailedOperationException;
 
@@ -33,6 +34,7 @@ public class View {
         receptionistController = controllerCreator.getReceptionistController();
         technicianController = controllerCreator.getTechnicianController();
         receptionistController.addRepairOrderObserver(new RepairOrderCliView());
+        receptionistController.addRepairOrderObserver(new RepairOrderLogger());
     }
 
     /**
