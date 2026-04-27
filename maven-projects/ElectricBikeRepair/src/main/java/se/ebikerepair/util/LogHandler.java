@@ -10,7 +10,7 @@ import java.time.format.FormatStyle;
 
 // make a singleton, may use teacher's part of file logger
 public class LogHandler {
-    private static final String LOG_FILE_NAME = "ebikerepair-log.txt";
+    private static final String LOG_FILE_NAME = "ebikerepair.log";
     private static final LogHandler INSTANCE = new LogHandler();
     private PrintWriter logFile;
 

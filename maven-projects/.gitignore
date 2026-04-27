@@ -1,3 +1,2 @@
 */target
-ElectricBikeRepair/ebikerepair-log.txt
-ElectricBikeRepair/maven-projects\ElectricBikeRepair\ebikerepair-repairorder-log.txt
+*/*.log

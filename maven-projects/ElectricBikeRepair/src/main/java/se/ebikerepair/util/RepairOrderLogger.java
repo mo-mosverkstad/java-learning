@@ -11,7 +11,7 @@ import se.ebikerepair.integration.RepairOrderDTO;
 import se.ebikerepair.model.RepairOrderObserver;
 
 public class RepairOrderLogger implements RepairOrderObserver {
-    private static final String LOG_FILE_NAME = "ebikerepair-repairorder-log.txt";
+    private static final String LOG_FILE_NAME = "ebikerepair-repairorder.log";
     private PrintWriter logFile;
 
     public RepairOrderLogger(){
