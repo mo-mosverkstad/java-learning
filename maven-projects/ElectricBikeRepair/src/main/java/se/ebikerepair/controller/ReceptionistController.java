@@ -2,7 +2,8 @@ package se.ebikerepair.controller;
 
 import se.ebikerepair.integration.CustomerDTO;
 import se.ebikerepair.integration.CustomerRegistry;
-import se.ebikerepair.integration.NonExistentTelephoneNumberException;
+import se.ebikerepair.integration.NotFoundCustomerException;
+import se.ebikerepair.integration.NoExistedRepairOrderException;
 import se.ebikerepair.integration.RegistryCreator;
 import se.ebikerepair.model.RepairOrder;
 import se.ebikerepair.model.Problem;
@@ -44,10 +45,11 @@ public class ReceptionistController extends Controller{
      *
      * @param telephoneNumber the customer's telephone number (any Swedish format)
      * @return the found customer DTO
-     * @throws NonExistentTelephoneNumberException if the phone number does not correspond to a customer
+     * @throws NotFoundCustomerException if the phone number does not correspond to a customer
      * @throws InvalidTelephoneNumberException if the telephone number is empty or invalid
+     * @throws FailedOperationException if an underlying infrastructure error occurs, such as a database or file system failure
      */
-    public CustomerDTO searchCustomer(String telephoneNumber) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException, FailedOperationException{
+    public CustomerDTO searchCustomer(String telephoneNumber) throws NotFoundCustomerException, InvalidTelephoneNumberException, FailedOperationException{
         try {
             String phoneNumberE164 = new TelephoneNumber(telephoneNumber).toE164();
             return customerRegistry.find(phoneNumberE164);
@@ -63,9 +65,11 @@ public class ReceptionistController extends Controller{
      * @param telephoneNumber the customer's telephone number (any Swedish format)
      * @param problemDTO the problem description with the broken bike
      * @return the generated repair order ID
-     * @throws NonExistentTelephoneNumberException if the customer is not found or phone format is invalid
+     * @throws NotFoundCustomerException if the customer is not found
+     * @throws InvalidTelephoneNumberException if the telephone number is empty or invalid
+     * @throws FailedOperationException if an underlying infrastructure error occurs, such as a database or file system failure
      */
-    public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException, FailedOperationException{
+    public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws NotFoundCustomerException, InvalidTelephoneNumberException, FailedOperationException{
         try {
             CustomerDTO foundCustomer = searchCustomer(telephoneNumber);
             RepairOrder repairOrder = new RepairOrder(foundCustomer);
@@ -84,13 +88,10 @@ public class ReceptionistController extends Controller{
      * Accepts a repair order, updates its state, saves it, and prints it.
      *
      * @param repairOrderId the ID of the repair order to accept
-     * @throws IllegalStateException if the repair order is not found
+     * @throws NoExistedRepairOrderException if the repair order is not found
      */
-    public void acceptRepairOrder(String repairOrderId) throws IllegalStateException{
+    public void acceptRepairOrder(String repairOrderId) throws NoExistedRepairOrderException{
         RepairOrder repairOrder = repairOrderRegistry.findByRepairOrderId(repairOrderId);
-        if (repairOrder == null) {
-            throw new IllegalStateException("Repair order not found for id: " + repairOrderId);
-        }
         repairOrder.accept();
         repairOrderRegistry.save(repairOrder);
         printer.print(repairOrder);
@@ -100,13 +101,10 @@ public class ReceptionistController extends Controller{
      * Rejects a repair order and updates its state.
      *
      * @param repairOrderId the ID of the repair order to reject
-     * @throws IllegalStateException if the repair order is not found
+     * @throws NoExistedRepairOrderException if the repair order is not found
      */
-    public void rejectRepairOrder(String repairOrderId) throws IllegalStateException{
+    public void rejectRepairOrder(String repairOrderId) throws NoExistedRepairOrderException{
         RepairOrder repairOrder = repairOrderRegistry.findByRepairOrderId(repairOrderId);
-        if (repairOrder == null) {
-            throw new IllegalStateException("Repair order not found for id: " + repairOrderId);
-        }
         repairOrder.reject();
         repairOrderRegistry.save(repairOrder);
     }

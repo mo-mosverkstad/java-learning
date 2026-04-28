@@ -37,10 +37,15 @@ public class RepairOrderRegistry{
      * Finds a repair order by its unique ID.
      *
      * @param repairOrderId the repair order ID
-     * @return the repair order, or null if not found
+     * @return the repair order
+     * @throws NoExistedRepairOrderException if no repair order exists for the given ID
      */
-    public RepairOrder findByRepairOrderId(String repairOrderId){
-        return repairOrdersByRepairOrderId.get(repairOrderId);
+    public RepairOrder findByRepairOrderId(String repairOrderId) throws NoExistedRepairOrderException{
+        RepairOrder repairOrder = repairOrdersByRepairOrderId.get(repairOrderId);
+        if (repairOrder == null) {
+            throw new NoExistedRepairOrderException("Repair order not found for id: " + repairOrderId);
+        }
+        return repairOrder;
     }
 
     /**

@@ -44,14 +44,14 @@ public class CustomerRegistry{
      * Finds a customer by telephone number.
      *
      * @param telephoneNumber the telephone number in E.164 format
-     * @throws NonExistentTelephoneNumberException if the telephone number does not exist in the registry
+     * @throws NotFoundCustomerException if the telephone number does not exist in the registry
      * @return the customer DTO
      */
-    public CustomerDTO find(String telephoneNumber) throws NonExistentTelephoneNumberException {
+    public CustomerDTO find(String telephoneNumber) throws NotFoundCustomerException {
         initRegistry();
         CustomerDTO customer = customers.get(telephoneNumber);
         if (customer == null){
-            throw new NonExistentTelephoneNumberException(telephoneNumber);
+            throw new NotFoundCustomerException(telephoneNumber);
         }
         return customer;
     }

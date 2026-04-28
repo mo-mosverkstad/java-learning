@@ -4,7 +4,7 @@ import se.ebikerepair.controller.ControllerCreator;
 import se.ebikerepair.controller.ReceptionistController;
 import se.ebikerepair.controller.TechnicianController;
 import se.ebikerepair.integration.CustomerDTO;
-import se.ebikerepair.integration.NonExistentTelephoneNumberException;
+import se.ebikerepair.integration.NotFoundCustomerException;
 import se.ebikerepair.integration.BikeDTO;
 import se.ebikerepair.integration.ProblemDTO;
 import se.ebikerepair.integration.RepairOrderDTO;
@@ -15,6 +15,7 @@ import se.ebikerepair.util.LogHandler;
 import se.ebikerepair.util.RepairOrderLogger;
 import se.ebikerepair.integration.ResultDTO;
 import se.ebikerepair.controller.FailedOperationException;
+import se.ebikerepair.integration.NoExistedRepairOrderException;
 
 /**
  * View layer that orchestrates the repair workflow: reception preparation, technician diagnostics,
@@ -48,13 +49,13 @@ public class View {
             proceedReceptionPreparationActions(telephoneNumber, bikeSerialNumber);
             proceedTechnicianDiagnosticActions(telephoneNumber);
             proceedReceptionConfirmationActions(telephoneNumber);
-        } catch (NonExistentTelephoneNumberException | InvalidTelephoneNumberException | FailedOperationException | IllegalArgumentException | IllegalStateException e) {
+        } catch (NotFoundCustomerException | InvalidTelephoneNumberException | FailedOperationException | NoExistedRepairOrderException | IllegalArgumentException e) {
             System.out.println(ERROR_PREFIX + e.getMessage());
             LogHandler.getLogger().logException(e);
         }
     }
 
-    private void proceedReceptionPreparationActions(String telephoneNumber, String bikeSerialNumber) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException, FailedOperationException {
+    private void proceedReceptionPreparationActions(String telephoneNumber, String bikeSerialNumber) throws NotFoundCustomerException, InvalidTelephoneNumberException, FailedOperationException {
         CustomerDTO foundCustomer = receptionistController.searchCustomer(telephoneNumber);
         printout("1. Reception - Found customer:", foundCustomer);
 
@@ -64,7 +65,7 @@ public class View {
 
     }
 
-    private void proceedTechnicianDiagnosticActions(String telephoneNumber) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException {
+    private void proceedTechnicianDiagnosticActions(String telephoneNumber) throws NotFoundCustomerException, InvalidTelephoneNumberException, NoExistedRepairOrderException {
         RepairOrderDTO repairOrderDTO = technicianController.findRepairOrder(telephoneNumber);
         printout("3. Technician - Requested repair order: ", repairOrderDTO);
 
@@ -85,7 +86,7 @@ public class View {
         printout(repairTask2);
     }
 
-    private void proceedReceptionConfirmationActions(String telephoneNumber) throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException {
+    private void proceedReceptionConfirmationActions(String telephoneNumber) throws NotFoundCustomerException, InvalidTelephoneNumberException, NoExistedRepairOrderException {
         RepairOrderDTO repairOrderDTO = receptionistController.findRepairOrder(telephoneNumber);
         printout("7. Reception - found repair order: ", repairOrderDTO);
 

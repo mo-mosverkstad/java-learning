@@ -34,7 +34,7 @@ class CustomerRegistryTest {
 
     @Test
     void testGetNonExistingCustomer() {
-        assertThrows(NonExistentTelephoneNumberException.class, () -> registry.find("+46700000000"));
+        assertThrows(NotFoundCustomerException.class, () -> registry.find("+46700000000"));
     }
 
     @Test

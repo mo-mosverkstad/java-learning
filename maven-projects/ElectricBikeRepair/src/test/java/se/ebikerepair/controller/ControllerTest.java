@@ -11,6 +11,7 @@ import se.ebikerepair.integration.RepairOrderDTO;
 
 import java.util.List;
 
+import se.ebikerepair.integration.NoExistedRepairOrderException;
 import se.ebikerepair.util.InvalidTelephoneNumberException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -51,7 +52,7 @@ class ControllerTest {
 
     @Test
     void testFindRepairOrderNoOrders() {
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(NoExistedRepairOrderException.class, () ->
                 controller.findRepairOrder("+46707654321"));
     }
 

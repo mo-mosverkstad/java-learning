@@ -13,7 +13,8 @@ import se.ebikerepair.integration.ResultDTO;
 import se.ebikerepair.integration.Printer;
 import se.ebikerepair.model.Cost;
 import se.ebikerepair.util.InvalidTelephoneNumberException;
-import se.ebikerepair.integration.NonExistentTelephoneNumberException;
+import se.ebikerepair.integration.NotFoundCustomerException;
+import se.ebikerepair.integration.NoExistedRepairOrderException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,7 +24,7 @@ class TechnicianControllerTest {
     private String repairOrderId;
 
     @BeforeEach
-    void setUp() throws NonExistentTelephoneNumberException, InvalidTelephoneNumberException, FailedOperationException {
+    void setUp() throws NotFoundCustomerException, InvalidTelephoneNumberException, FailedOperationException {
         RegistryCreator registryCreator = new RegistryCreator();
         recController = new ReceptionistController(registryCreator, new Printer());
         techController = new TechnicianController(registryCreator);
@@ -46,7 +47,7 @@ class TechnicianControllerTest {
 
     @Test
     void testAddDiagnosticResultOrderNotFound() {
-        assertThrows(IllegalStateException.class, () ->
+        assertThrows(NoExistedRepairOrderException.class, () ->
                 techController.addDiagnosticResult("nonexistent", "Electrical", new ResultDTO(true, true, "Test")));
     }
 
@@ -70,7 +71,7 @@ class TechnicianControllerTest {
 
     @Test
     void testAddRepairTaskOrderNotFound() {
-        assertThrows(IllegalStateException.class, () ->
+        assertThrows(NoExistedRepairOrderException.class, () ->
                 techController.addRepairTask("nonexistent", new RepairTaskDTO("Fix", "Fix it", new Cost(100, "SEK"), 1)));
     }
 

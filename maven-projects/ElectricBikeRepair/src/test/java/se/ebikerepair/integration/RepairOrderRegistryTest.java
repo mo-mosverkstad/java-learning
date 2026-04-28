@@ -34,7 +34,7 @@ class RepairOrderRegistryTest {
     }
 
     @Test
-    void testFindByRepairOrderId() {
+    void testFindByRepairOrderId() throws NoExistedRepairOrderException {
         RepairOrder found = registry.findByRepairOrderId(order1.getId());
         assertNotNull(found);
         assertEquals(order1.getId(), found.getId());
@@ -42,7 +42,7 @@ class RepairOrderRegistryTest {
 
     @Test
     void testFindByRepairOrderIdNotFound() {
-        assertNull(registry.findByRepairOrderId("nonexistent-id"));
+        assertThrows(NoExistedRepairOrderException.class, () -> registry.findByRepairOrderId("nonexistent-id"));
     }
 
     @Test
@@ -59,7 +59,7 @@ class RepairOrderRegistryTest {
     }
 
     @Test
-    void testSaveUpdatesExisting() {
+    void testSaveUpdatesExisting() throws NoExistedRepairOrderException {
         order1.accept();
         registry.save(order1);
         RepairOrder found = registry.findByRepairOrderId(order1.getId());

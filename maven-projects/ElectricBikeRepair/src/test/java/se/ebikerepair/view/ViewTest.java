@@ -66,6 +66,7 @@ class ViewTest {
         String output = outputStream.toString();
 
         assertTrue(output.contains("Error:"));
+        assertTrue(output.contains("is not a valid phone number"));
     }
 
     @Test
@@ -74,6 +75,7 @@ class ViewTest {
         String output = outputStream.toString();
 
         assertTrue(output.contains("Error:"));
+        assertTrue(output.contains("No customer found for telephone number"));
     }
 
     @Test
@@ -82,6 +84,8 @@ class ViewTest {
         String output = outputStream.toString();
 
         assertTrue(output.contains("1. Reception - Found customer:"));
+        assertTrue(output.contains("Error:"));
+        assertTrue(output.contains("No bike found with serial number NONEXISTENT"));
     }
 
     @Test
@@ -90,6 +94,7 @@ class ViewTest {
         String output = outputStream.toString();
 
         assertTrue(output.contains("4. Technician - Updated diagnostic task:"));
+        assertTrue(output.contains("Mechanical Safety Check"));
     }
 
     @Test

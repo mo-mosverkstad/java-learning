@@ -1,5 +1,6 @@
 package se.ebikerepair.controller;
 
+import se.ebikerepair.integration.NoExistedRepairOrderException;
 import se.ebikerepair.integration.RegistryCreator;
 import se.ebikerepair.model.RepairOrder;
 import se.ebikerepair.integration.RepairTaskDTO;
@@ -24,14 +25,10 @@ public class TechnicianController extends Controller {
      * @param repairOrderId the ID of the repair order
      * @param diagnosticTaskName the name (partial match) of the diagnostic task to update
      * @param result the result to apply to the diagnostic task
-     * @throws IllegalStateException if the repair order is not found
-     * @throws IllegalArgumentException if no diagnostic task matches the given name
+     * @throws NoExistedRepairOrderException if the repair order is not found
      */
-    public void addDiagnosticResult(String repairOrderId, String diagnosticTaskName, ResultDTO result) throws IllegalStateException, IllegalArgumentException {
+    public void addDiagnosticResult(String repairOrderId, String diagnosticTaskName, ResultDTO result) throws NoExistedRepairOrderException {
         RepairOrder repairOrder = repairOrderRegistry.findByRepairOrderId(repairOrderId);
-        if (repairOrder == null) {
-            throw new IllegalStateException("Repair order not found for id: " + repairOrderId);
-        }
         repairOrder.updateDiagnosticResult(diagnosticTaskName, result);
         repairOrderRegistry.save(repairOrder);
     }
@@ -41,14 +38,10 @@ public class TechnicianController extends Controller {
      *
      * @param repairOrderId the ID of the repair order
      * @param repairTask the repair task to add
-     * @throws IllegalStateException if the repair order is not found
+     * @throws NoExistedRepairOrderException if the repair order is not found
      */
-    public void addRepairTask(String repairOrderId, RepairTaskDTO repairTask) throws IllegalStateException {
+    public void addRepairTask(String repairOrderId, RepairTaskDTO repairTask) throws NoExistedRepairOrderException {
         RepairOrder repairOrder = repairOrderRegistry.findByRepairOrderId(repairOrderId);
-        if (repairOrder == null) {
-            throw new IllegalStateException("Repair order not found for id: " + repairOrderId);
-        }
-
         repairOrder.addRepairTask(repairTask);
         repairOrderRegistry.save(repairOrder);
     }

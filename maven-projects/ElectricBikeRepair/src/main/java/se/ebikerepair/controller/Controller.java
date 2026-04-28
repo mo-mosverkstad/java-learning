@@ -2,6 +2,7 @@ package se.ebikerepair.controller;
 
 import se.ebikerepair.model.RepairOrder;
 import se.ebikerepair.model.RepairOrderObserver;
+import se.ebikerepair.integration.NoExistedRepairOrderException;
 import se.ebikerepair.integration.RepairOrderDTO;
 import se.ebikerepair.integration.RepairOrderRegistry;
 import se.ebikerepair.util.InvalidTelephoneNumberException;
@@ -43,19 +44,15 @@ public class Controller {
      * @param telephoneNumber the customer's telephone number (any Swedish format)
      * @return the most recent repair order as a DTO
      * @throws InvalidTelephoneNumberException if the phone number format is invalid
-     * @throws IllegalArgumentException if no repair orders exist for the customer
-     * @throws IllegalStateException if the repair order ID exists but the order cannot be found (data inconsistency)
+     * @throws NoExistedRepairOrderException if no repair orders exist for the customer or the order cannot be found
      */
-    public RepairOrderDTO findRepairOrder(String telephoneNumber) throws InvalidTelephoneNumberException, IllegalArgumentException, IllegalStateException{
+    public RepairOrderDTO findRepairOrder(String telephoneNumber) throws InvalidTelephoneNumberException, NoExistedRepairOrderException{
         List<String> repairOrderIds = findRepairOrderIds(telephoneNumber);
         if (repairOrderIds.isEmpty()) {
-            throw new IllegalArgumentException("There is no repair order created for this customer.");
+            throw new NoExistedRepairOrderException("There is no repair order created for this customer.");
         }
         String id = repairOrderIds.get(0);
         RepairOrder repairOrder = repairOrderRegistry.findByRepairOrderId(id);
-        if (repairOrder == null) {
-            throw new IllegalStateException("Repair order not found for id: " + id);
-        }
         return repairOrder.toDTO();
     }
 

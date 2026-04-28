@@ -5,7 +5,8 @@ import org.junit.jupiter.api.Test;
 
 import se.ebikerepair.integration.BikeDTO;
 import se.ebikerepair.integration.CustomerDTO;
-import se.ebikerepair.integration.NonExistentTelephoneNumberException;
+import se.ebikerepair.integration.NotFoundCustomerException;
+import se.ebikerepair.integration.NoExistedRepairOrderException;
 import se.ebikerepair.integration.RegistryCreator;
 import se.ebikerepair.integration.ProblemDTO;
 import se.ebikerepair.integration.RepairOrderDTO;
@@ -36,7 +37,7 @@ class ReceptionistControllerTest {
 
     @Test
     void testSearchNonExistingCustomer() {
-        assertThrows(NonExistentTelephoneNumberException.class, () -> controller.searchCustomer("0700000000"));
+        assertThrows(NotFoundCustomerException.class, () -> controller.searchCustomer("0700000000"));
     }
 
     @Test
@@ -56,7 +57,7 @@ class ReceptionistControllerTest {
 
     @Test
     void testCreateRepairOrderCustomerNotFound() {
-        assertThrows(NonExistentTelephoneNumberException.class, () ->
+        assertThrows(NotFoundCustomerException.class, () ->
                 controller.createRepairOrder("0700000000", new ProblemDTO("Issue", null)));
     }
 
@@ -76,7 +77,7 @@ class ReceptionistControllerTest {
 
     @Test
     void testAcceptOrderNotFound() {
-        assertThrows(IllegalStateException.class, () -> controller.acceptRepairOrder("nonexistent-id"));
+        assertThrows(NoExistedRepairOrderException.class, () -> controller.acceptRepairOrder("nonexistent-id"));
     }
 
     @Test
@@ -95,7 +96,7 @@ class ReceptionistControllerTest {
 
     @Test
     void testRejectOrderNotFound() {
-        assertThrows(IllegalStateException.class, () -> controller.rejectRepairOrder("nonexistent-id"));
+        assertThrows(NoExistedRepairOrderException.class, () -> controller.rejectRepairOrder("nonexistent-id"));
     }
 
     @Test
