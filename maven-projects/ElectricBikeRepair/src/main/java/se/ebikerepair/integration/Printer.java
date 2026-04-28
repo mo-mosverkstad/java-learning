@@ -1,5 +1,6 @@
 package se.ebikerepair.integration;
 
+import se.ebikerepair.constant.PrintoutFormat;
 import se.ebikerepair.model.RepairOrder;
 
 /**
@@ -12,7 +13,7 @@ public class Printer {
      * @param repairOrder the repair order to print
      */
     public void print(RepairOrder repairOrder){
-        System.out.println("\033[32m**** Printing repair order FROM PRINTER ****\033[0m");
+        System.out.println(String.format("%s**** Printing repair order FROM PRINTER ****%s", PrintoutFormat.ANSI_GREEN, PrintoutFormat.ANSI_RESET));
         System.out.println(repairOrder);
     }
 }

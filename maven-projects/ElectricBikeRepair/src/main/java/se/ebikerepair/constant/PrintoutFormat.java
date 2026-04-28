@@ -8,6 +8,11 @@ public final class PrintoutFormat {
 
     private static final int MAX_LINE_WIDTH = 80;
 
+    public static final String ANSI_RESET = "\033[0m";
+    public static final String ANSI_GREEN = "\033[32m";
+    public static final String ANSI_YELLOW = "\033[33m";
+    public static final String ANSI_BLUE = "\033[34m";
+
     private PrintoutFormat() {}
 
     /**
