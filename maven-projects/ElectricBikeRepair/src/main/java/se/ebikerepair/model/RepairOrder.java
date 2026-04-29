@@ -105,8 +105,7 @@ public class RepairOrder {
     }
 
     public PricingResult getPricingResult(){
-        MembershipDTO membership = getCustomerDTO().membership();
-        PricingStrategy pricingStrategy = membership.active() ? new MembershipPricingStrategy(membership.repairCount()) : new StandardPricingStrategy();
+        PricingStrategy pricingStrategy = PricingStrategyFactory.create(getCustomerDTO());
         return pricingStrategy.calculateTotalCost(this);
     }
 
