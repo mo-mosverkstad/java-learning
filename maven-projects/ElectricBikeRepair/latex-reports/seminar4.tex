@@ -1,0 +1,243 @@
+\documentclass[a4paper]{scrartcl}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{textcomp}
+\usepackage{amsmath}
+\usepackage{lastpage}
+\usepackage{pgf}
+\usepackage{wrapfig}
+\usepackage{fancyvrb}
+\usepackage[breaklinks=true]{hyperref}
+
+% Listing header
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{lightgray}{gray}{0.95}
+
+\lstdefinestyle{javastyle}{
+    backgroundcolor=\color{lightgray},
+    basicstyle=\ttfamily\small,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=8pt,
+    frame=single,
+    showstringspaces=false,
+    breaklines=true,
+    breakautoindent=true,
+    breakindent=2em,
+    keepspaces=true,
+    columns=fullflexible,
+    tabsize=4,
+    language=Java,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray!70},
+    stringstyle=\color{orange!90!black},
+    literate=
+      {Å}{{\AA}}1
+      {å}{{\aa}}1
+      {Ä}{{\"A}}1
+      {ä}{{\"a}}1
+      {Ö}{{\"O}}1
+      {ö}{{\"o}}1
+      {‑}{{-}}1
+}
+
+\lstdefinestyle{outputstyle}{
+    basicstyle=\ttfamily\small,
+    frame=single,
+    breaklines=true,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    literate=
+      {Å}{{\AA}}1
+      {å}{{\aa}}1
+      {Ä}{{\"A}}1
+      {ä}{{\"a}}1
+      {Ö}{{\"O}}1
+      {ö}{{\"o}}1
+      {‑}{{-}}1
+}
+
+% Create header and footer
+\headheight 27pt
+\pagestyle{fancyplain}
+\lhead{\footnotesize{Object-Oriented Design, IV1350}}
+\chead{\footnotesize{Seminar~3 Solution}}
+\rhead{}
+\lfoot{}
+\cfoot{\thepage\ (\pageref{LastPage})}
+\rfoot{}
+
+% Create title page
+\title{Seminar 4}
+\subtitle{Object-Oriented Design, IV1350}
+\author{Mo Wang mowang@ug.kth.se}
+%\date{\today} Prints today's date
+\date{2026-04-29}
+
+\begin{document}
+
+\maketitle
+\noindent\textbf{Project Members:} \\ \hfill
+% \tableofcontents %Generates the TOC
+[Mo Wang, mowang@ug.kth.se]
+
+\section*{Declaration:}
+
+By submitting this assignment, it is hereby declared that all group members listed above have contributed to the solution. It is also declared that all project members fully understand all parts of the final solution and can explain it upon request.
+
+It is furthermore declared that no part of the solution has been copied from any other source (except for resources presented in the Canvas page for the course IV1350), and that no part of the solution has been provided by someone not listed as a project member above.
+
+\section{Introduction}
+\label{sec:intro}
+
+This report focus on exception handling and design pattern implementation of the \textit{Repair Electric Bike} system. The purpose of Seminar~4 is to extend the implementation design with exception for error handling as well as refactoring the code for design patterns. Additionally, the unit tests are also added to verify the code behavior for error handling as well. The implementation follows the principles and guidelines in Chapter~8 for error handling as well as design patterns in Chapter~9 of \textit{A First Course in Object-Oriented Development} \cite{coursebook}.
+
+Exception handling are implemented as error handling, both business logic violations as well as internal failures. When the code in model fails, exceptions are thrown and propagated through function call layers until the view layer is reached. At that time, an error message is displayed, while the code stops. Instead of silent failures or propagating error messages using return values, error messages relies on exceptions which is reserved for handling errors.
+
+In addition to error handling, design patterns are applied to improve the structure and maintainability of the system. Since these patterns address recurring design problems and contributes to higher encapsulation, cohesion and lower coupling, these are integrated into the system to make overall architecture more flexible and easier to extend.
+
+Throughout the implementation of error handling and using design patterns, automated unit testing is also carried out in parallel. In each code development iteration, after developing the code for a specific purpose, the corresponding test cases are also added and updated in order to verify the code behavior. This ensures code quality throughout the development and makes incorrect behavior debuggable at an early stage. 
+
+\subsection{Requirements of Seminar 4}
+
+The seminar~4 consists of two main tasks: 
+
+Seminar~3 consists of two main tasks: program implementation and unit testing. Unit tests are carried out incrementally after implementing each system operation.
+
+The first task is to implement the basic flow and the Startup sequence of the Repair Electric Bike system that was designed in Seminar~2. The implementation follows these requirements:
+
+\begin{itemize}
+    \item The program is written in Java and is compilable and executable.
+    \item Only the basic workflow and startup sequence are implemented while alternative flows are intentionally omitted in this seminar.
+    \item The user interface is replaced by a single \texttt{View} class containing hard-coded calls to the controller, which prints all returned results to \texttt{System.out}, including the repair order printout.
+    \item No database or external systems are implemented. Instead, the integration layer stores data in memory using placeholder objects.
+    \item Exceptions are not used, since exception handling is introduced in a later seminar.
+    \item The code follows the programming guidelines described in Chapter~6 of the course book, including naming conventions, high cohesion, low coupling, good encapsulation, and one Javadoc comment for each public declaration.
+\end{itemize}
+
+The second task is to write unit tests. The testing requirements are as follows:
+
+\begin{itemize}
+    \item Unit tests are implemented using the JUnit framework.
+    \item Tests cover all relevant classes in the controller, model, and integration
+          layers.
+    \item Simple DTO classes, as well as methods consisting only of constructors,
+          setters, and getters, are excluded from testing.
+    \item Methods that produce output to \texttt{System.out} are not tested, in
+          accordance with the seminar requirements.
+\end{itemize}
+
+\section{Method}
+
+% \textbf{This chapter tells \textit{how} you solved the task.} Explain how you worked and what tools you used when solving the tasks. \textit{Do not explain your solution and do not present entire sub-results in detail. It's enough to explain which steps you performed and perhaps give a short example.} For example, some of the things to explain in the report for seminar one, is that you used a category list and noun identification to find class candidates for the domain model, and to tell which UML editor you used.
+% Goal: Explain how you worked (not the solution itself)
+
+% In the Method chapter of your report, explain how you worked and how you reasoned when implementing exception handling.
+
+### **Always use exceptions for error handling**
+Never use return values to signal errors — exceptions provide clearer semantics, avoid confusion with valid results, keep error information separate from normal flow, and maintain high cohesion.
+
+### **Useexceptionsonlyforerrorhandling**
+Exceptions should never be required for successful execution, and when they are, it signals a flawed public interface — adding methods like hasNext avoids forcing callers to use exceptions for normal control flow.
+
+### **Checked or unchecked exception**
+Checked exceptions should signal business‑rule violations like booking an already‑booked car, while unchecked exceptions should be used for unrecoverable technical failures where the client cannot meaningfully respond.
+
+### **Name the exception after the error condition**
+Exception classes should have clear, descriptive names ending with Exception, but not be overly specific—use fewer, more general exception types and place detailed context in the exception message to balance clarity with a manageable interface. [For the book‑car operation, the already‑booked case should use a clearly named checked exception like ***AlreadyBookedException***, while datastore failures should use a more general unchecked ***CarRegistryException***, balancing clarity with a manageable number of exception classes.]
+
+* public class ***AlreadyBookedException*** extends Exception
+* public class ***CarRegistryException*** extends RuntimeException
+
+### **Include information about the error condition**
+Exception objects should store both the data describing the error condition and a developer‑focused message, ensuring useful debugging information without exposing internal details to the user interface.
+
+[For AlreadyBookedException, include detailed data such as the relevant CarDTO and a clear message like “Unable to book <regNo>: already booked,” while CarRegistryException can only provide a general datastore‑failure message because no more specific information is available.]
+
+### **Use functionality provided in java.lang.Exception**
+Custom exception classes should extend Exception, pass messages to the superclass constructor, and encapsulate fixed messages when appropriate—storing only the varying data (like the specific car) in fields to maintain cohesion and clarity.
+
+### **Use the correct abstraction level for exceptions**
+Low‑level technical exceptions (like database errors) should not propagate to the user interface; instead, they should be caught and wrapped in a higher‑level, user‑safe exception, preserving the original cause internally via exception chaining. However Exceptions should propagate to higher layers only when they are meaningful there; otherwise, they should be caught and handled earlier rather than being intercepted at every layer.
+
+Since propagating ***CarRegistryException*** up to the controller introduces no new dependency and simplifies the design, the method is updated to throw this exception, rename the setter to rentCar for clarity, and add supporting methods like isBooked and getCarByRegNo to maintain proper cohesion and behavior.
+
+***CarRegistryException*** must be caught in the controller—never allowed to reach the view—so the controller wraps it in a high‑level OperationFailedException that informs the view of the failure without exposing integration‑layer details.
+
+### **Write Javadoc comments for all exceptions**
+Always document every thrown exception in Javadoc using **@throws**, clearly stating the condition under which it is thrown, both to guide users of the method and to force the author to precisely define the exception’s purpose.
+
+CarRegistry methods throw CarRegistryException for datastore failures or when an expected existing car cannot be found—while methods that simply search (like findAvailableCar) do not throw exceptions when no match exists—so Javadoc @throws tags must clearly document these conditions even though the exception is unchecked.
+
+Since rentCar allows CarRegistryException to propagate and also throws AlreadyBookedException, its Javadoc must document both exceptions using @throws to clearly describe the conditions under which each is thrown.
+
+The controller’s bookCar method must document that AlreadyBookedException may pass through unchanged while CarRegistryException is caught and wrapped in an OperationFailedException to indicate the operation failed without exposing low‑level details.
+
+
+### **An object shall not change state if it throws an exception**
+After an exception is thrown, the object must remain in the same state it had before the method call — meaning no fields should be modified unless the method completes successfully.
+
+* **Make the object immutable**: by giving it only final fields and preventing inheritance—is the strongest way to ensure its state never changes, even when exceptions occur, and often requires copying referenced objects to avoid shared mutable state.
+* **Check parameter values before changing any state**: Always validate all parameters before modifying any state so that if an exception is thrown, the object remains unchanged.
+* **Place operations that might fail before operations that alter the state**: Perform any operations that might fail before modifying the object's state, so that if an exception occurs during those preliminary checks, no state has been altered.
+* **Use a temporary copy of the state**: If no safer strategy is available, create a temporary copy of the object’s state and restore it before throwing an exception so the object remains unchanged.
+* All exception‑throwing methods in the case study follow proper practice: CarRegistry checks for failures before modifying state, Rental validates parameters first, and Controller’s bookCar never changes state at all.
+
+### **Never write an empty catch block**
+An empty catch block silently ignores exceptions, making failures invisible and causing extremely confusing program behavior. In the simulated view, exceptions are caught at the top level so no error escapes to the user, and the catch blocks—though not empty—must ultimately provide meaningful user and developer feedback instead of ignoring failures.
+
+### **How to notify the user?**
+The user interface must always present clear, consistent error messages generated by a single dedicated component in the view layer, ensuring users understand failures without exposing internal technical details.
+
+The view layer centralizes error handling by calling a dedicated error‑message component that prints consistent, user‑appropriate messages rather than exposing internal exception details or relying on lower‑layer messages.
+
+### **How to notify developers?**
+Developers also need detailed diagnostic information, so exceptions must be logged by a dedicated logging component that records full stack traces consistently in one place, separate from user‑visible error messages.
+
+All exceptions—except those representing normal business‑rule violations—should be logged by catching business‑logic exceptions first, then using a final catch‑all Exception handler to ensure every unexpected error is recorded for debugging.
+
+The case study logs all non–business‑logic exceptions to a file using a dedicated logging component in util, while business‑rule exceptions only show a user‑friendly message, ensuring consistent error reporting without exposing internal details.
+
+### **Write unit tests for the exception handling**
+Exception handling must also be unit tested—ensuring no exceptions occur during valid execution, that they do occur under failure conditions, that exception contents are correct, and that catch blocks handle them as intended.
+
+Exception‑handling tests verify that CarRegistry, Rental, Controller, and UI/log components correctly throw, propagate, and process exceptions when cars don’t exist or are already booked.
+
+\section{Result}
+\label{sec:result}
+
+% \textbf{This chapter explains \textit{the result} of what you did.} \textbf{The report must show that you have done the work yourself and that you have understood what you have done}, both of these goals are met by explaining your solution here in the result chapter. Include links to your code in your Git repository (for seminars 3 and 4), and also include diagrams, see Figure \ref{fig:diag}, and other figures to illustrate your reasoning. All figures must be referenced in the text. Ask yourself if the solution is clearly explained, and if the reader will understand the application. What would you yourself want to know if you read about the application, is that included in the report? More specific instructions for the content can be found in each assignment.
+
+The complete source code for this seminar is available in the public Git repository at: \href{https://github.com/mo-mosverkstad/java-learning/tree/main/maven-projects/ElectricBikeRepair/}{\nolinkurl{https://github.com/mo-mosverkstad/java-learning/tree/main/maven-projects/ElectricBikeRepair/}} \cite{sourcecode}.
+
+\subsection{Implementation}
+
+
+\section{Discussion}
+
+\begin{thebibliography}{9}
+
+\bibitem{coursebook}
+Leif Lindbäck,
+\textit{A First Course in Object-Oriented Development --- A Hands-On Approach},
+Course material for IV1350,
+KTH Royal Institute of Technology,
+January 14, 2026.
+
+\bibitem{sourcecode}
+Mo Wang,
+``ElectricBikeRepair --- Source code for Seminar~3,''
+2026.
+[Online]. Available: \url{https://github.com/mo-mosverkstad/java-learning/tree/main/maven-projects/ElectricBikeRepair/}
+
+\end{thebibliography}
+
+\end{document}
