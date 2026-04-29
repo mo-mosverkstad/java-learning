@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import se.ebikerepair.integration.MembershipDTO;
+
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -62,7 +64,7 @@ class CustomerRegistryTest {
     @Test
     void testSaveAndRetrieveCustomer() {
         BikeDTO bike = new BikeDTO("CAKE", "Åik", "CK-2024-200");
-        CustomerDTO newCustomer = new CustomerDTO("Ingrid Svensson", "+46709999999", "ingrid.svensson@example.com", List.of(bike));
+        CustomerDTO newCustomer = new CustomerDTO("Ingrid Svensson", "+46709999999", "ingrid.svensson@example.com", new MembershipDTO(false, 0), List.of(bike));
         registry.save(newCustomer);
 
         assertDoesNotThrow(() -> {

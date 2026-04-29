@@ -3,6 +3,7 @@ package se.ebikerepair.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import se.ebikerepair.integration.MembershipDTO;
 import se.ebikerepair.integration.BikeDTO;
 import se.ebikerepair.integration.CustomerDTO;
 import se.ebikerepair.integration.RepairOrderRegistry;
@@ -27,7 +28,7 @@ class ControllerTest {
         registry = new RepairOrderRegistry();
         controller = new Controller(registry);
         bike = new BikeDTO("Monark", "E-Karin", "MO-001");
-        customer = new CustomerDTO("Astrid", "+46707654321", "astrid@example.com", List.of(bike));
+        customer = new CustomerDTO("Astrid", "+46707654321", "astrid@example.com", new MembershipDTO(false, 0), List.of(bike));
     }
 
     @Test

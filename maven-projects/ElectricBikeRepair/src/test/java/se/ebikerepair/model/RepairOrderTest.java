@@ -2,6 +2,7 @@ package se.ebikerepair.model;
 
 import org.junit.jupiter.api.Test;
 
+import se.ebikerepair.integration.MembershipDTO;
 import se.ebikerepair.integration.BikeDTO;
 import se.ebikerepair.integration.CustomerDTO;
 import se.ebikerepair.integration.RepairOrderDTO;
@@ -110,7 +111,7 @@ class RepairOrderTest {
 
     private RepairOrder createOrder() {
         BikeDTO bike = new BikeDTO("Brand", "Model", "SN");
-        CustomerDTO customer = new CustomerDTO("Test", "+46701234567", "test@example.com", List.of(bike));
+        CustomerDTO customer = new CustomerDTO("Test", "+46701234567", "test@example.com", new MembershipDTO(false, 0), List.of(bike));
         RepairOrder order = new RepairOrder(customer);
         order.getProblem().setDescription("Flat tire");
         order.getProblem().setBrokenBike(bike);

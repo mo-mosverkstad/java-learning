@@ -13,7 +13,7 @@ import se.ebikerepair.constant.PrintoutFormat;
  * @param emailAddress the customer's email address
  * @param bikes the list of bikes owned by the customer
  */
-public record CustomerDTO(String name, String telephoneNumber, String emailAddress, List<BikeDTO> bikes) {
+public record CustomerDTO(String name, String telephoneNumber, String emailAddress, MembershipDTO membership, List<BikeDTO> bikes) {
 
     /**
      * Finds a bike by its serial number.

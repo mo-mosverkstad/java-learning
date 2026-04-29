@@ -3,6 +3,7 @@
     "name": "Erik Lindqvist",
     "telephoneNumber": "+46701234567",
     "emailAddress": "erik.lindqvist@example.com",
+    "membership": { "active": false, "repairCount": 0 },
     "bikes": [
       { "brand": "Crescent", "model": "Elda", "serialNumber": "CR-2024-001" }
     ]
@@ -11,6 +12,7 @@
     "name": "Astrid Johansson",
     "telephoneNumber": "+46707654321",
     "emailAddress": "astrid.johansson@example.com",
+    "membership": { "active": true, "repairCount": 3 },
     "bikes": [
       { "brand": "Monark", "model": "E-Karin", "serialNumber": "MO-2024-010" },
       { "brand": "Skeppshult", "model": "Elit", "serialNumber": "SK-2024-055" }
@@ -20,6 +22,7 @@
     "name": "Lars Andersson",
     "telephoneNumber": "+46701112233",
     "emailAddress": "lars.andersson@example.com",
+    "membership": { "active": true, "repairCount": 7 },
     "bikes": [
       { "brand": "Kronan", "model": "E-Classic", "serialNumber": "KR-2024-100" }
     ]

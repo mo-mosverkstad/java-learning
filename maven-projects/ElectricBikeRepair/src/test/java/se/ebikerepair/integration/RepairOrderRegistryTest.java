@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import se.ebikerepair.integration.ProblemDTO;
+import se.ebikerepair.integration.MembershipDTO;
 import se.ebikerepair.model.RepairOrder;
 
 import java.util.List;
@@ -19,14 +20,14 @@ class RepairOrderRegistryTest {
     void setUp() {
         registry = new RepairOrderRegistry();
         BikeDTO bike1 = new BikeDTO("Monark", "E-Karin", "MO-001");
-        CustomerDTO customer1 = new CustomerDTO("Alice", "+46701234567", "alice@example.com", List.of(bike1));
+        CustomerDTO customer1 = new CustomerDTO("Alice", "+46701234567", "alice@example.com", new MembershipDTO(false, 0), List.of(bike1));
         order1 = new RepairOrder(customer1);
         order1.getProblem().setDescription("Flat tire");
         order1.getProblem().setBrokenBike(bike1);
         registry.save(order1);
 
         BikeDTO bike2 = new BikeDTO("Crescent", "Elda", "CR-001");
-        CustomerDTO customer2 = new CustomerDTO("Bob", "+46707654321", "bob@example.com", List.of(bike2));
+        CustomerDTO customer2 = new CustomerDTO("Bob", "+46707654321", "bob@example.com", new MembershipDTO(false, 0), List.of(bike2));
         order2 = new RepairOrder(customer2);
         order2.getProblem().setDescription("Broken chain");
         order2.getProblem().setBrokenBike(bike2);

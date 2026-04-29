@@ -11,6 +11,7 @@ import se.ebikerepair.model.PricingResult;
 import se.ebikerepair.model.PricingStrategy;
 import se.ebikerepair.model.StandardPricingStrategy;
 import se.ebikerepair.integration.CustomerDTO;
+import se.ebikerepair.integration.MembershipDTO;
 import se.ebikerepair.integration.RepairOrderDTO;
 import se.ebikerepair.integration.ProblemDTO;
 import se.ebikerepair.integration.ResultDTO;
@@ -104,7 +105,8 @@ public class RepairOrder {
     }
 
     public PricingResult getPricingResult(){
-        PricingStrategy pricingStrategy = new MembershipPricingStrategy(3);
+        MembershipDTO membership = getCustomerDTO().membership();
+        PricingStrategy pricingStrategy = membership.active() ? new MembershipPricingStrategy(membership.repairCount()) : new StandardPricingStrategy();
         return pricingStrategy.calculateTotalCost(this);
     }
 
