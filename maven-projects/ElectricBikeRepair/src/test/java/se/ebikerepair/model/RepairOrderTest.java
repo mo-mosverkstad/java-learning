@@ -109,9 +109,58 @@ class RepairOrderTest {
         assertTrue(str.contains("+46701234567"));
     }
 
+    @Test
+    void testNonMemberNoDiscount() {
+        RepairOrder order = createOrderWithMembership(false, 0);
+        order.getRepairTaskCollection().addRepairTask(new RepairTaskDTO("Task", "Desc", new Cost(1000, "SEK"), 1));
+
+        PricingResult result = order.getPricingResult();
+        assertEquals(1000.0F, result.getBaseCost().getAmount());
+        assertEquals(0.0F, result.getDiscount().getAmount());
+        assertEquals(1000.0F, result.getFinalCost().getAmount());
+    }
+
+    @Test
+    void testMemberNoThirdRepairDiscount() {
+        RepairOrder order = createOrderWithMembership(true, 1);
+        order.getRepairTaskCollection().addRepairTask(new RepairTaskDTO("Task", "Desc", new Cost(1000, "SEK"), 1));
+
+        PricingResult result = order.getPricingResult();
+        assertEquals(1000.0F, result.getBaseCost().getAmount());
+        assertEquals(0.0F, result.getDiscount().getAmount());
+        assertEquals(1000.0F, result.getFinalCost().getAmount());
+    }
+
+    @Test
+    void testMemberThirdRepairGets15PercentDiscount() {
+        RepairOrder order = createOrderWithMembership(true, 3);
+        order.getRepairTaskCollection().addRepairTask(new RepairTaskDTO("Task", "Desc", new Cost(1000, "SEK"), 1));
+
+        PricingResult result = order.getPricingResult();
+        assertEquals(1000.0F, result.getBaseCost().getAmount());
+        assertEquals(150.0F, result.getDiscount().getAmount());
+        assertEquals(850.0F, result.getFinalCost().getAmount());
+    }
+
+    @Test
+    void testMemberSixthRepairGets15PercentDiscount() {
+        RepairOrder order = createOrderWithMembership(true, 6);
+        order.getRepairTaskCollection().addRepairTask(new RepairTaskDTO("Task1", "Desc1", new Cost(400, "SEK"), 1));
+        order.getRepairTaskCollection().addRepairTask(new RepairTaskDTO("Task2", "Desc2", new Cost(600, "SEK"), 2));
+
+        PricingResult result = order.getPricingResult();
+        assertEquals(1000.0F, result.getBaseCost().getAmount());
+        assertEquals(150.0F, result.getDiscount().getAmount());
+        assertEquals(850.0F, result.getFinalCost().getAmount());
+    }
+
     private RepairOrder createOrder() {
+        return createOrderWithMembership(false, 0);
+    }
+
+    private RepairOrder createOrderWithMembership(boolean active, int repairCount) {
         BikeDTO bike = new BikeDTO("Brand", "Model", "SN");
-        CustomerDTO customer = new CustomerDTO("Test", "+46701234567", "test@example.com", new MembershipDTO(false, 0), List.of(bike));
+        CustomerDTO customer = new CustomerDTO("Test", "+46701234567", "test@example.com", new MembershipDTO(active, repairCount), List.of(bike));
         RepairOrder order = new RepairOrder(customer);
         order.getProblem().setDescription("Flat tire");
         order.getProblem().setBrokenBike(bike);
