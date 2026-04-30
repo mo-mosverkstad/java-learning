@@ -108,31 +108,51 @@ Throughout the implementation of error handling and using design patterns, autom
 
 \subsection{Requirements of Seminar 4}
 
-The seminar~4 consists of two main tasks: 
+Seminar~4 consists of two main tasks: exception handling and design pattern implementation.
 
-Seminar~3 consists of two main tasks: program implementation and unit testing. Unit tests are carried out incrementally after implementing each system operation.
+\subsubsection*{Task 1: Exception Handling}
 
-The first task is to implement the basic flow and the Startup sequence of the Repair Electric Bike system that was designed in Seminar~2. The implementation follows these requirements:
+The first task is to extend the Repair Electric Bike system with exception handling. The implementation must fulfill the following requirements:
 
 \begin{itemize}
-    \item The program is written in Java and is compilable and executable.
-    \item Only the basic workflow and startup sequence are implemented while alternative flows are intentionally omitted in this seminar.
-    \item The user interface is replaced by a single \texttt{View} class containing hard-coded calls to the controller, which prints all returned results to \texttt{System.out}, including the repair order printout.
-    \item No database or external systems are implemented. Instead, the integration layer stores data in memory using placeholder objects.
-    \item Exceptions are not used, since exception handling is introduced in a later seminar.
-    \item The code follows the programming guidelines described in Chapter~6 of the course book, including naming conventions, high cohesion, low coupling, good encapsulation, and one Javadoc comment for each public declaration.
+    \item Exceptions are used to handle alternative flow 5a, where a searched customer phone number does not exist in the customer registry. They are also used to simulate database failures by throwing an exception when searching for a specific hard-coded item identifier.
+    
+    \item Exceptions must follow best practices described in Chapter~8 of the course book:
+    \begin{itemize}
+        \item Appropriate choice between checked and unchecked exceptions.
+        \item Exceptions are defined at the correct abstraction level.
+        \item Exception classes are named after the error condition.
+        \item Exceptions include relevant information about the error.
+        \item Built-in functionality from \texttt{java.lang.Exception} is utilized.
+        \item Javadoc comments are written for all exception classes.
+        \item The system state must remain unchanged if an exception is thrown.
+        \item Users are notified with meaningful error messages.
+        \item Developers are notified through error logging to a file.
+    \end{itemize}
+    \item When an exception is caught in the view layer, an informative error message is displayed to the user.
+    \item Severe errors are logged to a file for debugging and maintenance purposes.
+    \item Unit tests are implemented to verify exception handling behavior.
 \end{itemize}
 
-The second task is to write unit tests. The testing requirements are as follows:
+\subsubsection*{Task 2: Design Patterns}
+
+The second task is to apply design patterns to improve the system design.
 
 \begin{itemize}
-    \item Unit tests are implemented using the JUnit framework.
-    \item Tests cover all relevant classes in the controller, model, and integration
-          layers.
-    \item Simple DTO classes, as well as methods consisting only of constructors,
-          setters, and getters, are excluded from testing.
-    \item Methods that produce output to \texttt{System.out} are not tested, in
-          accordance with the seminar requirements.
+    \item The Observer pattern is implemented for active notification when a repair order is updated.
+    \item A new view, \texttt{RepairOrderView}, prints updated repair orders to \texttt{System.out}.
+    \item A second observer implementation, \texttt{RepairOrderLogger}, logs repair order updates to a file.
+    \item Both observer implementations must implement the same observer interface and must not call the controller or other system components directly.
+    \item For higher grade requirements, at least two additional Gang of Four (GoF) design patterns are implemented, excluding Observer and Template Method.
+    \item The chosen patterns must be properly motivated and integrated into the system architecture.
+\end{itemize}
+
+\subsubsection*{Unit Testing}
+
+\begin{itemize}
+    \item Unit tests are implemented continously using the JUnit framework.
+    \item Tests specifically verify exception handling and error scenarios.
+    \item Tests ensure that exceptions are thrown under the correct conditions and that system state remains consistent.
 \end{itemize}
 
 \section{Method}
@@ -142,74 +162,63 @@ The second task is to write unit tests. The testing requirements are as follows:
 
 % In the Method chapter of your report, explain how you worked and how you reasoned when implementing exception handling.
 
-### **Always use exceptions for error handling**
-Never use return values to signal errors — exceptions provide clearer semantics, avoid confusion with valid results, keep error information separate from normal flow, and maintain high cohesion.
+This chapter describes both the development process for implementing error handling using exceptions as well as applying design patterns in the code. Implementations are carried out while sticking to the code guidelines. Additionally, unit tests are written after each small implementation to ensure code correctness and quality.
 
-### **Useexceptionsonlyforerrorhandling**
-Exceptions should never be required for successful execution, and when they are, it signals a flawed public interface — adding methods like hasNext avoids forcing callers to use exceptions for normal control flow.
+\subsection{Exceptions as error handling}
 
-### **Checked or unchecked exception**
-Checked exceptions should signal business‑rule violations like booking an already‑booked car, while unchecked exceptions should be used for unrecoverable technical failures where the client cannot meaningfully respond.
+For error handling implementation, exceptions has a reserved purpose for handling errors. Exception mechanism is dedicated for raising, propagating and handling errors, and is only used for handling errors, from business rule violations to internal program failures. Error messages are written inside exceptions to be as clear as possible. This means that error messages are not handled using return values, whereas the return values are reserved passing non-error business data. Additionally, successful execution and non-error business data doesn't either use exception mechanism. In this way, the border between non-error business logic and error handling mechanism is clearly separated and does not blend in with each other. 
 
-### **Name the exception after the error condition**
-Exception classes should have clear, descriptive names ending with Exception, but not be overly specific—use fewer, more general exception types and place detailed context in the exception message to balance clarity with a manageable interface. [For the book‑car operation, the already‑booked case should use a clearly named checked exception like ***AlreadyBookedException***, while datastore failures should use a more general unchecked ***CarRegistryException***, balancing clarity with a manageable number of exception classes.]
+\subsubsection{Checked and unchecked exceptions}
 
-* public class ***AlreadyBookedException*** extends Exception
-* public class ***CarRegistryException*** extends RuntimeException
+In terms of errors, there are two different error types for two exception types: business-rule violations and internal program failures. Business-rule violations are incorrect input from user and includes searching a non-existent customer or passing in a malformed telephone number and falls into the category of checked exceptions. These exceptions are declared in every propagated level API. On the other hand, internal progam failures are unrecoverable failures, such as database connection failures, which are handled by unchecked exceptions.
 
-### **Include information about the error condition**
-Exception objects should store both the data describing the error condition and a developer‑focused message, ensuring useful debugging information without exposing internal details to the user interface.
+\subsubsection{Exception Design Principles}
 
-[For AlreadyBookedException, include detailed data such as the relevant CarDTO and a clear message like “Unable to book <regNo>: already booked,” while CarRegistryException can only provide a general datastore‑failure message because no more specific information is available.]
+Exception classes are designed to follow naming conventions. Each exception is named after error condition using descriptive names ending with \texttt{Exception}. Instead of creating many highly specific exception classes, a small number of well-defined exceptions were used, while detailed context was included in the exception message. Additionally, exceptions contains a descriptive message intended for developers, while avoiding exposure of internal implementation to user interface. This makes exception error messages useful and easier to debug the code.
 
-### **Use functionality provided in java.lang.Exception**
-Custom exception classes should extend Exception, pass messages to the superclass constructor, and encapsulate fixed messages when appropriate—storing only the varying data (like the specific car) in fields to maintain cohesion and clarity.
+To ensure the correct abstraction level, low-level exceptions from the integration layer, such as database connection issues, are not exposed directly to the view, but either handled or wrapped in higher-level exceptions before being propagated further. In my case, exceptions are wrapped when passing through a layer in the layered MVC-architecture. Also, unchecked exceptions are wrapped inside a checked exception \texttt{FailedOperationException} when passing from controller layer to view layer where only business-related checked exceptions exists.
 
-### **Use the correct abstraction level for exceptions**
-Low‑level technical exceptions (like database errors) should not propagate to the user interface; instead, they should be caught and wrapped in a higher‑level, user‑safe exception, preserving the original cause internally via exception chaining. However Exceptions should propagate to higher layers only when they are meaningful there; otherwise, they should be caught and handled earlier rather than being intercepted at every layer.
+Object should not either change its internal state when exception is thrown. Some operation does not inheritely alter the state, for instance the method \texttt{find} in \texttt{CustomerRegistry} class finds a customer using a telephone number. In this case, an exception \texttt{NotFoundCustomerException} can be thrown whenever the registry does not contain the corresponding telephone number. However, some classes ...
 
-Since propagating ***CarRegistryException*** up to the controller introduces no new dependency and simplifies the design, the method is updated to throw this exception, rename the setter to rentCar for clarity, and add supporting methods like isBooked and getCarByRegNo to maintain proper cohesion and behavior.
+Objects are designed so that their internal state does not change when an exception is thrown. For operations that do not alter object state, such as searching for a customer in the \texttt{CustomerRegistry}, exceptions can be thrown directly without side effects. For state-changing operations, input parameters are validated before any state changes occur and operations that may fail are executed before modifying the object state. In situations where this is not feasible, temporary variables are used to ensure that updates are only applied after all checks have passed. These strategies guarantee that the system remains in a consistent state even when errors occur.
 
-***CarRegistryException*** must be caught in the controller—never allowed to reach the view—so the controller wraps it in a high‑level OperationFailedException that informs the view of the failure without exposing integration‑layer details.
+\subsubsection{Writing Javadoc for exceptions}
 
-### **Write Javadoc comments for all exceptions**
-Always document every thrown exception in Javadoc using **@throws**, clearly stating the condition under which it is thrown, both to guide users of the method and to force the author to precisely define the exception’s purpose.
+Additionally, methods that throws exceptions are documented using Javadoc \texttt{@throws}, which makes error condition explicit. The condition where the exception is thrown is documented clearly and serves as a guide to users of the method as well as keeping the developer to define the purpose of the exception. For instance, the method \texttt{find} in \texttt{CustomerRegistry} class finds a customer using a telephone number. If the telephone number does not correspond to any customer in the registry, a \texttt{NotFoundCustomerException} is thrown and propagated through the layer. The condition is stated in the method \texttt{find}, as well as the methods that propagate the exceptions.
 
-CarRegistry methods throw CarRegistryException for datastore failures or when an expected existing car cannot be found—while methods that simply search (like findAvailableCar) do not throw exceptions when no match exists—so Javadoc @throws tags must clearly document these conditions even though the exception is unchecked.
+\subsubsection{Notify user}
 
-Since rentCar allows CarRegistryException to propagate and also throws AlreadyBookedException, its Javadoc must document both exceptions using @throws to clearly describe the conditions under which each is thrown.
+Error messages for users are handled in the view layer. When an exception reaches the view, it is caught and converted into a user-friendly error message, which is then displayed. These messages are designed to be clear and informative about business rule violations, without exposing internal system details. This avoids duplication and prevents lower-level components from directly interacting with the user interface.
 
-The controller’s bookCar method must document that AlreadyBookedException may pass through unchanged while CarRegistryException is caught and wrapped in an OperationFailedException to indicate the operation failed without exposing low‑level details.
+\subsubsection{Notify developers}
 
+Notifying error messages to developers is handled through a dedicated logging mechanism. When unchecked exceptions occur, they are logged to a file along with detailed diagnostic information, including stack traces, which allows developers to trace and debug errors effectively. Logging mechanism is implemented in a separate utility component to maintain separation of concerns. However, business-rule exceptions, such as malformed input, are not logged since they are expected execution behavior.
 
-### **An object shall not change state if it throws an exception**
-After an exception is thrown, the object must remain in the same state it had before the method call — meaning no fields should be modified unless the method completes successfully.
+\subsubsection{Exception unit tests}
 
-* **Make the object immutable**: by giving it only final fields and preventing inheritance—is the strongest way to ensure its state never changes, even when exceptions occur, and often requires copying referenced objects to avoid shared mutable state.
-* **Check parameter values before changing any state**: Always validate all parameters before modifying any state so that if an exception is thrown, the object remains unchanged.
-* **Place operations that might fail before operations that alter the state**: Perform any operations that might fail before modifying the object's state, so that if an exception occurs during those preliminary checks, no state has been altered.
-* **Use a temporary copy of the state**: If no safer strategy is available, create a temporary copy of the object’s state and restore it before throwing an exception so the object remains unchanged.
-* All exception‑throwing methods in the case study follow proper practice: CarRegistry checks for failures before modifying state, Rental validates parameters first, and Controller’s bookCar never changes state at all.
+Exceptions are unit tested to ensure correct error handling behavior during different circumstances. The tests are written incrementally alongside development and implementation to verify both normal and error behavior where an exception is expected to be thrown.
 
-### **Never write an empty catch block**
-An empty catch block silently ignores exceptions, making failures invisible and causing extremely confusing program behavior. In the simulated view, exceptions are caught at the top level so no error escapes to the user, and the catch blocks—though not empty—must ultimately provide meaningful user and developer feedback instead of ignoring failures.
+The tests ensure that no exceptions are thrown during valid execution, and that appropriate exceptions are thrown under failure conditions. The execution messages are also verified to contain correct and useful information, and exceptions are properly propagated through layers.
 
-### **How to notify the user?**
-The user interface must always present clear, consistent error messages generated by a single dedicated component in the view layer, ensuring users understand failures without exposing internal technical details.
+Additionally, tests confirm that catch blocks handle exceptions as intended, including correct user notification and logging behavior. This ensures that the error-handling mechanism is reliable and behaves as expected in all relevant scenarios.
 
-The view layer centralizes error handling by calling a dedicated error‑message component that prints consistent, user‑appropriate messages rather than exposing internal exception details or relying on lower‑layer messages.
+\subsection{Design Patterns}
 
-### **How to notify developers?**
-Developers also need detailed diagnostic information, so exceptions must be logged by a dedicated logging component that records full stack traces consistently in one place, separate from user‑visible error messages.
+Design patterns are also added and integrated into the program to improve structure, flexibility, and maintainability of the system. The patterns are used for identifying the recurring design problems when tight coupling between components and difficulties in extending functionalities are detected. In such case, a suitable GoF design pattern is found and used to refactor the existing code with tight coupling design in order to separate the concerns clearly. This results in higher code quality in terms of cohesion, encapsulation and low coupling.
 
-All exceptions—except those representing normal business‑rule violations—should be logged by catching business‑logic exceptions first, then using a final catch‑all Exception handler to ensure every unexpected error is recorded for debugging.
+The implementation process begins with analyzing the responsibility in the existing system and identifying the implementation parts that has tight coupling when functionality is extended. This also means the code parts where modification of multiple classes are needed during functionality extension. Patterns are therefore chosen to reduce the dependencies between the components.
 
-The case study logs all non–business‑logic exceptions to a file using a dedicated logging component in util, while business‑rule exceptions only show a user‑friendly message, ensuring consistent error reporting without exposing internal details.
+There are multiple patterns being implemented in the code, each with the benefits.
 
-### **Write unit tests for the exception handling**
-Exception handling must also be unit tested—ensuring no exceptions occur during valid execution, that they do occur under failure conditions, that exception contents are correct, and that catch blocks handle them as intended.
+The Observer pattern is implemented to handle updates of repair orders to \texttt{RepairOrderView}, which is an interactive display of the current repair order. Instead of letting the controller or view directly manage updates, a notification mechanism is introduced. This allows components interested in repair order updates to be notified automatically when changes occur. The pattern is applied by defining a common observer interface and letting multiple components implement it. These observers are then registered and notified through the model without creating direct dependencies between classes.
 
-Exception‑handling tests verify that CarRegistry, Rental, Controller, and UI/log components correctly throw, propagate, and process exceptions when cars don’t exist or are already booked.
+Polymorphism is also used when implementing design patterns. Interfaces are introduced to ensure that clients depend only on abstractions rather than concrete implementations This allows different implementations to be substituted without modifying existing code, improving flexibility and reducing coupling. For instance, switching between database handler and file handler for storage can be solved cleanly with polymorphism
+
+When introducing additional design patterns, the focus is about separating responsibilities and avoiding hard-coded logic. Instead of embedding behavior directly into classes, behavior is encapsulated into separate components that can be configured or replaced. This approach makes the system easier to extend without modifying existing code.
+
+Inheritance are used cautiously and only when a clear "is-a" relationship existed. It is used only in common functionalities, such as factoring out common parts of \texttt{ReceptionistController} and \texttt{TechnicianController} In most cases, composition are preferred over inheritance to maintain encapsulation and avoid tight coupling between classes.
+
+Throughout the implementation, design decisions are evaluated based on their impact on cohesion, coupling, and encapsulation. Patterns are only applied when they provide a clear improvement to the design.
 
 \section{Result}
 \label{sec:result}
