@@ -225,8 +225,6 @@ Throughout the implementation, design decisions are evaluated based on their imp
 
 % \textbf{This chapter explains \textit{the result} of what you did.} \textbf{The report must show that you have done the work yourself and that you have understood what you have done}, both of these goals are met by explaining your solution here in the result chapter. Include links to your code in your Git repository (for seminars 3 and 4), and also include diagrams, see Figure \ref{fig:diag}, and other figures to illustrate your reasoning. All figures must be referenced in the text. Ask yourself if the solution is clearly explained, and if the reader will understand the application. What would you yourself want to know if you read about the application, is that included in the report? More specifiec instructions for the content can be found in each assignment.
 
-\section{Result}
-
 By extending the current implementation of the Repair Electric Bike System with exception handling, errors are now handled using a dedicated mechanism separated from the main business logic. Exceptions are used to for both business-rule violations and internal failures, and are propagated through the system layers until they are handled in the view.
 
 Design patterns are also integrated to improve the code quality and program structure. For instance, the Observer pattern is implemented to notify an interactive \texttt{RepairOrderView} when repair orders are updated, which allows multiple views to react and update automatically without direct dependencies on the model or the controller.
@@ -245,7 +243,9 @@ When an error occurs in the model or integration layer, an appropriate exception
 
 \subsubsection{InvalidTelephoneNumberException}
 
-\begin{lstlisting}[style=javastyle, caption={...}]
+The \texttt{InvalidTelephoneNumberException} exception arises when a telephone number is malformed and therefore cannot be read and parsed. 
+
+\begin{lstlisting}[style=javastyle, caption={InvalidTelephoneNumberException class}]
 /**
  * Thrown when a telephone number has an invalid format and cannot be parsed.
  */
@@ -263,7 +263,7 @@ public class InvalidTelephoneNumberException extends Exception {
 
 
 se.ebikerepair.util.TelephoneNumber constructor
-\begin{lstlisting}[style=javastyle, caption={...}]
+\begin{lstlisting}[style=javastyle, caption={TelephoneNumber constructor throwing InvalidTelephoneNumberException}]
 /**
  * Parses a telephone number string into country code, area code, and subscriber number.
  *
@@ -303,7 +303,7 @@ public TelephoneNumber(String telephoneNumber) throws InvalidTelephoneNumberExce
 
 se.ebikerepair.controller.Controller, findRepairOrderIds
 
-\begin{lstlisting}[style=javastyle, caption={...}]
+\begin{lstlisting}[style=javastyle, caption={Controller.findRepairOrderIds propagating InvalidTelephoneNumberException}]
 private List<String> findRepairOrderIds(String telephoneNumber) throws InvalidTelephoneNumberException{
     String phoneNumberE164 = new TelephoneNumber(telephoneNumber).toE164();
     // process phoneNumberE164 ...
@@ -312,7 +312,7 @@ private List<String> findRepairOrderIds(String telephoneNumber) throws InvalidTe
 
 se.ebikerepair.controller.Controller, findRepairOrder
 
-\begin{lstlisting}[style=javastyle, caption={...}]
+\begin{lstlisting}[style=javastyle, caption={Controller.findRepairOrder propagating InvalidTelephoneNumberException and NoExistedRepairOrderException}]
 /**
  * Finds the most recent repair order for the given telephone number.
  *
@@ -329,7 +329,7 @@ public RepairOrderDTO findRepairOrder(String telephoneNumber) throws InvalidTele
 
 `se.ebikerepair.controller.ReceptionistController` — searchCustomer, createRepairOrder
 
-\begin{lstlisting}[style=javastyle, caption={...}]
+\begin{lstlisting}[style=javastyle, caption={ReceptionistController.searchCustomer and createRepairOrder propagating exceptions}]
 /**
  * Searches for a customer by telephone number.
  *
@@ -377,7 +377,7 @@ public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) t
 
 View proceedactions
 
-\begin{lstlisting}[style=javastyle, caption={...}]
+\begin{lstlisting}[style=javastyle, caption={View.proceedActions catching exceptions and displaying error messages}]
 /**
  * Runs the full repair workflow: reception preparation, technician diagnostics, and reception confirmation.
  *
@@ -400,7 +400,7 @@ public void proceedActions(String telephoneNumber, String bikeSerialNumber) {
 
 `se.ebikerepair.data.ResourceNotFoundException`
 
-\begin{lstlisting}[style=javastyle, caption={...}]
+\begin{lstlisting}[style=javastyle, caption={ResourceNotFoundException class}]
 /**
  * Thrown when a classpath resource file cannot be found.
  */
@@ -420,7 +420,7 @@ public class ResourceNotFoundException extends RuntimeException{
 
 `se.ebikerepair.controller.ReceptionistController` — searchCustomer, createRepairOrder
 
-\begin{lstlisting}[style=javastyle, caption={...}]
+\begin{lstlisting}[style=javastyle, caption={ReceptionistController wrapping ResourceNotFoundException into FailedOperationException}]
 /**
  * Searches for a customer by telephone number.
  *
@@ -468,41 +468,399 @@ public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) t
 
 \subsection{Error handling unit tests}
 
+Unit tests are written to verify that each method that throws or propagates exceptions produces correct behavior in different conditions. The \texttt{TelephoneNumber} constructor is tested in the \texttt{TelephoneNumberTest} class. It verifies that valid phone numbers are read and interpreted without throwing, and that malformed formats must result into an \texttt{InvalidTelephoneNumberException} that is thrown.
 
-\begin{lstlisting}[style=javastyle, caption={...}]
-public class TelephoneNumberTest {
-    @Test
-    void testInternationalPrefix() {
-        assertDoesNotThrow(() -> {
-            TelephoneNumber number = new TelephoneNumber("0046701234567");
-            assertEquals("+46701234567", number.toE164());
-        });
+\begin{lstlisting}[style=javastyle, caption={TelephoneNumberTest — TelephoneNumber constructor}]
+@Test
+void testE164() {
+    assertDoesNotThrow(() -> {
+        TelephoneNumber number = new TelephoneNumber("+46701234567");
+        assertEquals("+46701234567", number.toE164());
+    });
+}
+
+@Test
+void testEmptyInput() {
+    assertThrows(InvalidTelephoneNumberException.class, () -> new TelephoneNumber("   "));
+}
+
+@Test
+void testWrongPrefix() {
+    assertThrows(InvalidTelephoneNumberException.class, () -> {
+        new TelephoneNumber("0001234567").toE164();
+    });
+}
+\end{lstlisting}
+
+The \texttt{findRepairOrder} method in \texttt{Controller} superclass is tested in the \texttt{ControllerTest} class. It verifies that \texttt{InvalidTelephoneNumberException} is propagated when an invalid phone number is passed, that \texttt{NoExistedRepairOrderException} is thrown when no repair orders exist for the customer, and that no exception is thrown when a valid order exists.
+
+\begin{lstlisting}[style=javastyle, caption={ControllerTest — Controller.findRepairOrder}]
+@Test
+void testFindRepairOrderInvalidPhone() {
+    assertThrows(InvalidTelephoneNumberException.class, () ->
+            controller.findRepairOrder("abc"));
+}
+
+@Test
+void testFindRepairOrderNoOrders() {
+    assertThrows(NoExistedRepairOrderException.class, () ->
+            controller.findRepairOrder("+46707654321"));
+}
+
+@Test
+void testFindRepairOrderSingleOrder() {
+    RepairOrder order = new RepairOrder(customer);
+    order.getProblem().setDescription("Broken chain");
+    order.getProblem().setBrokenBike(bike);
+    registry.save(order);
+
+    assertDoesNotThrow(() -> {
+        RepairOrderDTO dto = controller.findRepairOrder("+46707654321");
+        assertNotNull(dto);
+    });
+}
+\end{lstlisting}
+
+The \texttt{searchCustomer} method in \texttt{ReceptionistController} class is tested in the \texttt{ReceptionistControllerTest} class. It verifies that an existing customer is found without throwing, that \texttt{NotFoundCustomerException} is thrown for a non-existing customer, and that \texttt{InvalidTelephoneNumberException} is propagated for malformed input.
+
+\begin{lstlisting}[style=javastyle, caption={ReceptionistControllerTest — ReceptionistController.searchCustomer}]
+@Test
+void testSearchExistingCustomer() {
+    assertDoesNotThrow(() -> {
+        CustomerDTO customer = controller.searchCustomer("0707654321");
+        assertNotNull(customer);
+    });
+}
+
+@Test
+void testSearchNonExistingCustomer() {
+    assertThrows(NotFoundCustomerException.class, () -> controller.searchCustomer("0700000000"));
+}
+
+@Test
+void testSearchInvalidPhoneNumber() {
+    assertThrows(InvalidTelephoneNumberException.class, () -> controller.searchCustomer("abc"));
+}
+\end{lstlisting}
+
+The \texttt{ReceptionistController.createRepairOrder} method is also tested in the \texttt{ReceptionistControllerTest} class. It verifies that a repair order is created successfully without throwing, and that \texttt{NotFoundCustomerException} is propagated when the customer does not exist.
+
+\begin{lstlisting}[style=javastyle, caption={ReceptionistControllerTest — ReceptionistController.createRepairOrder}]
+@Test
+void testCreateRepairOrder() {
+    assertDoesNotThrow(() -> {
+        CustomerDTO customer = controller.searchCustomer("0707654321");
+        BikeDTO bike = customer.bikes().get(0);
+        String id = controller.createRepairOrder("0707654321", new ProblemDTO("Broken chain", bike));
+        assertNotNull(id);
+    });
+}
+
+@Test
+void testCreateRepairOrderCustomerNotFound() {
+    assertThrows(NotFoundCustomerException.class, () ->
+            controller.createRepairOrder("0700000000", new ProblemDTO("Issue", null)));
+}
+\end{lstlisting}
+
+The \texttt{proceedActions} method in \texttt{View} class is tested in the \texttt{ViewTest}. Since this method catches all exceptions internally and displays error messages, the tests verify that the correct error output is printed to \texttt{System.out} when an \texttt{InvalidTelephoneNumberException} or \texttt{NotFoundCustomerException} would have been thrown in the underlying layers.
+
+\begin{lstlisting}[style=javastyle, caption={ViewTest — View.proceedActions}]
+@Test
+void testProceedActionsInvalidPhone() {
+    view.proceedActions("invalid", "MO-2024-010");
+    String output = outputStream.toString();
+    assertTrue(output.contains("Error:"));
+    assertTrue(output.contains("is not a valid phone number"));
+}
+
+@Test
+void testProceedActionsCustomerNotFound() {
+    view.proceedActions("0700000000", "MO-2024-010");
+    String output = outputStream.toString();
+    assertTrue(output.contains("Error:"));
+    assertTrue(output.contains("No customer found for telephone number"));
+}
+\end{lstlisting}
+
+The \texttt{JsonFileHandler.initDataHandler} method is tested in the \texttt{JsonFileHandlerTest} class. It verifies that \texttt{ResourceNotFoundException} (unchecked) is thrown when the specified resource file does not exist on the classpath.
+
+\begin{lstlisting}[style=javastyle, caption={JsonFileHandlerTest — JsonFileHandler.initDataHandler}]
+@Test
+void testReadNonExistentFile() {
+    assertThrows(ResourceNotFoundException.class, () -> {
+        JsonFileHandler handler = new JsonFileHandler();
+        handler.initDataHandler("nonexistent");
+    });
+}
+\end{lstlisting}
+
+\subsection{Design pattern designs}
+
+Design patterns are implemented in the system to improve code quality by adding flexibility while reducing coupling between classes.
+
+\subsubsection{Observer Pattern}
+
+The Observer pattern is implemented to notify all interactive observers when a repair order is updated. A common observer interface is defined, which is implemented by multiple observer classes.
+
+The class \texttt{RepairOrder} acts as the observed object and maintains a list of registered observers. Whenever the repair order is updated, all registered observers are notified automatically by calling a notify method.
+
+Two observer implementations are provided. The class \texttt{RepairOrderView} displays updated repair order information to the user via \texttt{System.out}. The class \texttt{RepairOrderLogger} writes the updated repair order information to a file for logging purposes. Both observers implement the same interface and are updated without directly interacting with the controller or other system components.
+
+Observers are registered when a repair order is created, ensuring that all updates are automatically propagated to interested components.
+
+\begin{lstlisting}[style=javastyle, caption={RepairOrderObserver interface}]
+public interface RepairOrderObserver {
+    public void updateRepairOrder(RepairOrderDTO repairOrderDTO);
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={RepairOrderCliView implementing RepairOrderObserver}]
+public class RepairOrderCliView implements RepairOrderObserver {
+
+    @Override
+    public void updateRepairOrder(RepairOrderDTO repairOrderDTO){
+        System.out.println("--- REPAIR ORDER MODIFICATION NOTIFICATION (BEGIN) ---");
+        System.out.println("THE REPAIR ORDER HAS BEEN MODIFIED     : " + repairOrderDTO.id());
+        System.out.println("PLEASE USE TELE NUMBER TO CHECK DETAILS: "
+            + repairOrderDTO.customerDTO().telephoneNumber()
+            + " (" + repairOrderDTO.customerDTO().name() + ")");
+        System.out.println("--- REPAIR ORDER MODIFICATION NOTIFICATION -(END)- ---");
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={RepairOrderLogger implementing RepairOrderObserver}]
+public class RepairOrderLogger implements RepairOrderObserver {
+    private static final String LOG_FILE_NAME = "ebikerepair-repairorder.log";
+    private PrintWriter logFile;
+
+    public RepairOrderLogger(){
+        try {
+            logFile = new PrintWriter(new FileWriter(LOG_FILE_NAME, true), true);
+        } catch (IOException ex) {
+            System.out.println("Could not create logger.");
+            ex.printStackTrace();
+        }
     }
 
-    @Test
-    void testWrongPrefix() {
-        assertThrows(InvalidTelephoneNumberException.class, () -> {
-            TelephoneNumber number = new TelephoneNumber("0001234567");
-            number.toE164();
-        });
+    @Override
+    public void updateRepairOrder(RepairOrderDTO repairOrderDTO){
+        logFile.println(createTime());
+        logFile.println(repairOrderDTO);
+        logFile.println();
+    }
+
+    private String createTime() {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
+        return now.format(formatter);
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={Controller storing observers}]
+public class Controller {
+    protected final List<RepairOrderObserver> repairOrderObservers;
+
+    public Controller(RepairOrderRegistry repairOrderRegistry){
+        this.repairOrderRegistry = repairOrderRegistry;
+        this.repairOrderObservers = new ArrayList<>();
+    }
+
+    public void addRepairOrderObserver(RepairOrderObserver repairOrderObserver){
+        repairOrderObservers.add(repairOrderObserver);
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={RepairOrder as the observed subject}]
+public class RepairOrder {
+    private List<RepairOrderObserver> repairOrderObservers;
+
+    public void addRepairOrderObservers(List<RepairOrderObserver> observers) {
+        repairOrderObservers.addAll(observers);
+    }
+
+    private void notifyRepairOrderObservers() {
+        for (RepairOrderObserver repairOrderObserver : repairOrderObservers) {
+            repairOrderObserver.updateRepairOrder(toDTO());
+        }
+    }
+
+    public void updateProblem(ProblemDTO problemDTO) {
+        this.problem.update(problemDTO);
+        notifyRepairOrderObservers();
+    }
+
+    public void accept() {
+        repairOrderState = RepairOrderState.Accepted;
+        notifyRepairOrderObservers();
+    }
+
+    public void reject() {
+        repairOrderState = RepairOrderState.Rejected;
+        notifyRepairOrderObservers();
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={View registering observers on the controller}]
+public class View {
+    public View(ControllerCreator controllerCreator) {
+        receptionistController = controllerCreator.getReceptionistController();
+        technicianController = controllerCreator.getTechnicianController();
+        receptionistController.addRepairOrderObserver(new RepairOrderCliView());
+        receptionistController.addRepairOrderObserver(new RepairOrderLogger());
+    }
+}
+\end{lstlisting}
+
+\subsubsection{Polymorphism}
+
+Polymorphism is used throughout the design pattern implementations to ensure that components depend on abstractions rather than concrete implementations. Interfaces are introduced for observers and other interchangeable components, allowing multiple implementations to be used without modifying existing code. This makes it possible to extend the system by adding new observer implementations without changing the existing logic in the model or controller.
+
+For instance, in the program, polymorphism is used in data handling. From a data handling interface \texttt{DataHandler}, two different classes \texttt{JsonFileHandler} and \texttt{DatabaseHandler} implements it. Using this implementation, switching between the two handler types becomes easier. 
+
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+public interface DataHandler {
+    public void initDataHandler(String resourceName);
+    public boolean isInitialized();
+    public <T> List<T> readList(Class<T> clazz);
+    public <T> void writeList(List<T> list);
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+/**
+ * A data handler that simulates a database connection.
+ * All operations throw {@link NoDatabaseException} since no actual database is available.
+ */
+public class DatabaseHandler implements DataHandler {
+    private String databaseName;
+
+    /**
+     * Attempts to initialize the database connection.
+     *
+     * @param resourceName the name of the database resource
+     * @throws NoDatabaseException always, since no database is available
+     */
+    public void initDataHandler(String resourceName){
+        databaseName = resourceName;
+        throw new NoDatabaseException(databaseName);
+    }
+
+    /**
+     * Returns whether the database handler is initialized.
+     *
+     * @return always {@code false} since no database is available
+     */
+    public boolean isInitialized(){
+        return false;
+    }
+
+    /**
+     * Reads a list of objects from the database.
+     *
+     * @param <T> the type of objects to read
+     * @param clazz the class of the objects to deserialize
+     * @return never returns normally
+     * @throws NoDatabaseException always, since no database is available
+     */
+    public <T> List<T> readList(Class<T> clazz){
+        throw new NoDatabaseException(databaseName);
+    }
+
+    /**
+     * Writes a list of objects to the database.
+     *
+     * @param <T> the type of objects to write
+     * @param list the list of objects to persist
+     * @throws NoDatabaseException always, since no database is available
+     */
+    public <T> void writeList(List<T> list){
+        throw new NoDatabaseException(databaseName);
     }
 }
 \end{lstlisting}
 
 \begin{lstlisting}[style=javastyle, caption={...}]
+/**
+ * Utility for reading and writing JSON files from the classpath resources.
+ */
+public class JsonFileHandler implements DataHandler{
+    private File jsonFile;
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
+    /**
+     * Creates a JSON file handler for the given resource file.
+     *
+     * @param resourceName the name of the JSON resource file on the classpath
+     */
+    public JsonFileHandler() {
+        // initDataHandler(resourceName);
+    }
+
+    public void initDataHandler(String resourceName) {
+        // JSON file init data handler
+    }
+
+    public boolean isInitialized() {
+        return jsonFile != null && jsonFile.exists();
+    }
+
+    /**
+     * Reads a list of objects from the JSON file.
+     *
+     * @param <T> the type of objects to deserialize
+     * @param clazz the class of the objects
+     * @return the list of deserialized objects, or empty list if file is missing or empty
+     */
+    public <T> List<T> readList(Class<T> clazz) {
+        // read json list
+    }
+
+    /**
+     * Writes a list of objects to the JSON file.
+     *
+     * @param <T> the type of objects to serialize
+     * @param list the list of objects to write
+     */
+    public <T> void writeList(List<T> list) {
+        // write json list
+    }
+}
 \end{lstlisting}
+
+\subsubsection{Factory}
+Based on the polymorphism design, the factory design pattern is also applied. 
 
 \begin{lstlisting}[style=javastyle, caption={...}]
+/**
+ * Factory for creating {@link DataHandler} instances by class name using reflection.
+ */
+public class DataHandlerFactory {
 
+    private DataHandlerFactory() {}
+
+    /**
+     * Creates a DataHandler instance from the given fully qualified class name.
+     *
+     * @param className the fully qualified class name of the DataHandler implementation
+     * @return a new DataHandler instance
+     * @throws ClassNotFoundException if the class cannot be found
+     * @throws NoSuchMethodException if the class has no no-arg constructor
+     * @throws InstantiationException if the class cannot be instantiated
+     * @throws IllegalAccessException if the constructor is not accessible
+     * @throws InvocationTargetException if the constructor throws an exception
+     */
+    public static DataHandler create(String className) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        Class<?> classObject = Class.forName(className);
+        return (DataHandler) classObject.getConstructor().newInstance();
+    }
+}
 \end{lstlisting}
-
-\begin{lstlisting}[style=javastyle, caption={...}]
-
-\end{lstlisting}
-
-\subsection{Design pattern designs}
-...
 
 \section{Discussion}
 
@@ -517,7 +875,7 @@ January 14, 2026.
 
 \bibitem{sourcecode}
 Mo Wang,
-``ElectricBikeRepair --- Source code for Seminar~3,''
+``ElectricBikeRepair --- Source code for Seminar~4,''
 2026.
 [Online]. Available: \url{https://github.com/mo-mosverkstad/java-learning/tree/main/maven-projects/ElectricBikeRepair/}
 
