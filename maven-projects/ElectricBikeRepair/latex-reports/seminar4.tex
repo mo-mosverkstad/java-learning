@@ -223,12 +223,286 @@ Throughout the implementation, design decisions are evaluated based on their imp
 \section{Result}
 \label{sec:result}
 
-% \textbf{This chapter explains \textit{the result} of what you did.} \textbf{The report must show that you have done the work yourself and that you have understood what you have done}, both of these goals are met by explaining your solution here in the result chapter. Include links to your code in your Git repository (for seminars 3 and 4), and also include diagrams, see Figure \ref{fig:diag}, and other figures to illustrate your reasoning. All figures must be referenced in the text. Ask yourself if the solution is clearly explained, and if the reader will understand the application. What would you yourself want to know if you read about the application, is that included in the report? More specific instructions for the content can be found in each assignment.
+% \textbf{This chapter explains \textit{the result} of what you did.} \textbf{The report must show that you have done the work yourself and that you have understood what you have done}, both of these goals are met by explaining your solution here in the result chapter. Include links to your code in your Git repository (for seminars 3 and 4), and also include diagrams, see Figure \ref{fig:diag}, and other figures to illustrate your reasoning. All figures must be referenced in the text. Ask yourself if the solution is clearly explained, and if the reader will understand the application. What would you yourself want to know if you read about the application, is that included in the report? More specifiec instructions for the content can be found in each assignment.
+
+\section{Result}
+
+By extending the current implementation of the Repair Electric Bike System with exception handling, errors are now handled using a dedicated mechanism separated from the main business logic. Exceptions are used to for both business-rule violations and internal failures, and are propagated through the system layers until they are handled in the view.
+
+Design patterns are also integrated to improve the code quality and program structure. For instance, the Observer pattern is implemented to notify an interactive \texttt{RepairOrderView} when repair orders are updated, which allows multiple views to react and update automatically without direct dependencies on the model or the controller.
+
+In addition, logging functionality has been introduced to track internal program failures and making debugging easier, while user-friendly error messages are presented in the view. Business logic violations are only displayed in the view without writing into log, since the internal program still produces correct behavior.
+
+Alongside the implementations, unit tests are written to verify both normal execution and error-handling behavior.
 
 The complete source code for this seminar is available in the public Git repository at: \href{https://github.com/mo-mosverkstad/java-learning/tree/main/maven-projects/ElectricBikeRepair/}{\nolinkurl{https://github.com/mo-mosverkstad/java-learning/tree/main/maven-projects/ElectricBikeRepair/}} \cite{sourcecode}.
 
-\subsection{Implementation}
+\subsection{Error handling using exceptions}
 
+In terms of error handling using exceptions, custom exception classes are extended from \texttt{Exception} base class to cover different groups of error condition. Business-rule violations are represented using checked exceptions, while internal failures are represented using unchecked exceptions.
+
+When an error occurs in the model or integration layer, an appropriate exception is thrown and propagated through the system layers, which are shown in listings, related to the specific exception. Business-related exceptions are allowed to propagate to the view, where they are handled and presented as user-friendly error messages. Internal exceptions, such as simulated database failures, are caught in the controller layer and wrapped in a higher-level exception before being propagated further.
+
+\subsubsection{InvalidTelephoneNumberException}
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+/**
+ * Thrown when a telephone number has an invalid format and cannot be parsed.
+ */
+public class InvalidTelephoneNumberException extends Exception {
+    /**
+     * Creates an exception indicating the given telephone number is invalid.
+     *
+     * @param telephoneNumber the telephone number that could not be parsed
+     */
+    public InvalidTelephoneNumberException(String telephoneNumber){
+        super(String.format("The phone number %s is not a valid phone number", telephoneNumber));
+    }
+}
+\end{lstlisting}
+
+
+se.ebikerepair.util.TelephoneNumber constructor
+\begin{lstlisting}[style=javastyle, caption={...}]
+/**
+ * Parses a telephone number string into country code, area code, and subscriber number.
+ *
+ * @param telephoneNumber the telephone number in any supported Swedish format
+ * @throws InvalidTelephoneNumberException if the telephone number is null, empty, or has an invalid format
+ */
+public TelephoneNumber(String telephoneNumber) throws InvalidTelephoneNumberException {
+    if (telephoneNumber.trim().isEmpty()) {
+        throw new InvalidTelephoneNumberException("<empty>");
+    }
+
+    String digits = telephoneNumber.replaceAll("[\\s\\-\\(\\)]", "");
+
+    if (!digits.matches("\\+?[0-9]+")) {
+        throw new InvalidTelephoneNumberException(telephoneNumber);
+    }
+
+    // ... normalization logic ...
+
+    if (normalized.length() < 7) {
+        throw new InvalidTelephoneNumberException(telephoneNumber);
+    }
+
+    // ... extraction logic ...
+
+    if (remaining.isEmpty() || (remaining.length() < 8 || remaining.length() > 9)) {
+        throw new InvalidTelephoneNumberException(telephoneNumber);
+    }
+
+    // ...
+
+    if (sn.isEmpty()) {
+        throw new InvalidTelephoneNumberException(telephoneNumber);
+    }
+}
+\end{lstlisting}
+
+se.ebikerepair.controller.Controller, findRepairOrderIds
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+private List<String> findRepairOrderIds(String telephoneNumber) throws InvalidTelephoneNumberException{
+    String phoneNumberE164 = new TelephoneNumber(telephoneNumber).toE164();
+    // process phoneNumberE164 ...
+}
+\end{lstlisting}
+
+se.ebikerepair.controller.Controller, findRepairOrder
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+/**
+ * Finds the most recent repair order for the given telephone number.
+ *
+ * @param telephoneNumber the customer's telephone number (any Swedish format)
+ * @return the most recent repair order as a DTO
+ * @throws InvalidTelephoneNumberException if the phone number format is invalid
+ * @throws NoExistedRepairOrderException if no repair orders exist for the customer or the order cannot be found
+ */
+public RepairOrderDTO findRepairOrder(String telephoneNumber) throws InvalidTelephoneNumberException, NoExistedRepairOrderException{
+    List<String> repairOrderIds = findRepairOrderIds(telephoneNumber);
+    // further process
+}
+\end{lstlisting}
+
+`se.ebikerepair.controller.ReceptionistController` — searchCustomer, createRepairOrder
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+/**
+ * Searches for a customer by telephone number.
+ *
+ * @param telephoneNumber the customer's telephone number (any Swedish format)
+ * @return the found customer DTO
+ * @throws NotFoundCustomerException if the phone number does not correspond to a customer
+ * @throws InvalidTelephoneNumberException if the telephone number is empty or invalid
+ * @throws FailedOperationException if an underlying infrastructure error occurs, such as a database or file system failure
+ */
+public CustomerDTO searchCustomer(String telephoneNumber) throws NotFoundCustomerException, InvalidTelephoneNumberException, FailedOperationException{
+    try {
+        String phoneNumberE164 = new TelephoneNumber(telephoneNumber).toE164();
+        return customerRegistry.find(phoneNumberE164);
+    } catch (ResourceNotFoundException | InvalidResourceURIException | CannotReadFileException | CannotWriteFileException | NoDatabaseException exception){
+        LogHandler.getLogger().logException(exception);
+        throw new FailedOperationException("Fail to search customer", exception);
+    }
+}
+
+/**
+ * Creates a new repair order for the customer identified by telephone number.
+ *
+ * @param telephoneNumber the customer's telephone number (any Swedish format)
+ * @param problemDTO the problem description with the broken bike
+ * @return the generated repair order ID
+ * @throws NotFoundCustomerException if the customer is not found
+ * @throws InvalidTelephoneNumberException if the telephone number is empty or invalid
+ * @throws FailedOperationException if an underlying infrastructure error occurs, such as a database or file system failure
+ */
+public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws NotFoundCustomerException, InvalidTelephoneNumberException, FailedOperationException{
+    try {
+        CustomerDTO foundCustomer = searchCustomer(telephoneNumber);
+        RepairOrder repairOrder = new RepairOrder(foundCustomer);
+        repairOrder.addRepairOrderObservers(repairOrderObservers);
+        repairOrder.updateProblem(problemDTO);
+        repairOrderRegistry.save(repairOrder);
+        return repairOrder.getId();
+    } catch (ResourceNotFoundException | InvalidResourceURIException | CannotReadFileException | CannotWriteFileException | NoDatabaseException exception){
+        LogHandler.getLogger().logException(exception);
+        throw new FailedOperationException("Fail to create repair order", exception);
+    }
+    
+}
+\end{lstlisting}
+
+View proceedactions
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+/**
+ * Runs the full repair workflow: reception preparation, technician diagnostics, and reception confirmation.
+ *
+ * @param telephoneNumber the customer's telephone number
+ * @param bikeSerialNumber the serial number of the broken bike
+ */
+public void proceedActions(String telephoneNumber, String bikeSerialNumber) {
+    try{
+        proceedReceptionPreparationActions(telephoneNumber, bikeSerialNumber);
+        proceedTechnicianDiagnosticActions(telephoneNumber);
+        proceedReceptionConfirmationActions(telephoneNumber);
+    } catch (NotFoundCustomerException | InvalidTelephoneNumberException | FailedOperationException | NoExistedRepairOrderException | IllegalArgumentException e) {
+        System.out.println(ERROR_PREFIX + e.getMessage());
+        LogHandler.getLogger().logException(e);
+    }
+}
+\end{lstlisting}
+
+\subsubsection{ResourceNotFoundException (unchecked)}
+
+`se.ebikerepair.data.ResourceNotFoundException`
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+/**
+ * Thrown when a classpath resource file cannot be found.
+ */
+public class ResourceNotFoundException extends RuntimeException{
+    /**
+     * Creates an exception indicating the resource was not found.
+     *
+     * @param resourceName the name of the resource that was not found
+     */
+    public ResourceNotFoundException(String resourceName) {
+        super(String.format("%s not found in resources", resourceName));
+    }
+}
+\end{lstlisting}
+
+`se.ebikerepair.data.JsonFileHandler` — initDataHandler -> `se.ebikerepair.model.DiagnosticReport` — loadDiagnosticTasks -> `se.ebikerepair.integration.CustomerRegistry` — initRegistry
+
+`se.ebikerepair.controller.ReceptionistController` — searchCustomer, createRepairOrder
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+/**
+ * Searches for a customer by telephone number.
+ *
+ * @param telephoneNumber the customer's telephone number (any Swedish format)
+ * @return the found customer DTO
+ * @throws NotFoundCustomerException if the phone number does not correspond to a customer
+ * @throws InvalidTelephoneNumberException if the telephone number is empty or invalid
+ * @throws FailedOperationException if an underlying infrastructure error occurs, such as a database or file system failure
+ */
+public CustomerDTO searchCustomer(String telephoneNumber) throws NotFoundCustomerException, InvalidTelephoneNumberException, FailedOperationException{
+    try {
+        String phoneNumberE164 = new TelephoneNumber(telephoneNumber).toE164();
+        return customerRegistry.find(phoneNumberE164);
+    } catch (ResourceNotFoundException | InvalidResourceURIException | CannotReadFileException | CannotWriteFileException | NoDatabaseException exception){
+        LogHandler.getLogger().logException(exception);
+        throw new FailedOperationException("Fail to search customer", exception);
+    }
+}
+
+/**
+ * Creates a new repair order for the customer identified by telephone number.
+ *
+ * @param telephoneNumber the customer's telephone number (any Swedish format)
+ * @param problemDTO the problem description with the broken bike
+ * @return the generated repair order ID
+ * @throws NotFoundCustomerException if the customer is not found
+ * @throws InvalidTelephoneNumberException if the telephone number is empty or invalid
+ * @throws FailedOperationException if an underlying infrastructure error occurs, such as a database or file system failure
+ */
+public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws NotFoundCustomerException, InvalidTelephoneNumberException, FailedOperationException{
+    try {
+        CustomerDTO foundCustomer = searchCustomer(telephoneNumber);
+        RepairOrder repairOrder = new RepairOrder(foundCustomer);
+        repairOrder.addRepairOrderObservers(repairOrderObservers);
+        repairOrder.updateProblem(problemDTO);
+        repairOrderRegistry.save(repairOrder);
+        return repairOrder.getId();
+    } catch (ResourceNotFoundException | InvalidResourceURIException | CannotReadFileException | CannotWriteFileException | NoDatabaseException exception){
+        LogHandler.getLogger().logException(exception);
+        throw new FailedOperationException("Fail to create repair order", exception);
+    }
+    
+}
+\end{lstlisting}
+
+\subsection{Error handling unit tests}
+
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+public class TelephoneNumberTest {
+    @Test
+    void testInternationalPrefix() {
+        assertDoesNotThrow(() -> {
+            TelephoneNumber number = new TelephoneNumber("0046701234567");
+            assertEquals("+46701234567", number.toE164());
+        });
+    }
+
+    @Test
+    void testWrongPrefix() {
+        assertThrows(InvalidTelephoneNumberException.class, () -> {
+            TelephoneNumber number = new TelephoneNumber("0001234567");
+            number.toE164();
+        });
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+
+\end{lstlisting}
+
+\begin{lstlisting}[style=javastyle, caption={...}]
+
+\end{lstlisting}
+
+\subsection{Design pattern designs}
+...
 
 \section{Discussion}
 
