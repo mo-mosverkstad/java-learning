@@ -44,13 +44,20 @@ public class LogHandler {
      * @param exception The exception that shall be logged.
      */
     public void logException(Exception exception) {
-        StringBuilder logMsgBuilder = new StringBuilder();
-        logMsgBuilder.append(createTime());
-        logMsgBuilder.append(", Exception was thrown: ");
-        logMsgBuilder.append(exception.getMessage());
-        logFile.println(logMsgBuilder);
-        exception.printStackTrace(logFile);
-        logFile.println("\n");
+        logFile.println(String.format("[%s] [ERROR] %s: %s",
+            createTime(),
+            exception.getClass().getName(),
+            exception.getMessage()));
+        if (exception.getCause() != null) {
+            logFile.println(String.format("  Caused by: %s: %s",
+                exception.getCause().getClass().getName(),
+                exception.getCause().getMessage()));
+        }
+        logFile.println("  Stack trace:");
+        for (StackTraceElement element : exception.getStackTrace()) {
+            logFile.println(String.format("    at %s", element));
+        }
+        logFile.println();
     }
 
     /**

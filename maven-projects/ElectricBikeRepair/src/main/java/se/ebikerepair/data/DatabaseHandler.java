@@ -3,11 +3,26 @@ package se.ebikerepair.data;
 import java.util.List;
 
 /**
- * A data handler that simulates a database connection.
+ * A singleton data handler that simulates a database connection.
  * All operations throw {@link NoDatabaseException} since no actual database is available.
  */
 public class DatabaseHandler implements DataHandler {
+    private static final DatabaseHandler INSTANCE = new DatabaseHandler();
     private String databaseName;
+
+    /**
+     * Returns the singleton DatabaseHandler instance.
+     *
+     * @return the single DatabaseHandler instance
+     */
+    public static DatabaseHandler getInstance() {
+        return INSTANCE;
+    }
+
+    /**
+     * No-arg constructor kept for reflection-based instantiation via {@link DataHandlerFactory}.
+     */
+    public DatabaseHandler() {}
 
     /**
      * Attempts to initialize the database connection.
