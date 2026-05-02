@@ -358,7 +358,7 @@ public TelephoneNumber(String telephoneNumber) throws InvalidTelephoneNumberExce
 
 The methods that propagates the exception must also declare the exception after the \texttt{throws} keyword, which specifies the thrown exceptions. Since the methods \texttt{findRepairOrder} as well as the internal private function \texttt{findRepairOrderIds} depends on the \texttt{TelephoneNumber} class, which throws InvalidTelephoneNumberException.
 
-\begin{lstlisting}[style=javastyle, caption={Controller.findRepairOrderId propagating InvalidTelephoneNumberException}]
+\begin{lstlisting}[style=javastyle, caption={Controller.findRepairOrderIds propagating InvalidTelephoneNumberException}]
 /**
  * Finds the most recent repair order for the given telephone number.
  *
@@ -382,7 +382,49 @@ Additionally, in \texttt{ReceptionistController} in controller layer, the method
 
 The method \texttt{searchCustomer} propagates checked business-rule exceptions and translates unchecked technical failures into a higher-level checked exception, as shown later in the unchecked exception handling example.
 
+\begin{lstlisting}[style=javastyle, caption={searchCustomer and createRepairOrder methods in createRepairOrder class propagating exceptions}]
+/**
+ * Searches for a customer by telephone number.
+ *
+ * @param telephoneNumber the customer's telephone number (any Swedish format)
+ * @return the found customer DTO
+ * @throws NotFoundCustomerException if the phone number does not correspond to a customer
+ * @throws InvalidTelephoneNumberException if the telephone number is empty or invalid
+ * @throws FailedOperationException if an underlying infrastructure error occurs, such as a database or file system failure
+ */
+public CustomerDTO searchCustomer(String telephoneNumber) throws NotFoundCustomerException, InvalidTelephoneNumberException, FailedOperationException{
+    try {
+        String phoneNumberE164 = new TelephoneNumber(telephoneNumber).toE164();
+        return customerRegistry.find(phoneNumberE164);
+    } catch (ResourceNotFoundException | InvalidResourceURIException | CannotReadFileException | CannotWriteFileException | NoDatabaseException exception){
+        // Handling unchecked exception
+    }
+}
+\end{lstlisting}
+
 The method \texttt{createRepairOrder} invokes \texttt{searchCustomer}, which may propagate the checked exception \texttt{NotFoundCustomerException} when the specified customer does not exist. The listing also illustrates how unchecked technical exceptions are caught locally and translated into a higher-level checked exception before being propagated to the caller.
+
+\begin{lstlisting}[style=javastyle, caption={searchCustomer and createRepairOrder methods in createRepairOrder class propagating exceptions}]
+/**
+ * Creates a new repair order for the customer identified by telephone number.
+ *
+ * @param telephoneNumber the customer's telephone number (any Swedish format)
+ * @param problemDTO the problem description with the broken bike
+ * @return the generated repair order ID
+ * @throws NotFoundCustomerException if the customer is not found
+ * @throws InvalidTelephoneNumberException if the telephone number is empty or invalid
+ * @throws FailedOperationException if an underlying infrastructure error occurs, such as a database or file system failure
+ */
+public String createRepairOrder(String telephoneNumber, ProblemDTO problemDTO) throws NotFoundCustomerException, InvalidTelephoneNumberException, FailedOperationException{
+    try {
+        CustomerDTO foundCustomer = searchCustomer(telephoneNumber);
+        // Creating repair order using foundCustomer
+    } catch (ResourceNotFoundException | InvalidResourceURIException | CannotReadFileException | CannotWriteFileException | NoDatabaseException exception){
+        // Handling unchecked exceptions
+    }
+    
+}
+\end{lstlisting}
 
 When the checked exception \texttt{InvalidTelephoneNumberException} reaches view, it is caught alongside with other checked exceptions. The internal methods that proceeds each hardcoded actions are defined in \texttt{proceedReceptionPreparationActions}, \texttt{proceedTechnicianDiagnosticActions}, and \texttt{proceedReceptionConfirmationActions} passes all their checked exception to the larger \texttt{proceedActions} method where the unchecked exceptions are all handled collectively. The exception information, including error message, is extracted and displayed to the view. Since the view is simple, it only extracts the error message from the exception and printing it out into standard output. After displaying the error message, no further workflow steps are executed. 
 
@@ -458,6 +500,39 @@ public CustomerDTO searchCustomer(String telephoneNumber) throws NotFoundCustome
 Reporting error messages is handled by a special utility class \texttt{LogHandler}. The class is responsible for writing formatted logs to a specified program file \texttt{ebikerepair.log}.
 
 Since the class is only instantiated once and the resource is never duplicated, the \texttt{singleton pattern} is applied. This is accomplished by making the constructor private as well as keeping its only singleton instance as a static class member, along with its desired log filepath. The instance is retrieved by the static method \texttt{getLogger} before the method \texttt{logException} can be called for writing the error message to the log.  
+
+\begin{lstlisting}[style=javastyle, caption={Log handler class applied with singleton pattern}]
+/**
+ * Singleton logger that writes exception information to a log file.
+ * Uses eager initialization to ensure a single instance throughout the application.
+ */
+public class LogHandler {
+    private static final String LOG_FILE_NAME = "ebikerepair.log";
+    private static final LogHandler INSTANCE = new LogHandler();
+    private PrintWriter logFile;
+
+    /**
+     * Returns the singleton LogHandler instance.
+     *
+     * @return the single LogHandler instance
+     */
+    public static LogHandler getLogger() {
+        return INSTANCE;
+    }
+
+    /**
+     * Creates the LogHandler and opens the log file for appending.
+     */
+    private LogHandler() {
+        try {
+            logFile = new PrintWriter(new FileWriter(LOG_FILE_NAME, true), true);
+        } catch (IOException ex) {
+            System.out.println("Could not create logger.");
+            ex.printStackTrace();
+        }
+    }
+\end{lstlisting}
+
 
 During logging, the method \texttt{logException} can called in controller when an exception is caught in the catch block. The method takes an exception class of any type and extract out the error message, which is formatted with additional information such as created time. After that, the formatted message is written to the file.
 
