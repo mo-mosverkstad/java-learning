@@ -5,7 +5,7 @@ import se.ebikerepair.integration.RepairOrderDTO;
 import se.ebikerepair.integration.CustomerDTO;
 import se.ebikerepair.model.RepairOrderObserver;
 
-public class RepairOrderCliView implements RepairOrderObserver {
+public class RepairOrderView implements RepairOrderObserver {
 
     @Override
     public void updateRepairOrder(RepairOrderDTO repairOrderDTO){

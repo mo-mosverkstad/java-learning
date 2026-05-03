@@ -34,7 +34,7 @@ public class View {
     public View(ControllerCreator controllerCreator) {
         receptionistController = controllerCreator.getReceptionistController();
         technicianController = controllerCreator.getTechnicianController();
-        receptionistController.addRepairOrderObserver(new RepairOrderCliView());
+        receptionistController.addRepairOrderObserver(new RepairOrderView());
         receptionistController.addRepairOrderObserver(new RepairOrderLogger());
     }
 
@@ -49,7 +49,9 @@ public class View {
             proceedReceptionPreparationActions(telephoneNumber, bikeSerialNumber);
             proceedTechnicianDiagnosticActions(telephoneNumber);
             proceedReceptionConfirmationActions(telephoneNumber);
-        } catch (NotFoundCustomerException | InvalidTelephoneNumberException | FailedOperationException | NoExistedRepairOrderException | IllegalArgumentException e) {
+        } catch (NotFoundCustomerException | InvalidTelephoneNumberException | NoExistedRepairOrderException | IllegalArgumentException e) {
+            System.out.println(ERROR_PREFIX + e.getMessage());
+        } catch (FailedOperationException e) {
             System.out.println(ERROR_PREFIX + e.getMessage());
             LogHandler.getLogger().logException(e);
         }

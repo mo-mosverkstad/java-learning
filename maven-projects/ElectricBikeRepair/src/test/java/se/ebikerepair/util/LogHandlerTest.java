@@ -34,6 +34,6 @@ class LogHandlerTest {
         assertTrue(logFile.exists());
         String content = Files.readString(logFile.toPath());
         assertTrue(content.contains(uniqueMessage));
-        assertTrue(content.contains("Exception was thrown:"));
+        assertTrue(content.contains("[ERROR]"));
     }
 }
