@@ -5,23 +5,26 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-public class InheritedProtocolInterpreterAdapter extends RandomAccessFile {
+import se.ebikerepair.inheritancecomposition.MessageProtocol;
 
-    public InheritedProtocolInterpreterAdapter(File file) throws FileNotFoundException {
-        super(file, "r");
+public class CompositeProtocolInterpreterAdapter {
+    private final RandomAccessFile randomAccessFile;
+
+    public CompositeProtocolInterpreterAdapter(File file) throws FileNotFoundException {
+        randomAccessFile = new RandomAccessFile(file, "r");
     }
 
     public MessageProtocol readProtocol() {
         try {
-            int titleLength = readUnsignedByte();
+            int titleLength = randomAccessFile.readUnsignedByte();
             byte[] titleBytes = new byte[titleLength];
-            readFully(titleBytes);
+            randomAccessFile.readFully(titleBytes);
             String title = new String(titleBytes);
 
 
-            int descriptionLength = readUnsignedShort();
+            int descriptionLength = randomAccessFile.readUnsignedShort();
             byte[] descriptionBytes = new byte[descriptionLength];
-            readFully(descriptionBytes);
+            randomAccessFile.readFully(descriptionBytes);
             String description = new String(descriptionBytes);
             return new MessageProtocol(title, description);
 
