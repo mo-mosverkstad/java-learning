@@ -1,0 +1,201 @@
+\documentclass[a4paper]{scrartcl}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{textcomp}
+\usepackage{amsmath}
+\usepackage{lastpage}
+\usepackage{pgf}
+\usepackage{wrapfig}
+\usepackage{fancyvrb}
+\usepackage[breaklinks=true]{hyperref}
+
+% Listing header
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{lightgray}{gray}{0.95}
+
+\lstdefinestyle{javastyle}{
+    backgroundcolor=\color{lightgray},
+    basicstyle=\ttfamily\small,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=8pt,
+    frame=single,
+    showstringspaces=false,
+    breaklines=true,
+    breakautoindent=true,
+    breakindent=2em,
+    keepspaces=true,
+    columns=fullflexible,
+    tabsize=4,
+    language=Java,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray!70},
+    stringstyle=\color{orange!90!black},
+    literate=
+      {Å}{{\AA}}1
+      {å}{{\aa}}1
+      {Ä}{{\"A}}1
+      {ä}{{\"a}}1
+      {Ö}{{\"O}}1
+      {ö}{{\"o}}1
+      {‑}{{-}}1
+}
+
+\lstdefinestyle{outputstyle}{
+    basicstyle=\ttfamily\small,
+    frame=single,
+    breaklines=true,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    literate=
+      {Å}{{\AA}}1
+      {å}{{\aa}}1
+      {Ä}{{\"A}}1
+      {ä}{{\"a}}1
+      {Ö}{{\"O}}1
+      {ö}{{\"o}}1
+      {‑}{{-}}1
+}
+
+% Create header and footer
+\headheight 27pt
+\pagestyle{fancyplain}
+\lhead{\footnotesize{Object-Oriented Design, IV1350}}
+\chead{\footnotesize{Additional Higher Grade Tasks Solution}}
+\rhead{}
+\lfoot{}
+\cfoot{\thepage\ (\pageref{LastPage})}
+\rfoot{}
+
+% Create title page
+\title{Additional Higher Grade Tasks Solution}
+\subtitle{Object-Oriented Design, IV1350}
+\author{Mo Wang mowang@ug.kth.se}
+%\date{\today} Prints today's date
+\date{2026-05-07}
+
+\begin{document}
+
+\maketitle
+\noindent\textbf{Project Members:} \\ \hfill
+% \tableofcontents %Generates the TOC
+[Mo Wang, mowang@ug.kth.se]
+
+\section*{Declaration:}
+
+By submitting this assignment, it is hereby declared that all group members listed above have contributed to the solution. It is also declared that all project members fully understand all parts of the final solution and can explain it upon request.
+
+It is furthermore declared that no part of the solution has been copied from any other source (except for resources presented in the Canvas page for the course IV1350), and that no part of the solution has been provided by someone not listed as a project member above.
+
+\section{Introduction}
+\label{sec:intro}
+
+This report concerns additional design pattern implementation as well as implicit unit tests in the \textit{Repair Electric Bike} system. The purpose of Additional Higher Grade Task is to extend the current program implementation with additional desing pattern, design pattern evaluation as well as writing indirect test cases in terms of testing View printouts. The implementation follows the principles and guidelines described in Chapter~9 (design patterns) of \textit{A First Course in Object-Oriented Development}~\cite{coursebook}.
+
+\subsection*{Task 1: Template design pattern}
+The first task focuses on implementation of the Template method design pattern for the existing observers concerning RepairOrder in the program. The intent is to remove outer control-flow logic by creating an abstract superclass with the common code parts while the variant parts are delegated into abstract methods which are implemented in its subclasses for specific customerized behaviors. This introduces centralized exception handling for observer updates. 
+
+\subsection*{Task 2: Adaption using inheritance compared to composition}
+The second task considers adaption using inheritance compared to adaption using composition of a Java library class. Two separate adapting classes are implemented using the same Java library class, which allows the comparison of flexibility, encapsulation, coupling, and maintainability between the two approaches.
+
+\subsection*{Task 3: Writing unit tests for view}
+The third task concerns automated unit testing of program output. Unit tests are written for all methods that print information to \texttt{System.out}, including the main program flow and view-related functionality. The purpose is to verify that the program produces correct output during execution and that the user interface behaves as expected.
+
+The report contains four chapters. The \textit{Method} chapter explains how the implementations and tests were developed. The \textit{Result} chapter presents the implemented solutions together with relevant code structure and execution examples. Finally, the \textit{Discussion} chapter evaluates the implementations and compares the applied design approaches.
+
+\section{Method}
+% \textbf{This chapter tells \textit{how} you solved the task.} Explain how you worked and what tools you used when solving the tasks. \textit{Do not explain your solution and do not present entire sub-results in detail. It's enough to explain which steps you performed and perhaps give a short example.} For example, some of the things to explain in the report for seminar one, is that you used a category list and noun identification to find class candidates for the domain model, and to tell which UML editor you used.
+% Goal: Explain how you worked (not the solution itself)
+
+\subsection{Template design pattern}
+% In the Method chapter of your report, explain how you worked and how you reasoned when implementing the template method pattern.
+
+The template design pattern is introduced when duplicated code sections are detected where code structures are similar with varying inner logic. Ordinary method extraction, however, can only reduce smaller pieces of duplicated code. In this case, the template method pattern places the common workflow structure into an abstract superclass, while the varying logic is delegated into abstract methods implemented and overridden in concrete subclasses.
+
+The template design pattern is applied on the \texttt{RepairOrderView} and \texttt{RepairOrderLogger}, that implements the interface \texttt{RepairOrderObserver}. The reason is that during their functional extension, the error catch blocks may be introduced during failure to display or logging. In such case, the catch block becomes the common duplicated control code.
+
+The implementation work begins by identifying duplicated observer update logic in the existing view classes related to repair order notification. The common execution structure, including exception handling and update sequencing, is extracted into a shared abstract superclass as the entry method, that delegates the inner varying logic as abstract methods. This can be done by cutting out the inner varying logic and replacing them with different abstract methods. These abstract methods are implemented during subclass which depends on different cases, where the cut out logic are reinserted into each suitable subclass.
+
+The implementation is also continously tested after each refactoring step to verify that observer updates still produces correct behavior.
+
+
+\iffalse
+### **The Template Method Pattern**
+When duplicated code represents the structure of a method — such as try‑catch or if‑blocks with varying inner logic — the template method pattern is required because ordinary method extraction cannot remove this type of duplication.
+
+#### Overview
+The template method pattern puts shared workflow code into an abstract superclass while delegating the varying parts to abstract methods that concrete subclasses override.
+
+#### Case Study
+The case study’s rental‑car display is now extended so two independent observers — one text‑based and one GUI‑based — both update automatically whenever the number of rented cars changes.
+
+#### Solution
+Using the template method pattern, shared rental‑display logic is placed in an abstract superclass while each concrete view (text and GUI) overrides only the printCurrentState method to present the information in its own way.
+\fi
+
+\subsection{Adaption using inheritance compared to composition}
+% In the Method chapter of your report, explain how you worked and how you reasoned when writing the adapting classes.
+
+...
+
+\subsection{Writing unit tests for view}
+% In the Method chapter of your report, explain how you worked and how you reasoned when writing the unit tests.
+
+...
+
+\section{Result}
+\label{sec:result}
+
+% \textbf{This chapter explains \textit{the result} of what you did.} \textbf{The report must show that you have done the work yourself and that you have understood what you have done}, both of these goals are met by explaining your solution here in the result chapter. Include links to your code in your Git repository (for seminars 3 and 4), and also include diagrams, see Figure \ref{fig:diag}, and other figures to illustrate your reasoning. All figures must be referenced in the text. Ask yourself if the solution is clearly explained, and if the reader will understand the application. What would you yourself want to know if you read about the application, is that included in the report? More specifiec instructions for the content can be found in each assignment.
+
+By extending the current implementation of the Repair Electric Bike system with exception handling, errors are handled using dedicated exception classes and propagated through the system layers until they reach the view..
+
+Design patterns are also integrated to improve the code quality and program structure. For instance, the Observer pattern is implemented to notify an interactive \texttt{RepairOrderView} when repair orders are updated, which allows multiple views to react and update automatically without direct dependencies on the model or the controller.
+
+In addition, logging functionality has been introduced to track internal program failures only, making debugging easier, while user-friendly error messages are presented in the view. Business logic violations are displayed only in the view and are explicitly excluded from logging, since the internal program still produces correct behavior.
+
+Alongside the implementations, unit tests are written to verify both normal execution and error-handling behavior.
+
+The complete source code for this seminar is available in the public Git repository at: \href{https://github.com/mo-mosverkstad/java-learning/tree/main/maven-projects/ElectricBikeRepair/}{\nolinkurl{https://github.com/mo-mosverkstad/java-learning/tree/main/maven-projects/ElectricBikeRepair/}} \cite{sourcecode}.
+
+\subsection{Template design pattern}
+% In the Result chapter of your report, briefly explain source code for all classes you changed when implementing the template method pattern. Include links to your git repository, and make sure the repository is public. Also include a printout of a sample run.
+
+\subsection{Adaption using inheritance compared to composition}
+% In the Result chapter of your report, briefly explain the source code. Include links to your git repository, and make sure the repository is public. Also include a printout of a sample run.
+
+\subsection{Writing unit tests for view}
+% In the Result chapter of your report, tell which tests you have written for this task and briefly explain the tests. Include links to your git repository, and make sure the repository is public.
+
+\section{Discussion}
+% In the Discussion chapter of your report, thoroughly motivate that your code is a correct implementation of the template method pattern. Also thoroughly explain the benefits of using template method in your application. Alternatively, if you can’t see any benefits, thoroughly motivate why that is the case.
+
+% In the Discussion chapter of your report, thoroughly compare adaption using in heritance and adaption using composition. There are comparison criteria in section 9.3 in the course book, and it is fine to use other criteria as well. Also draw a conclusion, is inheritance or composition preferred, or are they equal? You are of course not required to make the same conclusion as is made in the book.
+
+
+\begin{thebibliography}{9}
+
+\bibitem{coursebook}
+Leif Lindbäck,
+\textit{A First Course in Object-Oriented Development --- A Hands-On Approach},
+Course material for IV1350,
+KTH Royal Institute of Technology,
+January 14, 2026.
+
+\bibitem{sourcecode}
+Mo Wang,
+``ElectricBikeRepair --- Source code for Seminar~4,''
+2026.
+[Online]. Available: \url{https://github.com/mo-mosverkstad/java-learning/tree/main/maven-projects/ElectricBikeRepair/}
+
+\end{thebibliography}
+
+\end{document}

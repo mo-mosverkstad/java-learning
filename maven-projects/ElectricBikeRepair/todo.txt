@@ -6,3 +6,4 @@ Done:
 - Javadoc.
 
 Ongoing:
+- Exception considering MVC violation
