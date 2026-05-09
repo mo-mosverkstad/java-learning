@@ -1,13 +1,7 @@
 package se.ebikerepair.startup;
 
 import se.ebikerepair.util.LogHandler;
-
-import java.io.File;
-import java.lang.annotation.Inherited;
-
-import se.ebikerepair.inheritancecomposition.CompositeProtocolInterpreterAdapter;
 import se.ebikerepair.controller.ControllerCreator;
-import se.ebikerepair.inheritancecomposition.InheritedProtocolInterpreterAdapter;
 import se.ebikerepair.integration.RegistryCreator;
 import se.ebikerepair.integration.Printer;
 import se.ebikerepair.view.View;
@@ -42,15 +36,5 @@ public class Main {
         catch (RuntimeException exception){
             LogHandler.getLogger().logException(exception);
         }
-
-        try{
-            CompositeProtocolInterpreterAdapter prIn = new CompositeProtocolInterpreterAdapter(new File("temp.bin"));
-            System.out.println(prIn.readProtocol());
-        }
-        catch (Exception e){
-            System.out.println("Read failed");
-        }
-        
-
     }
 }
