@@ -44,7 +44,7 @@ public class RepairOrderRegistry{
     public RepairOrder findByRepairOrderId(String repairOrderId) throws NoExistedRepairOrderException{
         RepairOrder repairOrder = repairOrders.get(repairOrderId);
         if (repairOrder == null) {
-            throw new NoExistedRepairOrderException("Repair order not found for id: " + repairOrderId);
+            throw new NoExistedRepairOrderException(repairOrderId);
         }
         return new RepairOrder(repairOrder);
     }

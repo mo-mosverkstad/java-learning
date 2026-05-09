@@ -49,7 +49,7 @@ public class Controller {
     public RepairOrderDTO findRepairOrder(String telephoneNumber) throws InvalidTelephoneNumberException, NoExistedRepairOrderException{
         List<String> repairOrderIds = findRepairOrderIds(telephoneNumber);
         if (repairOrderIds.isEmpty()) {
-            throw new NoExistedRepairOrderException("There is no repair order created for this customer.");
+            throw new NoExistedRepairOrderException(telephoneNumber);
         }
         String id = repairOrderIds.get(0);
         RepairOrder repairOrder = repairOrderRegistry.findByRepairOrderId(id);

@@ -5,6 +5,7 @@ import se.ebikerepair.controller.ReceptionistController;
 import se.ebikerepair.controller.TechnicianController;
 import se.ebikerepair.integration.CustomerDTO;
 import se.ebikerepair.integration.NotFoundCustomerException;
+import se.ebikerepair.integration.NotFoundBikeException;
 import se.ebikerepair.integration.BikeDTO;
 import se.ebikerepair.integration.ProblemDTO;
 import se.ebikerepair.integration.RepairOrderDTO;
@@ -19,7 +20,7 @@ import se.ebikerepair.integration.NoExistedRepairOrderException;
 
 /**
  * View layer that orchestrates the repair workflow: reception preparation, technician diagnostics,
- * and reception confirmation. Catches and displays user-facing errors.
+ * and reception confirmation. Catches exceptions and builds user-facing error messages.
  */
 public class View {
     private static final String ERROR_PREFIX = "Error: ";
@@ -45,26 +46,35 @@ public class View {
      * @param bikeSerialNumber the serial number of the broken bike
      */
     public void proceedActions(String telephoneNumber, String bikeSerialNumber) {
-        try{
+        try {
             proceedReceptionPreparationActions(telephoneNumber, bikeSerialNumber);
             proceedTechnicianDiagnosticActions(telephoneNumber);
             proceedReceptionConfirmationActions(telephoneNumber);
-        } catch (NotFoundCustomerException | InvalidTelephoneNumberException | NoExistedRepairOrderException | IllegalArgumentException e) {
-            System.out.println(ERROR_PREFIX + e.getMessage());
+        } catch (NotFoundCustomerException e) {
+            System.out.println(ERROR_PREFIX +
+                    String.format("No customer found for telephone number: %s", e.getTelephoneNumber()));
+        } catch (InvalidTelephoneNumberException e) {
+            System.out.println(ERROR_PREFIX +
+                    String.format("'%s' is not a valid phone number", e.getTelephoneNumber()));
+        } catch (NoExistedRepairOrderException e) {
+            System.out.println(ERROR_PREFIX +
+                    String.format("No repair order found for: %s", e.getIdentifier()));
+        } catch (NotFoundBikeException e) {
+            System.out.println(ERROR_PREFIX +
+                    String.format("No bike found with serial number: %s", e.getSerialNumber()));
         } catch (FailedOperationException e) {
-            System.out.println(ERROR_PREFIX + e.getMessage());
+            System.out.println(ERROR_PREFIX + "An internal system error occurred. Please try again later.");
             LogHandler.getLogger().logException(e);
         }
     }
 
-    private void proceedReceptionPreparationActions(String telephoneNumber, String bikeSerialNumber) throws NotFoundCustomerException, InvalidTelephoneNumberException, FailedOperationException {
+    private void proceedReceptionPreparationActions(String telephoneNumber, String bikeSerialNumber) throws NotFoundCustomerException, InvalidTelephoneNumberException, FailedOperationException, NotFoundBikeException {
         CustomerDTO foundCustomer = receptionistController.searchCustomer(telephoneNumber);
         printout("1. Reception - Found customer:", foundCustomer);
 
         printout("2. Reception - Created repair order.");
         BikeDTO foundBike = foundCustomer.getBikeBySerialNumber(bikeSerialNumber);
         String repairOrderId = receptionistController.createRepairOrder(telephoneNumber, new ProblemDTO("Broken bike chain", foundBike));
-
     }
 
     private void proceedTechnicianDiagnosticActions(String telephoneNumber) throws NotFoundCustomerException, InvalidTelephoneNumberException, NoExistedRepairOrderException {

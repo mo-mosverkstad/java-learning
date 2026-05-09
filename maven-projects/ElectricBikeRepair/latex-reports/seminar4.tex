@@ -300,19 +300,11 @@ The selection of the concrete strategy is performed through a factory, enabling 
 
 \paragraph{Factory pattern}
 
-The Factory pattern is applied to centralize object creation logic and decouple the
-system from concrete class implementations. During initialization, certain components
-such as data handlers must be instantiated based on configuration or runtime
-parameters, rather than being hardcoded.
+The Factory pattern is applied to centralize object creation logic and decouple the system from concrete class implementations. During initialization, certain components such as data handlers must be instantiated based on configuration or runtime parameters, rather than being hardcoded.
 
-To support this, object creation is delegated to factory classes that encapsulate the
-instantiation logic. The factory determines which concrete implementation to create
-based on provided parameters and returns an interface type to the caller. This allows
-the rest of the system to operate independently of specific implementations.
+To support this, object creation is delegated to factory classes that encapsulate the instantiation logic. The factory determines which concrete implementation to create based on provided parameters and returns an interface type to the caller. This allows the rest of the system to operate independently of specific implementations.
 
-Using the Factory pattern improves flexibility, simplifies configuration-based
-initialization, and prevents the spread of instantiation logic across multiple
-components.
+Using the Factory pattern improves flexibility, simplifies configuration-based initialization, and prevents the spread of instantiation logic across multiple components.
 
 \section{Result}
 \label{sec:result}
@@ -336,25 +328,23 @@ In terms of error handling using exceptions, custom exception classes are extend
 % Removed
 % When an error occurs in the model or integration layer, an appropriate exception is thrown and propagated through the system layers, which are shown in listings, related to the specific exception. Business-related exceptions are allowed to propagate to the view, where they are handled and presented as user-friendly error messages. Internal exceptions, such as simulated database failures, are caught in the controller layer and wrapped in a higher-level exception before being propagated further.
 
-The system distinguishes between two categories of exceptions: checked exceptions for business-rule violations and unchecked exceptions for internal program failures. Business-rule exceptions are thrown in the model or utility layers and are propagated unchanged through the controller to the view, where they are presented as user-friendly error messages. Unchecked exceptions originate in the integration layer and represent technical failures; these are caught in the controller layer, logged, and translated into a higher-level checked exception before being propagated to the view. As a result, only business-relevant exceptions reach the view layer.
+The system distinguishes between two categories of exceptions: checked exceptions for business-rule violations and unchecked exceptions for internal program failures. Business-rule exceptions are thrown in the model or utility layers and are propagated unchanged through the controller to the view, where they are presented as user-friendly error messages. Unchecked exceptions are produced in the integration layer during technical failures and are caught and logged in the controller layer, while translating it into a higher-level checked exception before being propagated to the view. As a result, only business-relevant exceptions reach the view layer.
 
 \subsubsection{Checked exception handling - InvalidTelephoneNumberException}
 
-The \texttt{InvalidTelephoneNumberException} exception arises when a telephone number is malformed and therefore cannot be read and parsed. Since the exception represents a violation of a business rule, it is implemented as a checked exception and extends \texttt{Exception}. The error message contains the malformed telephone number to inform the user.
+The \texttt{InvalidTelephoneNumberException} exception arises when a telephone number is malformed and therefore cannot be read and parsed. Since the exception represents a violation of a business rule, it is implemented as a checked exception which directly extends \texttt{Exception}. The exception contains detailed error information, in this case the malformed telephone number, to inform the user.
 
 The checked exception \texttt{InvalidTelephoneNumberException} is defined to represent the error condition where a telephone number has an invalid format with the specific invalid input, following the naming conventions in Chapter~8. The code can be found in \href{https://github.com/mo-mosverkstad/java-learning/blob/main/maven-projects/ElectricBikeRepair/src/main/java/se/ebikerepair/util/InvalidTelephoneNumberException.java}{\nolinkurl{.../util/InvalidTelephoneNumberException.java}} \cite{sourcecode}.
 
 The exception \texttt{InvalidTelephoneNumberException} is thrown in \texttt{TelephoneNumber} class constructor, located in utility layer. The \texttt{TelephoneNumber} takes responsibility of normalizing arbitrary formatted telephone number into E-164 format. When a telephone number is beyond recognition of any predefined format, the telephone number cannot be processed and therefore an exception \texttt{InvalidTelephoneNumberException} is thrown, whereas the logic is visualized in the listing. The implementation can be found in \href{https://github.com/mo-mosverkstad/java-learning/blob/main/maven-projects/ElectricBikeRepair/src/main/java/se/ebikerepair/util/TelephoneNumber.java}{\nolinkurl{.../util/TelephoneNumber.java}} \cite{sourcecode}.
 
-The methods that propagate the exception must also declare the exception after the \texttt{throws} keyword, which specifies the thrown exceptions. Since the methods \texttt{findRepairOrder} as well as the internal private function \texttt{findRepairOrderIds} depends on the \texttt{TelephoneNumber} class, which throws InvalidTelephoneNumberException.
+The methods that propagate the exception must also declare the exception after the \texttt{throws} keyword, which specifies the thrown exceptions. Since the methods \texttt{findRepairOrder} as well as the internal private function \texttt{findRepairOrderIds} depends on the \texttt{TelephoneNumber} class, which throws \texttt{InvalidTelephoneNumberException}.
 
 Additionally, in \texttt{ReceptionistController} in controller layer, the methods \texttt{searchCustomer} and \texttt{createRepairOrder} both propagates the exception \texttt{InvalidTelephoneNumberException}.
 
-The method \texttt{searchCustomer} propagates checked business-rule exceptions and translates unchecked technical failures into a higher-level checked exception, as shown later in the unchecked exception handling example.
+The method \texttt{createRepairOrder} invokes \texttt{searchCustomer}, which may propagate the checked exception \texttt{NotFoundCustomerException} when the specified customer does not exist.
 
-The method \texttt{createRepairOrder} invokes \texttt{searchCustomer}, which may propagate the checked exception \texttt{NotFoundCustomerException} when the specified customer does not exist. The listing also illustrates how unchecked technical exceptions are caught locally and translated into a higher-level checked exception before being propagated to the caller.
-
-When the checked exception \texttt{InvalidTelephoneNumberException} reaches view, it is caught alongside with other checked exceptions. The internal methods that proceeds each hardcoded action are defined in \texttt{proceedReceptionPreparationActions}, \texttt{proceedTechnicianDiagnosticActions}, and \texttt{proceedReceptionConfirmationActions} passes all their checked exception to the larger \texttt{proceedActions} method where the unchecked exceptions are all handled collectively. The exception information, including error message, is extracted and displayed to the view. Since the view is simple, it only extracts the error message from the exception and printing it into standard output. After displaying the error message, no further workflow steps are executed.
+When the checked exception \texttt{InvalidTelephoneNumberException} reaches view, it is caught alongside with other checked exceptions. The internal methods that proceeds each hardcoded action are defined in \texttt{proceedReceptionPreparationActions}, \texttt{proceedTechnicianDiagnosticActions}, and \texttt{proceedReceptionConfirmationActions} passes all their checked exceptions to the \texttt{proceedActions} method. The exception information, including error message, is extracted and displayed to the view. Since the view is simple, it only extracts the error information details from exceptions and produces a error message which is printed to the standard output. After displaying the error message, no further workflow steps are executed.
 
 \begin{lstlisting}[style=javastyle, caption={View.proceedActions catching exceptions and displaying error messages}]
 /**
@@ -364,14 +354,20 @@ When the checked exception \texttt{InvalidTelephoneNumberException} reaches view
  * @param bikeSerialNumber the serial number of the broken bike
  */
 public void proceedActions(String telephoneNumber, String bikeSerialNumber) {
-    try{
+    try {
         proceedReceptionPreparationActions(telephoneNumber, bikeSerialNumber);
         proceedTechnicianDiagnosticActions(telephoneNumber);
         proceedReceptionConfirmationActions(telephoneNumber);
-    } catch (NotFoundCustomerException | InvalidTelephoneNumberException | NoExistedRepairOrderException e) {
-        System.out.println(ERROR_PREFIX + e.getMessage());
+    } catch (NotFoundCustomerException e) {
+        System.out.println(ERROR_PREFIX + String.format("No customer found for telephone number: %s", e.getTelephoneNumber()));
+    } catch (InvalidTelephoneNumberException e) {
+        System.out.println(ERROR_PREFIX + String.format("'%s' is not a valid phone number", e.getTelephoneNumber()));
+    } catch (NoExistedRepairOrderException e) {
+        System.out.println(ERROR_PREFIX + String.format("No repair order found for: %s", e.getIdentifier()));
+    } catch (NotFoundBikeException e) {
+        System.out.println(ERROR_PREFIX + String.format("No bike found with serial number: %s", e.getSerialNumber()));
     } catch (FailedOperationException e) {
-        System.out.println(ERROR_PREFIX + e.getMessage());
+        System.out.println(ERROR_PREFIX + "An internal system error occurred. Please try again later.");
         LogHandler.getLogger().logException(e);
     }
 }
@@ -379,11 +375,11 @@ public void proceedActions(String telephoneNumber, String bikeSerialNumber) {
 
 \subsubsection{Unchecked exception handling - ResourceNotFoundException}
 
-Unchecked exceptions are propagated through the layers without declaring it after \texttt{throws} keyword. The unchecked exception \texttt{ResourceNotFoundException} is thrown when a data resource cannot be found. The exception contains the error message with the resource name that cannot be found. The implementation of the unchecked exception definition can be found in \href{https://github.com/mo-mosverkstad/java-learning/blob/183fd32417c1e32630f41e821e872cda2c43eda9/maven-projects/ElectricBikeRepair/src/main/java/se/ebikerepair/data/ResourceNotFoundException.java}{\nolinkurl{.../data/ResourceNotFoundException.java}} \cite{sourcecode}.
+Unchecked exceptions are propagated through the layers without declaring it after \texttt{throws} keyword. The unchecked exception \texttt{ResourceNotFoundException} is thrown when a data resource cannot be found. The exception contains the error detail with the resource name that cannot be found. The implementation of the unchecked exception definition can be found in \href{https://github.com/mo-mosverkstad/java-learning/blob/183fd32417c1e32630f41e821e872cda2c43eda9/maven-projects/ElectricBikeRepair/src/main/java/se/ebikerepair/data/ResourceNotFoundException.java}{\nolinkurl{.../data/ResourceNotFoundException.java}} \cite{sourcecode}.
 
 The exception is thrown during initialization of a resource handler of \texttt{DatabaseHandler} in the method \texttt{initDataHandler}. The exception is propagated further through methods such as \texttt{loadDiagnosticTasks} of \texttt{DiagnosticReport} and \texttt{initRegistry} of \texttt{CustomerRegistry}. In these methods, the exception is not declared, but implicitly thrown.
 
-Eventually, all unchecked resource exceptions are the controller layer and are converted into a checked exception \texttt{FailedOperationException}, which can be handled and displayed in view layer. The methods \texttt{searchCustomer} and \texttt{createRepairOrder}, for example, catches all possible unchecked exceptions and wraps them into a \texttt{FailedOperationException}, which is thrown to the view caller. The method \texttt{searchCustomer} shows the wrapping process of multiple unchecked exceptions such as \texttt{ResourceNotFoundException}, in the catch block of the method. The error message is also logged as well using the \texttt{LogHandler}
+Eventually, all unchecked resource exceptions are the controller layer and are converted into a checked exception \texttt{FailedOperationException}, which can be handled and displayed in view layer. The methods \texttt{searchCustomer} and \texttt{createRepairOrder}, for example, catches all possible unchecked exceptions and wraps them into a \texttt{FailedOperationException}, which is thrown to the view caller. The method \texttt{searchCustomer} shows the wrapping process of multiple unchecked exceptions such as \texttt{ResourceNotFoundException}, in the catch block of the method. The error message is also logged as well using the \texttt{LogHandler}.
 
 \begin{lstlisting}[style=javastyle, caption={ResourceNotFoundException wrapped to FailedOperationException}]
 /**
@@ -411,7 +407,7 @@ Reporting error messages is handled by a special and dedicated utility class \te
 
 Since the class is only instantiated once and the resource is never duplicated, the \texttt{singleton pattern} is applied. This is accomplished by making the constructor private as well as keeping its only singleton instance as a static class member, along with its desired log filepath. The instance is retrieved by the static method \texttt{getLogger} before the method \texttt{logException} can be called for writing the error message to the log.
 
-During logging, the \texttt{logException} method is called from the controller layer whenever an internal unchecked exception is caught. The method takes an exception class of any type and extract out the error message. Unchecked technical exceptions are logged together with detailed diagnostic information, including exception type, message, cause, and stack trace, while business-rule violations are excluded from logging, since they represent expected execution scenarios. The detailed implementation of \texttt{logException} can be found in \href{https://github.com/mo-mosverkstad/java-learning/blob/183fd32417c1e32630f41e821e872cda2c43eda9/maven-projects/ElectricBikeRepair/src/main/java/se/ebikerepair/util/LogHandler.java}{\nolinkurl{.../util/LogHandler.java}} \cite{sourcecode}.
+During logging, the \texttt{logException} method is called from the controller layer whenever an internal unchecked exception is caught. The method takes an exception class of any type and extract out the error details to produce an error message. Unchecked technical exceptions are logged together with detailed diagnostic information, including exception type, message, cause, and stack trace, while business-rule violations are excluded from logging, since they represent expected execution scenarios. The detailed implementation of \texttt{logException} can be found in \href{https://github.com/mo-mosverkstad/java-learning/blob/183fd32417c1e32630f41e821e872cda2c43eda9/maven-projects/ElectricBikeRepair/src/main/java/se/ebikerepair/util/LogHandler.java}{\nolinkurl{.../util/LogHandler.java}} \cite{sourcecode}.
 
 \subsection{Unit testing for handling errors and exceptions}
 
@@ -425,27 +421,10 @@ The \texttt{searchCustomer} method in \texttt{ReceptionistController} class is t
 
 \subsubsection{Unit tests for unchecked exceptions}
 
-For unchecked exceptions, the unit tests are also written in same structure as the checked exceptions. The only difference is that the unchecked exceptions are not declared in public API. For instance, the exception \texttt{ResourceNotFound} exception is expected to be thrown when a non-existent resource is tried to be accessed in \texttt{initDataHandler} method, which can be found in \href{https://github.com/mo-mosverkstad/java-learning/blob/183fd32417c1e32630f41e821e872cda2c43eda9/maven-projects/ElectricBikeRepair/src/test/java/se/ebikerepair/data/DatabaseHandlerTest.java}{\nolinkurl{.../data/DatabaseHandlerTest.java}} \cite{sourcecode}.
+For unchecked exceptions, the unit tests are also written in same structure as the checked exceptions. The only difference is that the unchecked exceptions are not declared in public API. For instance, the exception \texttt{ResourceNotFound} exception is expected to be thrown when a non-existent resource is tried to be accessed in \texttt{initDataHandler} method, which can be found in test directory of \href{https://github.com/mo-mosverkstad/java-learning/blob/183fd32417c1e32630f41e821e872cda2c43eda9/maven-projects/ElectricBikeRepair/src/test/java/se/ebikerepair/data/DatabaseHandlerTest.java}{\nolinkurl{.../data/DatabaseHandlerTest.java}} \cite{sourcecode}.
 
 \subsubsection{Unit tests for log handler}
-Additionally, the unit tests for log handler are also written. For testing logging, an exception is created whereas a unique message is written inside it. The message is logged afterwards into a file which is later read to retrieve out the value and compare with the original error message to verify the correctness of the logging functionality.
-
-\begin{lstlisting}[style=javastyle, caption={Unit test for writing logging}]
-@Test
-void testLogExceptionWritesToFile() throws IOException {
-    LogHandler logger = LogHandler.getLogger();
-    String uniqueMessage = "Test exception " + System.nanoTime();
-    Exception testException = new Exception(uniqueMessage);
-
-    logger.logException(testException);
-
-    File logFile = new File("ebikerepair.log");
-    assertTrue(logFile.exists());
-    String content = Files.readString(logFile.toPath());
-    assertTrue(content.contains(uniqueMessage));
-    assertTrue(content.contains("[ERROR]"));
-}
-\end{lstlisting}
+Additionally, the unit tests for log handler are also written. For testing logging, an exception is created whereas a unique message is written inside it. The message is logged afterwards into a file which is later read to retrieve out the value and compare with the original error message to verify the correctness of the logging functionality. The functionality can be found in test directory of \href{https://github.com/mo-mosverkstad/java-learning/blob/34b4b6e965166712b8f64949b998589988aae122/maven-projects/ElectricBikeRepair/src/test/java/se/ebikerepair/util/LogHandlerTest.java}{\nolinkurl{.../util/LogHandlerTest.java}} \cite{sourcecode}.
 
 \subsection{Sample run printouts}
 
@@ -458,7 +437,7 @@ When a checked exception occurs due to a business-rule violation, such as an inv
 The listing below shows the message of a sample printout concerning a malformed telephone number. Since it concerns business logic violation, the error message is designed to notify the user about the invalid input as a feedback.
 
 \begin{lstlisting}[style=outputstyle, caption={Checked exception as error message}]
-Error: The phone number 11707654322 is not a valid phone number
+Error: '11707654322' is not a valid phone number
 \end{lstlisting}
 
 \subsubsection{Unchecked exception printouts - writing logs}
@@ -468,25 +447,25 @@ Unchecked exceptions that contains internal program failure are logged to a file
 For instance, the listing below shows that a missing database, which is a internal failure, is displayed in two log messages. The first log entry corresponds to the original internal failure (a missing database), and the second entry shows the higher-level checked exception (\texttt{FailedOperationException}) that wraps the original cause before being propagated to the view. This shows how abstraction boundaries are preserved while still retaining detailed diagnostic information in the log.
 
 \begin{lstlisting}[style=outputstyle, basicstyle=\ttfamily\scriptsize, caption={Unchecked exception and wrapped checked exception captured in log file}]
-[May 9, 2026, 11:49:10 AM] [ERROR] se.ebikerepair.data.NoDatabaseException: No database customers found or connected
+[May 9, 2026, 4:01:11 PM] [ERROR] se.ebikerepair.data.NoDatabaseException: No database customers found or connected
   Stack trace:
     at se.ebikerepair.data.DatabaseHandler.initDataHandler(DatabaseHandler.java:35)
     at se.ebikerepair.integration.CustomerRegistry.initRegistry(CustomerRegistry.java:37)
     at se.ebikerepair.integration.CustomerRegistry.find(CustomerRegistry.java:51)
     at se.ebikerepair.controller.ReceptionistController.searchCustomer(ReceptionistController.java:55)
-    at se.ebikerepair.view.View.proceedReceptionPreparationActions(View.java:61)
-    at se.ebikerepair.view.View.proceedActions(View.java:49)
-    at se.ebikerepair.startup.Main.main(Main.java:32)
+    at se.ebikerepair.view.View.proceedReceptionPreparationActions(View.java:72)
+    at se.ebikerepair.view.View.proceedActions(View.java:50)
+    at se.ebikerepair.startup.Main.main(Main.java:26)
     at org.codehaus.mojo.exec.ExecJavaMojo$1.run(ExecJavaMojo.java:279)
     at java.base/java.lang.Thread.run(Thread.java:1583)
 
-[May 9, 2026, 11:49:10 AM] [ERROR] se.ebikerepair.controller.FailedOperationException: Unable to search customer due to an internal system error
+[May 9, 2026, 4:01:11 PM] [ERROR] se.ebikerepair.controller.FailedOperationException: Unable to search customer due to an internal system error
   Caused by: se.ebikerepair.data.NoDatabaseException: No database customers found or connected
   Stack trace:
     at se.ebikerepair.controller.ReceptionistController.searchCustomer(ReceptionistController.java:58)
-    at se.ebikerepair.view.View.proceedReceptionPreparationActions(View.java:61)
-    at se.ebikerepair.view.View.proceedActions(View.java:49)
-    at se.ebikerepair.startup.Main.main(Main.java:32)
+    at se.ebikerepair.view.View.proceedReceptionPreparationActions(View.java:72)
+    at se.ebikerepair.view.View.proceedActions(View.java:50)
+    at se.ebikerepair.startup.Main.main(Main.java:26)
     at org.codehaus.mojo.exec.ExecJavaMojo$1.run(ExecJavaMojo.java:279)
     at java.base/java.lang.Thread.run(Thread.java:1583)
 \end{lstlisting}
@@ -494,7 +473,7 @@ For instance, the listing below shows that a missing database, which is a intern
 The listing below shows a user-friendly message of a sample printout concerning a internal system failure. The error cause is mentioned without going into detail of the internal mechanism.
 
 \begin{lstlisting}[style=outputstyle, caption={Checked exception as error message}]
-Error: Unable to search customer due to an internal system error
+Error: An internal system error occurred. Please try again later.
 \end{lstlisting}
 
 \subsection{Design pattern designs}
@@ -540,7 +519,6 @@ The listing below shows an example of a singleton class \texttt{DatabaseHandler}
 \begin{lstlisting}[style=javastyle, caption={\texttt{DatabaseHandler} implementation with singleton}]
 public class DatabaseHandler{
     private static final DatabaseHandler INSTANCE = new DatabaseHandler();
-    private String databaseName;
 
     /**
      * Returns the singleton DatabaseHandler instance.
@@ -552,7 +530,7 @@ public class DatabaseHandler{
     }
 
     /**
-     * No-arg constructor kept for reflection-based instantiation via {@link DataHandlerFactory}.
+     * Private constructor to protect it from being instantiated accidentally
      */
     private DatabaseHandler() {}
 
@@ -607,7 +585,7 @@ public class DataHandlerFactory {
     private DataHandlerFactory() {}
 
     /**
-     * Creates a DataHandler instance from the given fully qualified class name
+     * Creates a DataHandler instance from the given fully qualified class name.
      *
      * @param className the fully qualified class name of the DataHandler implementation
      * @return a new DataHandler instance

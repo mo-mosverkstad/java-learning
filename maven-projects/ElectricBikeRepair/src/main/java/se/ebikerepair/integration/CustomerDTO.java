@@ -20,15 +20,15 @@ public record CustomerDTO(String name, String telephoneNumber, String emailAddre
      *
      * @param serialNumber the serial number to search for
      * @return the matching bike
-     * @throws IllegalArgumentException if the serial number is not found
+     * @throws NotFoundBikeException if the serial number is not found
      */
-    public BikeDTO getBikeBySerialNumber(String serialNumber) throws IllegalArgumentException {
+    public BikeDTO getBikeBySerialNumber(String serialNumber) throws NotFoundBikeException {
         for (BikeDTO bike : bikes) {
             if (bike.serialNumber().equals(serialNumber)) {
                 return bike;
             }
         }
-        throw new IllegalArgumentException(String.format("No bike found with serial number %s", serialNumber));
+        throw new NotFoundBikeException(serialNumber);
     }
 
     /**

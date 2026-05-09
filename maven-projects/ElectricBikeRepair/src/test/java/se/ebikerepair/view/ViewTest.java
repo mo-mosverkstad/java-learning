@@ -85,7 +85,7 @@ class ViewTest {
 
         assertTrue(output.contains("1. Reception - Found customer:"));
         assertTrue(output.contains("Error:"));
-        assertTrue(output.contains("No bike found with serial number NONEXISTENT"));
+        assertTrue(output.contains("No bike found with serial number: NONEXISTENT"));
     }
 
     @Test
