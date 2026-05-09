@@ -340,67 +340,13 @@ The system distinguishes between two categories of exceptions: checked exception
 
 \subsubsection{Checked exception handling - InvalidTelephoneNumberException}
 
-The \texttt{InvalidTelephoneNumberException} exception arises when a telephone number is malformed and therefore cannot be read and parsed. Since the exception represents a violation of a business rule, it is implemented
-as a checked exception and extends \texttt{Exception}. The error message contains the malformed telephone number to inform the user. 
+The \texttt{InvalidTelephoneNumberException} exception arises when a telephone number is malformed and therefore cannot be read and parsed. Since the exception represents a violation of a business rule, it is implemented as a checked exception and extends \texttt{Exception}. The error message contains the malformed telephone number to inform the user.
 
-\begin{lstlisting}[style=javastyle, caption={InvalidTelephoneNumberException class}]
-/**
- * Thrown when a telephone number has an invalid format and cannot be parsed.
- */
-public class InvalidTelephoneNumberException extends Exception {
-    /**
-     * Creates an exception indicating the given telephone number is invalid.
-     *
-     * @param telephoneNumber the telephone number that could not be parsed
-     */
-    public InvalidTelephoneNumberException(String telephoneNumber){
-        super(String.format("The phone number %s is not a valid phone number", telephoneNumber));
-    }
-}
-\end{lstlisting}
+The checked exception \texttt{InvalidTelephoneNumberException} is defined to represent the error condition where a telephone number has an invalid format with the specific invalid input, following the naming conventions in Chapter~8. The code can be found in \href{https://github.com/mo-mosverkstad/java-learning/blob/main/maven-projects/ElectricBikeRepair/src/main/java/se/ebikerepair/util/InvalidTelephoneNumberException.java}{\nolinkurl{.../util/InvalidTelephoneNumberException.java}} \cite{sourcecode}.
 
-The exception \texttt{InvalidTelephoneNumberException} is thrown in \texttt{TelephoneNumber} class constructor, located in utility layer. The \texttt{TelephoneNumber} takes responsibility of normalizing arbitrary formatted telephone number into E-164 format. When a telephone number is beyond recognition of any predefined format, the telephone number cannot be processed and therefore an exception \texttt{InvalidTelephoneNumberException} is thrown, whereas the logic is visualized in the listing.
-
-\begin{lstlisting}[style=javastyle, caption={TelephoneNumber constructor throwing InvalidTelephoneNumberException}]
-/**
- * Parses a telephone number string into country code, area code, and subscriber number.
- *
- * @param telephoneNumber the telephone number in any supported Swedish format
- * @throws InvalidTelephoneNumberException if the telephone number is null, empty, or has an invalid format
- */
-public TelephoneNumber(String telephoneNumber) throws InvalidTelephoneNumberException {
-    if (telephoneNumber.trim().isEmpty()) {
-        throw new InvalidTelephoneNumberException("<empty>");
-    }
-    String digits = telephoneNumber.replaceAll("[\\s\\-\\(\\)]", "");
-    if (!digits.matches("\\+?[0-9]+")) {
-        throw new InvalidTelephoneNumberException(telephoneNumber);
-    }
-    // further validation and normalization logic
-}
-\end{lstlisting}
+The exception \texttt{InvalidTelephoneNumberException} is thrown in \texttt{TelephoneNumber} class constructor, located in utility layer. The \texttt{TelephoneNumber} takes responsibility of normalizing arbitrary formatted telephone number into E-164 format. When a telephone number is beyond recognition of any predefined format, the telephone number cannot be processed and therefore an exception \texttt{InvalidTelephoneNumberException} is thrown, whereas the logic is visualized in the listing. The implementation can be found in \href{https://github.com/mo-mosverkstad/java-learning/blob/main/maven-projects/ElectricBikeRepair/src/main/java/se/ebikerepair/util/TelephoneNumber.java}{\nolinkurl{.../util/TelephoneNumber.java}} \cite{sourcecode}.
 
 The methods that propagate the exception must also declare the exception after the \texttt{throws} keyword, which specifies the thrown exceptions. Since the methods \texttt{findRepairOrder} as well as the internal private function \texttt{findRepairOrderIds} depends on the \texttt{TelephoneNumber} class, which throws InvalidTelephoneNumberException.
-
-\begin{lstlisting}[style=javastyle, caption={Controller.findRepairOrder propagating InvalidTelephoneNumberException}]
-/**
- * Finds the most recent repair order for the given telephone number.
- *
- * @param telephoneNumber the customer's telephone number (any Swedish format)
- * @return the most recent repair order as a DTO
- * @throws InvalidTelephoneNumberException if the phone number format is invalid
- * @throws NoExistedRepairOrderException if no repair orders exist for the customer or the order cannot be found
- */
-public RepairOrderDTO findRepairOrder(String telephoneNumber) throws InvalidTelephoneNumberException, NoExistedRepairOrderException{
-    List<String> repairOrderIds = findRepairOrderIds(telephoneNumber);
-    // further process
-}
-
-private List<String> findRepairOrderIds(String telephoneNumber) throws InvalidTelephoneNumberException{
-    String phoneNumberE164 = new TelephoneNumber(telephoneNumber).toE164();
-    // process phoneNumberE164 ...
-}
-\end{lstlisting}
 
 Additionally, in \texttt{ReceptionistController} in controller layer, the methods \texttt{searchCustomer} and \texttt{createRepairOrder} both propagates the exception \texttt{InvalidTelephoneNumberException}.
 
@@ -433,23 +379,7 @@ public void proceedActions(String telephoneNumber, String bikeSerialNumber) {
 
 \subsubsection{Unchecked exception handling - ResourceNotFoundException}
 
-Unchecked exceptions are propagated through the layers without declaring it after \texttt{throws} keyword. The unchecked exception \texttt{ResourceNotFoundException} is thrown when a data resource cannot be found. The exception contains the error message with the resource name that cannot be found.
-
-\begin{lstlisting}[style=javastyle, caption={Unchecked Exception ResourceNotFoundException class}]
-/**
- * Thrown when a classpath resource file cannot be found.
- */
-public class ResourceNotFoundException extends RuntimeException{
-    /**
-     * Creates an exception indicating the resource was not found.
-     *
-     * @param resourceName the name of the resource that was not found
-     */
-    public ResourceNotFoundException(String resourceName) {
-        super(String.format("%s not found in resources", resourceName));
-    }
-}
-\end{lstlisting}
+Unchecked exceptions are propagated through the layers without declaring it after \texttt{throws} keyword. The unchecked exception \texttt{ResourceNotFoundException} is thrown when a data resource cannot be found. The exception contains the error message with the resource name that cannot be found. The implementation of the unchecked exception definition can be found in \href{https://github.com/mo-mosverkstad/java-learning/blob/183fd32417c1e32630f41e821e872cda2c43eda9/maven-projects/ElectricBikeRepair/src/main/java/se/ebikerepair/data/ResourceNotFoundException.java}{\nolinkurl{.../data/ResourceNotFoundException.java}} \cite{sourcecode}.
 
 The exception is thrown during initialization of a resource handler of \texttt{DatabaseHandler} in the method \texttt{initDataHandler}. The exception is propagated further through methods such as \texttt{loadDiagnosticTasks} of \texttt{DiagnosticReport} and \texttt{initRegistry} of \texttt{CustomerRegistry}. In these methods, the exception is not declared, but implicitly thrown.
 
@@ -470,42 +400,18 @@ public CustomerDTO searchCustomer(String telephoneNumber) throws NotFoundCustome
         // search customer operation
     } catch (ResourceNotFoundException | InvalidResourceURIException | CannotReadFileException | CannotWriteFileException | NoDatabaseException exception){
         LogHandler.getLogger().logException(exception);
-        throw new FailedOperationException("Fail to search customer", exception);
+        throw new FailedOperationException("Unable to search customer due to an internal system error", exception);
     }
 }
 \end{lstlisting}
 
 \subsubsection{Log handling for exceptions}
 
-Reporting error messages is handled by a special utility class \texttt{LogHandler}. The class is responsible for writing formatted logs to a specified program file \texttt{ebikerepair.log}.
+Reporting error messages is handled by a special and dedicated utility class \texttt{LogHandler}. The class is responsible for writing formatted logs to a specified program file \texttt{ebikerepair.log}.
 
-Since the class is only instantiated once and the resource is never duplicated, the \texttt{singleton pattern} is applied. This is accomplished by making the constructor private as well as keeping its only singleton instance as a static class member, along with its desired log filepath. The instance is retrieved by the static method \texttt{getLogger} before the method \texttt{logException} can be called for writing the error message to the log.  
+Since the class is only instantiated once and the resource is never duplicated, the \texttt{singleton pattern} is applied. This is accomplished by making the constructor private as well as keeping its only singleton instance as a static class member, along with its desired log filepath. The instance is retrieved by the static method \texttt{getLogger} before the method \texttt{logException} can be called for writing the error message to the log.
 
-During logging, the \texttt{logException} method is called from the controller layer whenever an internal exception is caught. The method takes an exception class of any type and extract out the error message, which is formatted with additional information such as created time. After that, the formatted message is written to the file.
-
-\begin{lstlisting}[style=javastyle, caption={Log exception}]
-/**
- * Writes a log entry describing a thrown exception.
- * 
- * @param exception The exception that shall be logged.
- */
-public void logException(Exception exception) {
-    logFile.println(String.format("[%s] [ERROR] %s: %s",
-        createTime(),
-        exception.getClass().getName(),
-        exception.getMessage()));
-    if (exception.getCause() != null) {
-        logFile.println(String.format("  Caused by: %s: %s",
-            exception.getCause().getClass().getName(),
-            exception.getCause().getMessage()));
-    }
-    logFile.println("  Stack trace:");
-    for (StackTraceElement element : exception.getStackTrace()) {
-        logFile.println(String.format("    at %s", element));
-    }
-    logFile.println();
-}
-\end{lstlisting}
+During logging, the \texttt{logException} method is called from the controller layer whenever an internal unchecked exception is caught. The method takes an exception class of any type and extract out the error message. Unchecked technical exceptions are logged together with detailed diagnostic information, including exception type, message, cause, and stack trace, while business-rule violations are excluded from logging, since they represent expected execution scenarios. The detailed implementation of \texttt{logException} can be found in \href{https://github.com/mo-mosverkstad/java-learning/blob/183fd32417c1e32630f41e821e872cda2c43eda9/maven-projects/ElectricBikeRepair/src/main/java/se/ebikerepair/util/LogHandler.java}{\nolinkurl{.../util/LogHandler.java}} \cite{sourcecode}.
 
 \subsection{Unit testing for handling errors and exceptions}
 
@@ -513,66 +419,13 @@ Unit tests are written to verify that each method that throws or propagates exce
 
 \subsubsection{Unit tests for checked exceptions}
 
-In terms of testing methods that throws checked exception, positive test cases are expected to not throw any exception while negative test cases are expected to produce a specified exception. In this case, the \texttt{TelephoneNumber} constructor is tested in the \texttt{TelephoneNumberTest} class. It verifies that valid phone numbers are read and interpreted without throwing, and that malformed formats must result into an \texttt{InvalidTelephoneNumberException} that is thrown. The test cases are checked using the method \texttt{assertThrows} during a test case where a specified exception is thrown. If a test case is not expected to throw any exception, the method \texttt{assertDoesNotThrow} is used instead.
+In terms of testing methods that throws checked exception, positive test cases are expected to not throw any exception while negative test cases are expected to produce a specified exception. In this case, the \texttt{TelephoneNumber} constructor is tested in the \texttt{TelephoneNumberTest} class. It verifies that valid phone numbers are read and interpreted without throwing, and that malformed formats must result into an \texttt{InvalidTelephoneNumberException} that is thrown. The test cases are checked using the method \texttt{assertThrows} during a test case where a specified exception is thrown. If a test case is not expected to throw any exception, the method \texttt{assertDoesNotThrow} is used instead. The test implementation is found in \href{https://github.com/mo-mosverkstad/java-learning/blob/183fd32417c1e32630f41e821e872cda2c43eda9/maven-projects/ElectricBikeRepair/src/test/java/se/ebikerepair/util/TelephoneNumberTest.java}{\nolinkurl{.../util/TelephoneNumberTest.java}} \cite{sourcecode}.
 
-\begin{lstlisting}[style=javastyle, caption={TelephoneNumberTest - testing TelephoneNumber constructor}]
-@Test
-void testE164() {
-    assertDoesNotThrow(() -> {
-        TelephoneNumber number = new TelephoneNumber("+46701234567");
-        assertEquals("+46701234567", number.toE164());
-    });
-}
-
-@Test
-void testEmptyInput() {
-    assertThrows(InvalidTelephoneNumberException.class, () -> new TelephoneNumber("   "));
-}
-
-@Test
-void testWrongPrefix() {
-    assertThrows(InvalidTelephoneNumberException.class, () -> {
-        new TelephoneNumber("0001234567").toE164();
-    });
-}
-\end{lstlisting}
-
-The \texttt{searchCustomer} method in \texttt{ReceptionistController} class is tested in the \linebreak\texttt{ReceptionistControllerTest} class. Since the \texttt{searchCustomer} method calls the \linebreak\texttt{TelephoneNumber} that throws the specific exception\texttt{InvalidTelephoneNumberException} and other methods that throws similar methods, it is therefore tested and verified. It verifies that an existing customer is found without throwing, that \texttt{NotFoundCustomerException} is thrown for a non-existing customer, and that \texttt{InvalidTelephoneNumberException} is propagated for malformed input.
-
-\begin{lstlisting}[style=javastyle, caption={ReceptionistControllerTest - testing searchCustomer method test in ReceptionistController class}]
-@Test
-void testSearchExistingCustomer() {
-    assertDoesNotThrow(() -> {
-        CustomerDTO customer = controller.searchCustomer("0707654321");
-        assertNotNull(customer);
-    });
-}
-
-@Test
-void testSearchNonExistingCustomer() {
-    assertThrows(NotFoundCustomerException.class, () -> controller.searchCustomer("0700000000"));
-}
-
-@Test
-void testSearchInvalidPhoneNumber() {
-    assertThrows(InvalidTelephoneNumberException.class, () -> controller.searchCustomer("abc"));
-}
-\end{lstlisting}
-
+The \texttt{searchCustomer} method in \texttt{ReceptionistController} class is tested in the \linebreak\texttt{ReceptionistControllerTest} class. Since the \texttt{searchCustomer} method calls the \linebreak\texttt{TelephoneNumber} that throws the specific exception\texttt{InvalidTelephoneNumberException} and other methods that throws similar methods, it is therefore tested and verified. It verifies that an existing customer is found without throwing, that \texttt{NotFoundCustomerException} is thrown for a non-existing customer, and that \texttt{InvalidTelephoneNumberException} is propagated for malformed input. The test implementation can be found in \href{https://github.com/mo-mosverkstad/java-learning/blob/183fd32417c1e32630f41e821e872cda2c43eda9/maven-projects/ElectricBikeRepair/src/test/java/se/ebikerepair/controller/ReceptionistControllerTest.java}{\nolinkurl{.../controller/ReceptionistControllerTest.java}} \cite{sourcecode}.
 
 \subsubsection{Unit tests for unchecked exceptions}
 
-For unchecked exceptions, the unit tests are also written in same structure as the checked exceptions. The only difference is that the unchecked exceptions are not declared in public API. For instance, the exception \texttt{ResourceNotFound} exception is exxpected to be thrown when a non-existent resource is tried to be accessed in \texttt{initDataHandler} method. 
-
-\begin{lstlisting}[style=javastyle, caption={unit test for ResourceNotFoundException class}]
-@Test
-void testReadNonExistentFile() {
-    assertThrows(ResourceNotFoundException.class, () -> {
-        DatabaseHandler handler = new DatabaseHandler();
-        handler.initDataHandler("nonexistent");
-    });
-}
-\end{lstlisting}
+For unchecked exceptions, the unit tests are also written in same structure as the checked exceptions. The only difference is that the unchecked exceptions are not declared in public API. For instance, the exception \texttt{ResourceNotFound} exception is expected to be thrown when a non-existent resource is tried to be accessed in \texttt{initDataHandler} method, which can be found in \href{https://github.com/mo-mosverkstad/java-learning/blob/183fd32417c1e32630f41e821e872cda2c43eda9/maven-projects/ElectricBikeRepair/src/test/java/se/ebikerepair/data/DatabaseHandlerTest.java}{\nolinkurl{.../data/DatabaseHandlerTest.java}} \cite{sourcecode}.
 
 \subsubsection{Unit tests for log handler}
 Additionally, the unit tests for log handler are also written. For testing logging, an exception is created whereas a unique message is written inside it. The message is logged afterwards into a file which is later read to retrieve out the value and compare with the original error message to verify the correctness of the logging functionality.
@@ -615,27 +468,33 @@ Unchecked exceptions that contains internal program failure are logged to a file
 For instance, the listing below shows that a missing database, which is a internal failure, is displayed in two log messages. The first log entry corresponds to the original internal failure (a missing database), and the second entry shows the higher-level checked exception (\texttt{FailedOperationException}) that wraps the original cause before being propagated to the view. This shows how abstraction boundaries are preserved while still retaining detailed diagnostic information in the log.
 
 \begin{lstlisting}[style=outputstyle, basicstyle=\ttfamily\scriptsize, caption={Unchecked exception and wrapped checked exception captured in log file}]
-[May 3, 2026, 9:52:47 AM] [ERROR] se.ebikerepair.data.NoDatabaseException: No database customers found or connected
+[May 9, 2026, 11:49:10 AM] [ERROR] se.ebikerepair.data.NoDatabaseException: No database customers found or connected
   Stack trace:
     at se.ebikerepair.data.DatabaseHandler.initDataHandler(DatabaseHandler.java:35)
     at se.ebikerepair.integration.CustomerRegistry.initRegistry(CustomerRegistry.java:37)
     at se.ebikerepair.integration.CustomerRegistry.find(CustomerRegistry.java:51)
     at se.ebikerepair.controller.ReceptionistController.searchCustomer(ReceptionistController.java:55)
-    at se.ebikerepair.view.View.proceedReceptionPreparationActions(View.java:59)
+    at se.ebikerepair.view.View.proceedReceptionPreparationActions(View.java:61)
     at se.ebikerepair.view.View.proceedActions(View.java:49)
-    at se.ebikerepair.startup.Main.main(Main.java:26)
+    at se.ebikerepair.startup.Main.main(Main.java:32)
     at org.codehaus.mojo.exec.ExecJavaMojo$1.run(ExecJavaMojo.java:279)
     at java.base/java.lang.Thread.run(Thread.java:1583)
 
-[May 3, 2026, 9:52:47 AM] [ERROR] se.ebikerepair.controller.FailedOperationException: Fail to search customer
+[May 9, 2026, 11:49:10 AM] [ERROR] se.ebikerepair.controller.FailedOperationException: Unable to search customer due to an internal system error
   Caused by: se.ebikerepair.data.NoDatabaseException: No database customers found or connected
   Stack trace:
     at se.ebikerepair.controller.ReceptionistController.searchCustomer(ReceptionistController.java:58)
-    at se.ebikerepair.view.View.proceedReceptionPreparationActions(View.java:59)
+    at se.ebikerepair.view.View.proceedReceptionPreparationActions(View.java:61)
     at se.ebikerepair.view.View.proceedActions(View.java:49)
-    at se.ebikerepair.startup.Main.main(Main.java:26)
+    at se.ebikerepair.startup.Main.main(Main.java:32)
     at org.codehaus.mojo.exec.ExecJavaMojo$1.run(ExecJavaMojo.java:279)
     at java.base/java.lang.Thread.run(Thread.java:1583)
+\end{lstlisting}
+
+The listing below shows a user-friendly message of a sample printout concerning a internal system failure. The error cause is mentioned without going into detail of the internal mechanism.
+
+\begin{lstlisting}[style=outputstyle, caption={Checked exception as error message}]
+Error: Unable to search customer due to an internal system error
 \end{lstlisting}
 
 \subsection{Design pattern designs}
@@ -662,110 +521,13 @@ public interface RepairOrderObserver {
 
 The \texttt{RepairOrderView} class implements the observer interface and provides a user-facing representation of repair order updates. When notified, it prints a structured notification message to standard output, allowing users to be informed of changes in repair order status without explicitly requesting this information.
 
-\begin{lstlisting}[style=javastyle, caption={RepairOrderView implementing RepairOrderObserver}]
-public class RepairOrderView implements RepairOrderObserver {
-
-    @Override
-    public void updateRepairOrder(RepairOrderDTO repairOrderDTO){
-        // Using System.out.println() to print the information of
-        // repairOrderDTO as observer notification
-    }
-}
-\end{lstlisting}
-
 The \texttt{RepairOrderLogger} class provides an alternative observer implementation that records repair order updates to a file instead of presenting them to the user. This implementation shares the same notification interface and mechanism as the view observer, but directs output to a persistent log instead.
-
-\begin{lstlisting}[style=javastyle, caption={RepairOrderLogger implementing RepairOrderObserver}]
-public class RepairOrderLogger implements RepairOrderObserver {
-    private static final String LOG_FILE_NAME = "ebikerepair-repairorder.log";
-    private PrintWriter logFile;
-
-    public RepairOrderLogger(){
-        try {
-            logFile = new PrintWriter(new FileWriter(LOG_FILE_NAME, true), true);
-        } catch (IOException ex) {
-            System.out.println("Could not create logger.");
-            ex.printStackTrace();
-        }
-    }
-
-    @Override
-    public void updateRepairOrder(RepairOrderDTO repairOrderDTO){
-        logFile.println(createTime());
-        logFile.println(repairOrderDTO);
-        logFile.println();
-    }
-    ...
-}
-\end{lstlisting}
 
 The \texttt{RepairOrder} class maintains its own list of observers, which is populated when a repair order is created. Whenever the internal state of the repair order changes, all registered observers are notified by calling the internal method \texttt{notifyRepairOrderObservers} that collectively notifies the observers with the current state represented as a data transfer object.
 
-\begin{lstlisting}[style=javastyle, caption={RepairOrder as the observed subject}]
-public class RepairOrder {
-    private List<RepairOrderObserver> repairOrderObservers;
-
-    public void addRepairOrderObservers(List<RepairOrderObserver> observers) {
-        repairOrderObservers.addAll(observers);
-    }
-
-    private void notifyRepairOrderObservers() {
-        for (RepairOrderObserver repairOrderObserver : repairOrderObservers) {
-            repairOrderObserver.updateRepairOrder(toDTO());
-        }
-    }
-    ...
-\end{lstlisting}
-
 During state changes, the observer objects must be therefore notified. This is implemented by notifying the observers using the method \texttt{notifyRepairOrderObservers} for every method that alters the state of a \texttt{RepairOrder} object. In this case, the methods \texttt{updateProblem}, \texttt{accept} and \texttt{reject} modifies the internal fields of the object, and the notification is handled at the end of each procedure.
 
-\begin{lstlisting}[style=javastyle, caption={Methods that changes the state of \texttt{RepairOrder}}]
-    public void updateProblem(ProblemDTO problemDTO) {
-        this.problem.update(problemDTO);
-        notifyRepairOrderObservers();
-    }
-
-    public void accept() {
-        repairOrderState = RepairOrderState.Accepted;
-        notifyRepairOrderObservers();
-    }
-
-    public void reject() {
-        repairOrderState = RepairOrderState.Rejected;
-        notifyRepairOrderObservers();
-    }
-}
-\end{lstlisting}
-
 The controller is responsible for maintaining a collection of observers that should be notified of repair order updates. Observers are registered once and stored internally by the controller, allowing them to be used for observed objects in the business logic. The observer collection inside controller enables an observer interface between View and Controller layers while avoiding direct coupling between View and Model layer.
-
-\begin{lstlisting}[style=javastyle, caption={Controller storing observers}]
-public class Controller {
-    protected final List<RepairOrderObserver> repairOrderObservers;
-
-    public Controller(RepairOrderRegistry repairOrderRegistry){
-        this.repairOrderRegistry = repairOrderRegistry;
-        this.repairOrderObservers = new ArrayList<>();
-    }
-
-    public void addRepairOrderObserver(RepairOrderObserver repairOrderObserver){
-        repairOrderObservers.add(repairOrderObserver);
-    }
-}
-\end{lstlisting}
-
-Ultimately, the observers are registered during view initialization. The observer objects are initialized during \texttt{View} constructor and added into the controller. 
-
-\begin{lstlisting}[style=javastyle, caption={View registering observers on the controller}]
-public class View {
-    public View(ControllerCreator controllerCreator) {
-        ...
-        receptionistController = controllerCreator.getReceptionistController();
-        receptionistController.addRepairOrderObserver(new RepairOrderView());
-        receptionistController.addRepairOrderObserver(new RepairOrderLogger());
-    }
-}
-\end{lstlisting}
 
 \subsubsection{Singleton design pattern}
 
@@ -810,59 +572,12 @@ public interface PricingStrategy {
 \end{lstlisting}
 
 
-A default pricing strategy is provided for non-membership customers. The \texttt{StandardPricingStrategy} calculates the total repair cost based solely on diagnostic tasks and repair tasks, without applying any discounts. This strategy represents the baseline pricing behavior used when no membership rules apply.
-
-\begin{lstlisting}[style=javastyle, caption={\texttt{StandardPricingStrategy} implementation}]
-public class StandardPricingStrategy implements PricingStrategy {
-
-    @Override
-    public PricingResult calculateTotalCost(RepairOrder repairOrder) {
-        Cost base = calculateBaseCost(repairOrder);
-        return new PricingResult(base, new Cost(0), base);
-    }
-
-    private Cost calculateBaseCost(RepairOrder repairOrder) {
-        Cost total = new Cost();
-        total.calculate(repairOrder.getDiagnosticReport().getTotalCost());
-        total.calculate(repairOrder.getRepairTaskCollection().getTotalCost());
-        return total;
-    }
-}
-\end{lstlisting}
+A default pricing strategy is provided for non-membership customers. The \texttt{StandardPricingStrategy} calculates the total repair cost based solely on diagnostic tasks and repair tasks, without applying any discounts. This strategy represents the baseline pricing behavior used when no membership rules apply. \href{https://github.com/mo-mosverkstad/java-learning/blob/183fd32417c1e32630f41e821e872cda2c43eda9/maven-projects/ElectricBikeRepair/src/main/java/se/ebikerepair/model/StandardPricingStrategy.java}{\nolinkurl{.../model/StandardPricingStrategy.java}} \cite{sourcecode}.
 
 For membership customers, an alternative pricing strategy is implemented. The \texttt{MembershipPricingStrategy} applies a discount every third repair based on the customer's repair history. This strategy uses the same base cost calculation as the standard strategy, but conditionally applies a discount before computing the final price.
+\href{https://github.com/mo-mosverkstad/java-learning/blob/183fd32417c1e32630f41e821e872cda2c43eda9/maven-projects/ElectricBikeRepair/src/main/java/se/ebikerepair/model/MembershipPricingStrategy.java}{\nolinkurl{.../model/MembershipPricingStrategy.java}} \cite{sourcecode}.
 
-\begin{lstlisting}[style=javastyle, caption={\texttt{MembershipPricingStrategy} implementation}]
-public class MembershipPricingStrategy implements PricingStrategy {
-    private final float MEMBERSHIP_THIRD_DISCOUNT = .15F;
-    private int repairCount;
-
-    public MembershipPricingStrategy(int repairCount){
-        this.repairCount = repairCount;
-    }
-
-    @Override
-    public PricingResult calculateTotalCost(RepairOrder order) {
-        Cost base = calculateBaseCost(order);
-        Cost discount = new Cost(0, base.getCurrency());
-        if (repairCount % 3 == 0) {
-            discount = new Cost(base.getAmount() * MEMBERSHIP_THIRD_DISCOUNT, base.getCurrency());
-        }
-        Cost finalCost = new Cost(base);
-        finalCost.calculate(new Cost(-discount.getAmount(), base.getCurrency()));
-        return new PricingResult(base, discount, finalCost);
-    }
-
-    private Cost calculateBaseCost(RepairOrder order) {
-        Cost total = new Cost();
-        total.calculate(order.getDiagnosticReport().getTotalCost());
-        total.calculate(order.getRepairTaskCollection().getTotalCost());
-        return total;
-    }
-}
-\end{lstlisting}
-
-The selected pricing strategy is applied transparently when the total repair cost is requested from a repair order. The repair order delegates the pricing calculation to a strategy instance obtained from a factory based on customer information to produce a suitable instance with algorithm, allowing the concrete strategy to be selected dynamically based on customer information without modifying the repair order logic. This means that the responsibility for selecting the appropriate pricing strategy is delegated to a factory, keeping the repair order independent of concrete pricing rules.
+The selected pricing strategy is applied when the total repair cost is requested from a repair order. The repair order delegates the pricing calculation to a strategy instance obtained from a factory based on customer information to produce a suitable instance with algorithm, allowing the concrete strategy to be selected dynamically based on customer information without modifying the repair order logic. This means that the responsibility for selecting the appropriate pricing strategy is delegated to a factory, keeping the repair order independent of concrete pricing rules.
 
 \begin{lstlisting}[style=javastyle, caption={Applying pricing strategy in \texttt{RepairOrder}}]
 /**
@@ -917,99 +632,21 @@ Errors during reflective instantiation are propagated to the caller and handled 
 
 The Observer pattern is verified through the \texttt{RepairOrderView}, which acts as a concrete observer producing interactive notifications when a repair order changes state. The observer mechanism is tested by executing the full workflow of the bike repair system using the \texttt{proceedActions} method and capturing the printed output.
 
-The test verifies that observer notifications are produced during the execution of the workflow by asserting the presence of characteristic notification keywords in the printed output.
-
-
-\begin{lstlisting}[style=javastyle, caption={ViewTest — observer notification output}]
-@Test
-void testProceedActionsFullWorkflow() {
-    view.proceedActions("0707654321", "MO-2024-010");
-    String output = outputStream.toString();
-
-    assertTrue(output.contains("REPAIR ORDER MODIFICATION NOTIFICATION"));
-    assertTrue(output.contains("THE REPAIR ORDER HAS BEEN MODIFIED"));
-}
-\end{lstlisting}
+The test verifies that observer notifications are produced during the execution of the workflow by asserting the presence of characteristic notification keywords in the printed output. \href{https://github.com/mo-mosverkstad/java-learning/blob/183fd32417c1e32630f41e821e872cda2c43eda9/maven-projects/ElectricBikeRepair/src/test/java/se/ebikerepair/view/ViewTest.java}{\nolinkurl{.../view/ViewTest.java}} \cite{sourcecode}
 
 \paragraph{Singleton design tests}
 
-The Singleton pattern is tested using the \texttt{LogHandler} class, which is designed to only allow one single shared instance throughout the application. The tests verify that multiple calls to the \texttt{getLogger} method return the same instance and that the singleton instance is correctly initialized.
-
-
-\begin{lstlisting}[style=javastyle, caption={LogHandlerTest — singleton returns same instance}]
-@Test
-void testGetLoggerReturnsSameInstance() {
-    LogHandler first = LogHandler.getLogger();
-    LogHandler second = LogHandler.getLogger();
-    assertSame(first, second);
-}
-
-@Test
-void testGetLoggerNotNull() {
-    assertNotNull(LogHandler.getLogger());
-}
-\end{lstlisting}
+The Singleton pattern is tested using the \texttt{LogHandler} class, which is designed to only allow one single shared instance throughout the application. The tests verify that multiple calls to the \texttt{getLogger} method return the same instance and that the singleton instance is correctly initialized. \href{https://github.com/mo-mosverkstad/java-learning/blob/183fd32417c1e32630f41e821e872cda2c43eda9/maven-projects/ElectricBikeRepair/src/test/java/se/ebikerepair/util/LogHandlerTest.java}{\nolinkurl{.../util/LogHandlerTest.java}} \cite{sourcecode}
 
 \paragraph{Strategy design tests}
 
 The Strategy pattern is tested by verifying that different pricing algorithms are applied depending on customer membership status and repair history. The tests confirm that non-membership customers receive no discount in \texttt{testNonMemberNoDiscount}, while membership customers receive a 15\% discount on every third repair in \texttt{testMemberThirdRepairGets15PercentDiscount}.
 
-The correctness of strategy selection and execution is verified by asserting the base cost, discount amount, and final cost returned by the pricing calculation. Helper methods are used to construct repair orders with the required membership configuration and repair count for each test case.
-
-\begin{lstlisting}[style=javastyle, caption={RepairOrderTest — strategy pricing for non-member and member}]
-@Test
-void testNonMemberNoDiscount() {
-    RepairOrder order = createOrderWithMembership(false, 0);
-    order.getRepairTaskCollection().addRepairTask(
-        new RepairTaskDTO("Task", "Desc", new Cost(1000, "SEK"), 1));
-
-    PricingResult result = order.getPricingResult();
-    assertEquals(1000.0F, result.getBaseCost().getAmount());
-    assertEquals(0.0F, result.getDiscount().getAmount());
-    assertEquals(1000.0F, result.getFinalCost().getAmount());
-}
-
-@Test
-void testMemberThirdRepairGets15PercentDiscount() {
-    RepairOrder order = createOrderWithMembership(true, 3);
-    order.getRepairTaskCollection().addRepairTask(
-        new RepairTaskDTO("Task", "Desc", new Cost(1000, "SEK"), 1));
-
-    PricingResult result = order.getPricingResult();
-    assertEquals(1000.0F, result.getBaseCost().getAmount());
-    assertEquals(150.0F, result.getDiscount().getAmount());
-    assertEquals(850.0F, result.getFinalCost().getAmount());
-}
-\end{lstlisting}
+The correctness of strategy selection and execution is verified by asserting the base cost, discount amount, and final cost returned by the pricing calculation. Helper methods are used to construct repair orders with the required membership configuration and repair count for each test case. \href{https://github.com/mo-mosverkstad/java-learning/blob/183fd32417c1e32630f41e821e872cda2c43eda9/maven-projects/ElectricBikeRepair/src/test/java/se/ebikerepair/model/RepairOrderTest.java}{\nolinkurl{.../model/RepairOrderTest.java}} \cite{sourcecode}
 
 \paragraph{Factory design tests}
 
-The Factory pattern is tested by verifying that the \texttt{DataHandlerFactory} creates the correct concrete data handler implementation based on the provided class name. Successful instantiation of known handler implementations is verified, while invalid class names are tested to ensure that appropriate exceptions are thrown.
-
-\begin{lstlisting}[style=javastyle, caption={DataHandlerFactoryTest — factory creates correct handler type}]
-@Test
-void testCreateJsonFileHandler() {
-    DataHandler dataHandler = assertDoesNotThrow(() ->
-        DataHandlerFactory.create("se.ebikerepair.data.JsonFileHandler")
-    );
-    assertEquals(JsonFileHandler.class, dataHandler.getClass());
-}
-
-@Test
-void testCreateDatabaseHandler() {
-    DataHandler dataHandler = assertDoesNotThrow(() ->
-        DataHandlerFactory.create("se.ebikerepair.data.DatabaseHandler")
-    );
-    assertEquals(DatabaseHandler.class, dataHandler.getClass());
-}
-
-@Test
-void testCreateNonexistent() {
-    assertThrows(ClassNotFoundException.class, () -> {
-        DataHandlerFactory.create("nonexistentclass");
-    });
-}
-\end{lstlisting}
+The Factory pattern is tested by verifying that the \texttt{DataHandlerFactory} creates the correct concrete data handler implementation based on the provided class name. Successful instantiation of known handler implementations is verified, while invalid class names are tested to ensure that appropriate exceptions are thrown. \href{https://github.com/mo-mosverkstad/java-learning/blob/183fd32417c1e32630f41e821e872cda2c43eda9/maven-projects/ElectricBikeRepair/src/test/java/se/ebikerepair/data/DataHandlerFactoryTest.java}{\nolinkurl{.../data/DataHandlerFactoryTest.java}} \cite{sourcecode}
 
 \subsection{Sample run printouts of design patterns}
 The sample run printouts of the functionality based on design patterns includes interactive notification of repair order using observer pattern as well as a membership-based discounts using strategy pattern. The remaining two functionalities implemented by singleton and factory design pattern does not produce direct user-facing output, but improves instead the flexibility of the program design. 
@@ -1018,10 +655,10 @@ The listing below shows a sample run printout for a member customer \texttt{Astr
 
 \begin{lstlisting}[style=outputstyle, escapeinside={(*@}{@*)}, caption={Sample printout of repair order receipt}]
 8. Reception - Accepted order
-(*@\textcolor{yellow!80!black}{ --- REPAIR ORDER MODIFICATION NOTIFICATION (BEGIN) ---}@*)
+(*@\textcolor{blue}{ --- REPAIR ORDER MODIFICATION NOTIFICATION (BEGIN) ---}@*)
 (*@\textcolor{blue}{THE REPAIR ORDER HAS BEEN MODIFIED     : 399e9c4f-efcd-4a45-9b2b-2af4be4261df}@*)
 (*@\textcolor{blue}{PLEASE USE TELE NUMBER TO CHECK DETAILS: +46707654321 (Astrid Johansson)}@*)
-(*@\textcolor{yellow!80!black}{ --- REPAIR ORDER MODIFICATION NOTIFICATION -(END)- ---}@*)
+(*@\textcolor{blue}{ --- REPAIR ORDER MODIFICATION NOTIFICATION -(END)- ---}@*)
 
 **** Printing repair order FROM PRINTER ****
 =================================
@@ -1032,7 +669,7 @@ The listing below shows a sample run printout for a member customer \texttt{Astr
   Created:        Sun May 03 13:13:01 CEST 2026
   Est. Complete:  Thu May 07 13:13:01 CEST 2026
   -- Costs --
-  base = 1175.00 SEK, discount = 176.25 SEK, finalCost = 998.75 SEK
+  (*@\textcolor{green}{base = 1175.00 SEK, discount = 176.25 SEK, finalCost = 998.75 SEK}@*)
   Total Cost:     998.75 SEK
 ********************************
 ...

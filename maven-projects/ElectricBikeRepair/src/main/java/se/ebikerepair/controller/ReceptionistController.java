@@ -55,7 +55,7 @@ public class ReceptionistController extends Controller{
             return customerRegistry.find(phoneNumberE164);
         } catch (ResourceNotFoundException | InvalidResourceURIException | CannotReadFileException | CannotWriteFileException | NoDatabaseException exception){
             LogHandler.getLogger().logException(exception);
-            throw new FailedOperationException("Fail to search customer", exception);
+            throw new FailedOperationException("Unable to search customer due to an internal system error", exception);
         }
     }
 
@@ -79,7 +79,7 @@ public class ReceptionistController extends Controller{
             return repairOrder.getId();
         } catch (ResourceNotFoundException | InvalidResourceURIException | CannotReadFileException | CannotWriteFileException | NoDatabaseException exception){
             LogHandler.getLogger().logException(exception);
-            throw new FailedOperationException("Fail to create repair order", exception);
+            throw new FailedOperationException("Unable to create repair order due to an internal system error", exception);
         }
         
     }
