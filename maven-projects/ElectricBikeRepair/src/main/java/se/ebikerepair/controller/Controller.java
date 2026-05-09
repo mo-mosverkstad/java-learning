@@ -31,10 +31,10 @@ public class Controller {
 
     private List<String> findRepairOrderIds(String telephoneNumber) throws InvalidTelephoneNumberException{
         String phoneNumberE164 = new TelephoneNumber(telephoneNumber).toE164();
-        List<RepairOrder> repairOrders = repairOrderRegistry.findRepairOrdersByTelephoneNumber(phoneNumberE164);
+        List<RepairOrderDTO> repairOrders = repairOrderRegistry.findRepairOrdersByTelephoneNumber(phoneNumberE164);
         return repairOrders.stream()
-                .sorted(Comparator.comparing(RepairOrder::getCreatedDate).reversed())
-                .map(RepairOrder::getId)
+                .sorted(Comparator.comparing(RepairOrderDTO::createdDate).reversed())
+                .map(RepairOrderDTO::id)
                 .collect(Collectors.toList());
     }
 

@@ -48,14 +48,14 @@ class RepairOrderRegistryTest {
 
     @Test
     void testFindByTelephoneNumber() {
-        List<RepairOrder> orders = registry.findRepairOrdersByTelephoneNumber("+46701234567");
+        List<RepairOrderDTO> orders = registry.findRepairOrdersByTelephoneNumber("+46701234567");
         assertEquals(1, orders.size());
-        assertEquals(order1.getId(), orders.get(0).getId());
+        assertEquals(order1.getId(), orders.get(0).id());
     }
 
     @Test
     void testFindByTelephoneNumberNotFound() {
-        List<RepairOrder> orders = registry.findRepairOrdersByTelephoneNumber("+46700000000");
+        List<RepairOrderDTO> orders = registry.findRepairOrdersByTelephoneNumber("+46700000000");
         assertTrue(orders.isEmpty());
     }
 

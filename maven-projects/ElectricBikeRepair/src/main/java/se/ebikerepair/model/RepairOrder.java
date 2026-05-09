@@ -50,6 +50,23 @@ public class RepairOrder {
     }
 
     /**
+     * Creates a copy of the given repair order. The copy has the same ID and state
+     * but is a separate object not stored in the registry.
+     *
+     * @param other the repair order to copy
+     */
+    public RepairOrder(RepairOrder other) {
+        this.customerDTO = other.customerDTO;
+        this.problem = new Problem(other.problem.getDescription(), other.problem.getBrokenBike());
+        this.createdDate = new Date(other.createdDate.getTime());
+        this.repairOrderState = other.repairOrderState;
+        this.diagnosticReport = other.diagnosticReport;
+        this.repairTaskCollection = other.repairTaskCollection;
+        this.repairOrderObservers = new ArrayList<>(other.repairOrderObservers);
+        this.id = other.id;
+    }
+
+    /**
      * Returns the customer DTO.
      *
      * @return the customer DTO
