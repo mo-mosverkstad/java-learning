@@ -8,7 +8,8 @@ public class RepairOrderViewTemplate extends AbstractRepairOrderObserver{
     public RepairOrderViewTemplate(){}
 
     @Override
-    protected void doHandleRepairOrderUpdate(RepairOrderDTO repairOrderDTO) throws Exception{
+    protected void doHandleRepairOrderUpdate() throws Exception {
+        RepairOrderDTO repairOrderDTO = getRepairOrderDTO();
         if (repairOrderDTO == null) throw new Exception("No repair order DTO");
         System.out.println();
         System.out.println(String.format("%s --- REPAIR ORDER MODIFICATION NOTIFICATION (BEGIN) ---%s", PrintoutFormat.ANSI_YELLOW, PrintoutFormat.ANSI_RESET));
@@ -22,6 +23,7 @@ public class RepairOrderViewTemplate extends AbstractRepairOrderObserver{
         System.out.println();
     }
 
+    @Override
     protected void handleErrors(Exception e){
         System.out.println(String.format("ERROR: %s", e));
     }

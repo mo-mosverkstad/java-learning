@@ -8,9 +8,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 
 import se.ebikerepair.integration.RepairOrderDTO;
-import se.ebikerepair.model.RepairOrderObserver;
+import se.ebikerepair.model.AbstractRepairOrderObserver;
 
-public class RepairOrderLogger implements RepairOrderObserver {
+public class RepairOrderLogger extends AbstractRepairOrderObserver {
     private static final String LOG_FILE_NAME = "ebikerepair-repairorder.log";
     private PrintWriter logFile;
 
@@ -24,10 +24,16 @@ public class RepairOrderLogger implements RepairOrderObserver {
     }
 
     @Override
-    public void updateRepairOrder(RepairOrderDTO repairOrderDTO){
+    protected void doHandleRepairOrderUpdate() throws Exception {
+        RepairOrderDTO repairOrderDTO = getRepairOrderDTO();
         logFile.println(createTime());
         logFile.println(repairOrderDTO);
         logFile.println();
+    }
+
+    @Override
+    protected void handleErrors(Exception e) {
+        System.out.println("Failed to log repair order: " + e.getMessage());
     }
 
     private String createTime() {
