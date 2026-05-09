@@ -1,0 +1,1114 @@
+\documentclass[a4paper]{scrartcl}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{textcomp}
+\usepackage{amsmath}
+\usepackage{lastpage}
+\usepackage{pgf}
+\usepackage{wrapfig}
+\usepackage{fancyvrb}
+\usepackage[breaklinks=true]{hyperref}
+
+% Listing header
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{lightgray}{gray}{0.95}
+
+\lstdefinestyle{javastyle}{
+    backgroundcolor=\color{lightgray},
+    basicstyle=\ttfamily\small,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=8pt,
+    frame=single,
+    showstringspaces=false,
+    breaklines=true,
+    breakautoindent=true,
+    breakindent=2em,
+    keepspaces=true,
+    columns=fullflexible,
+    tabsize=4,
+    language=Java,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray!70},
+    stringstyle=\color{orange!90!black},
+    literate=
+      {Å}{{\AA}}1
+      {å}{{\aa}}1
+      {Ä}{{\"A}}1
+      {ä}{{\"a}}1
+      {Ö}{{\"O}}1
+      {ö}{{\"o}}1
+      {‑}{{-}}1
+}
+
+\lstdefinestyle{outputstyle}{
+    basicstyle=\ttfamily\small,
+    frame=single,
+    breaklines=true,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    literate=
+      {Å}{{\AA}}1
+      {å}{{\aa}}1
+      {Ä}{{\"A}}1
+      {ä}{{\"a}}1
+      {Ö}{{\"O}}1
+      {ö}{{\"o}}1
+      {‑}{{-}}1
+}
+
+% Create header and footer
+\headheight 27pt
+\pagestyle{fancyplain}
+\lhead{\footnotesize{Object-Oriented Design, IV1350}}
+\chead{\footnotesize{Seminar~4 Solution}}
+\rhead{}
+\lfoot{}
+\cfoot{\thepage\ (\pageref{LastPage})}
+\rfoot{}
+
+% Create title page
+\title{Seminar 4}
+\subtitle{Object-Oriented Design, IV1350}
+\author{Mo Wang mowang@ug.kth.se}
+%\date{\today} Prints today's date
+\date{2026-04-29}
+
+\begin{document}
+
+\maketitle
+\noindent\textbf{Project Members:} \\ \hfill
+% \tableofcontents %Generates the TOC
+[Mo Wang, mowang@ug.kth.se]
+
+\section*{Declaration:}
+
+By submitting this assignment, it is hereby declared that all group members listed above have contributed to the solution. It is also declared that all project members fully understand all parts of the final solution and can explain it upon request.
+
+It is furthermore declared that no part of the solution has been copied from any other source (except for resources presented in the Canvas page for the course IV1350), and that no part of the solution has been provided by someone not listed as a project member above.
+
+\section{Introduction}
+\label{sec:intro}
+
+This report focuses on exception handling and design pattern implementation in the \textit{Repair Electric Bike} system. The purpose of Seminar~4 is to extend the existing implementation with exceptions for error handling and to refactor the code using design patterns. In addition, unit tests are added to verify correct behavior in error-handling scenarios. The implementation follows the principles and guidelines described in Chapter~8 (exception handling) and Chapter~9 (design patterns) of \textit{A First Course in Object-Oriented Development}~\cite{coursebook}.
+
+Exception handling is used to manage both business logic violations and internal system failures. When a failure occurs in the model or integration layer, an exception is thrown and propagated to higher layers in the layered MVC-architecture. Exceptions are handled in the view layer, where a user-friendly error message is presented. For internal failures, detailed error information is also logged to a file for developers, according to the guidelines in Chapter~8 of the course literature. This approach avoids silent failures and error information propagation through return values.
+
+In addition to exception handling, design patterns are applied to address recurring design problems in the system. In particular, the Observer pattern is used to enable active notification of technicians and receptionists when a repair order is updated. This reduces coupling between system components and improves separation of concerns by decoupling update logic from presentation and logging responsibilities.
+
+Throughout the implementation of exception handling and design patterns, automated unit testing is carried out in parallel with development. For each development iteration, corresponding test cases are added or updated to verify correct behavior. This continuous testing improves code quality and helps detect incorrect behavior early in the development process.
+
+Seminar~4 consists of two main tasks: implementing exception handling according to the best practices described in Chapter~8 of the course book, and applying design patterns to improve system structure and flexibility, with particular focus on the Observer pattern and the introduction of additional design patterns for the same purpose.
+
+Alongside the implementation, unit testing is performed using the JUnit framework, with particular focus on verifying exception-handling behavior. Tests ensure that exceptions are thrown under the correct conditions, that no unintended state changes occur after failures, and that error scenarios are handled consistently, as recommended in Chapter~8 of the course literature.
+
+\subsection*{Task 1: Exception Handling}
+
+The first task is to extend the Repair Electric Bike system with exception handling. The implementation must fulfill the following requirements:
+
+\begin{itemize}
+    \item Exceptions are used to handle alternative flow 5a, where a searched customer phone number does not exist in the customer registry. They are also used to simulate database failures by throwing an exception when searching for a specific hard-coded item identifier.
+    
+    \item Exceptions must follow best practices described in Chapter~8 of the course book:
+    \begin{itemize}
+        \item Appropriate choice between checked and unchecked exceptions.
+        \item Exceptions are defined at the correct abstraction level.
+        \item Exception classes are named after the error condition.
+        \item Exceptions include relevant information about the error.
+        \item Built-in functionality from \texttt{java.lang.Exception} is utilized.
+        \item Javadoc comments are written for all exception classes.
+        \item The system state must remain unchanged if an exception is thrown.
+        \item Users are notified with meaningful error messages.
+        \item Developers are notified through error logging to a file.
+    \end{itemize}
+    \item When an exception is caught in the view layer, an informative error message is displayed to the user.
+    \item Severe errors are logged to a file for debugging and maintenance purposes.
+    \item Unit tests are implemented to verify exception handling behavior.
+\end{itemize}
+
+\subsection*{Task 2: Design Patterns}
+
+The second task is to apply design patterns to improve the system design.
+
+\begin{itemize}
+    \item The Observer pattern is implemented for active notification when a repair order is updated.
+    \item A new view, \texttt{RepairOrderView}, prints updated repair orders to \texttt{System.out}.
+    \item A second observer implementation, \texttt{RepairOrderLogger}, logs repair order updates to a file.
+    \item Both observer implementations must implement the same observer interface and must not call the controller or other system components directly.
+    \item For higher grade requirements, at least two additional Gang of Four (GoF) design patterns are implemented, excluding Observer and Template Method.
+    \item The chosen patterns must be properly motivated and integrated into the system architecture.
+\end{itemize}
+
+\subsection*{Unit Testing}
+
+\begin{itemize}
+    \item Unit tests are implemented continuously using the JUnit framework.
+    \item Tests specifically verify exception handling and error scenarios.
+    \item Tests ensure that exceptions are thrown under the correct conditions and that system state remains consistent.
+\end{itemize}
+
+
+\iffalse
+
+\subsection{Requirements of Seminar 4}
+
+Seminar~4 consists of two main tasks: exception handling and design pattern implementation.
+
+\subsubsection*{Task 1: Exception Handling}
+
+The first task is to extend the Repair Electric Bike system with exception handling. The implementation must fulfill the following requirements:
+
+\begin{itemize}
+    \item Exceptions are used to handle alternative flow 5a, where a searched customer phone number does not exist in the customer registry. They are also used to simulate database failures by throwing an exception when searching for a specific hard-coded item identifier.
+    
+    \item Exceptions must follow best practices described in Chapter~8 of the course book:
+    \begin{itemize}
+        \item Appropriate choice between checked and unchecked exceptions.
+        \item Exceptions are defined at the correct abstraction level.
+        \item Exception classes are named after the error condition.
+        \item Exceptions include relevant information about the error.
+        \item Built-in functionality from \texttt{java.lang.Exception} is utilized.
+        \item Javadoc comments are written for all exception classes.
+        \item The system state must remain unchanged if an exception is thrown.
+        \item Users are notified with meaningful error messages.
+        \item Developers are notified through error logging to a file.
+    \end{itemize}
+    \item When an exception is caught in the view layer, an informative error message is displayed to the user.
+    \item Severe errors are logged to a file for debugging and maintenance purposes.
+    \item Unit tests are implemented to verify exception handling behavior.
+\end{itemize}
+
+\subsubsection*{Task 2: Design Patterns}
+
+The second task is to apply design patterns to improve the system design.
+
+\begin{itemize}
+    \item The Observer pattern is implemented for active notification when a repair order is updated.
+    \item A new view, \texttt{RepairOrderView}, prints updated repair orders to \texttt{System.out}.
+    \item A second observer implementation, \texttt{RepairOrderLogger}, logs repair order updates to a file.
+    \item Both observer implementations must implement the same observer interface and must not call the controller or other system components directly.
+    \item For higher grade requirements, at least two additional Gang of Four (GoF) design patterns are implemented, excluding Observer and Template Method.
+    \item The chosen patterns must be properly motivated and integrated into the system architecture.
+\end{itemize}
+
+\subsubsection*{Unit Testing}
+
+\begin{itemize}
+    \item Unit tests are implemented continously using the JUnit framework.
+    \item Tests specifically verify exception handling and error scenarios.
+    \item Tests ensure that exceptions are thrown under the correct conditions and that system state remains consistent.
+\end{itemize}
+
+\fi
+
+\section{Method}
+
+% \textbf{This chapter tells \textit{how} you solved the task.} Explain how you worked and what tools you used when solving the tasks. \textit{Do not explain your solution and do not present entire sub-results in detail. It's enough to explain which steps you performed and perhaps give a short example.} For example, some of the things to explain in the report for seminar one, is that you used a category list and noun identification to find class candidates for the domain model, and to tell which UML editor you used.
+% Goal: Explain how you worked (not the solution itself)
+
+% In the Method chapter of your report, explain how you worked and how you reasoned when implementing exception handling.
+
+This chapter describes both the development process for implementing error handling using exceptions as well as applying design patterns in the code. Implementations are carried out while sticking to the code guidelines. Additionally, unit tests are written after each small implementation to ensure code correctness and quality.
+
+\subsection{Exceptions as error handling}
+
+For error handling, exceptions are used exclusively for representing and managing error conditions. The exception mechanism is dedicated to raising, propagating, and handling errors, ranging from business-rule violations to internal program failures. Error information is carried by exceptions, while return values are reserved for successful execution and non-error business data.
+
+By avoiding error handling through return values, a clear separation is maintained between normal business logic and error-handling logic. This separation improves readability and prevents error-handling concerns from being mixed with normal control flow.
+
+\paragraph{Checked and unchecked exceptions}
+
+In terms of errors, there are two different error types for two exception types: business-rule violations and internal program failures.
+
+Business-rule violations represent situations where a business rule is violated, for example searching for a non-existent customer or providing malformed input. These errors are expected to occur during normal execution and are therefore thrown as checked exceptions. Checked exceptions are declared in method signatures and documented in Javadoc, making the possible error conditions explicit to callers and enforcing handling at compile time.
+
+Internal program failures represent technical problems or programming errors, such as database connection failures or unexpected runtime conditions. These errors cannot be meaningfully handled within the business logic and are therefore thrown using unchecked exceptions. Unchecked exceptions are not declared in method signatures and are logged for diagnostic purposes. When these exceptions cross architectural layer boundaries during propagation, they may be wrapped in higher-level exceptions to preserve the abstraction level of each layer, as described in Chapter~8 of the course literature.
+
+\paragraph{Exception Design Principles}
+
+Exception classes are designed to follow naming conventions. Each exception is named after error condition using descriptive names ending with \texttt{Exception}. Instead of creating many highly specific exception classes, a small number of well-defined exceptions were used, while detailed context was included in the exception message. Additionally, exceptions contain a descriptive message intended for developers, while avoiding exposure of internal implementation to user interface. This makes exception error messages useful and easier to debug the code.
+
+In the layered MVC architecture, low-level unchecked exceptions originating from the integration layer are not propagated directly to the view. Instead, when appropriate, they are translated into higher-level checked exceptions, such as \texttt{FailedOperationException}, which represent business-relevant failure outcomes at the user level and can be meaningfully handled by the view. This ensures that the view layer only handles domain-relevant exceptions while preserving abstraction boundaries.
+
+Objects must not change their internal state when an exception is thrown. Operations that do not inherently alter state, such as searching for a customer using the \texttt{find} method in the \texttt{CustomerRegistry}, can throw exceptions without side effects. In this case, a \texttt{NotFoundCustomerException} is thrown whenever the
+registry does not contain the specified telephone number.
+
+For state-changing operations, input parameters are validated before any state changes occur and operations that may fail are executed before modifying the object state. In situations where this is not feasible, temporary variables are used to ensure that updates are only applied after all checks have passed. These strategies guarantee that the system remains in a consistent state even when errors occur.
+
+\paragraph{Writing Javadoc for exceptions}
+
+Additionally, methods that throws exceptions are documented using Javadoc \texttt{@throws}, which makes error condition explicit. The condition where the exception is thrown is documented clearly and serves as a guide to users of the method as well as keeping the developer to define the purpose of the exception. For instance, the method \texttt{find} in \texttt{CustomerRegistry} class finds a customer using a telephone number. If the telephone number does not correspond to any customer in the registry, a \texttt{NotFoundCustomerException} is thrown and propagated through the layer. The condition is stated in the method \texttt{find}, as well as the methods that propagate the exceptions.
+
+\paragraph{Notify user}
+
+Error messages for users are handled in the view layer. When an exception reaches the view, it is caught and converted into a user-friendly error message, which is then displayed. These messages are designed to be clear and informative about business rule violations, without exposing internal system details. This avoids duplication and prevents lower-level components from directly interacting with the user interface.
+
+\paragraph{Notify developers}
+
+Notifying error messages to developers is handled through a dedicated logging mechanism. When unchecked exceptions occur, they are logged to a file along with detailed diagnostic information, including stack traces, which allows developers to trace and debug errors effectively. The logging mechanism is implemented in a separate utility component to maintain separation of concerns. However, business-rule exceptions, such as malformed input, are not logged since they are expected execution behavior.
+
+\paragraph{Exception unit tests}
+
+Exceptions are unit tested to verify correct behavior in both normal and failure scenarios. Tests ensure that no exceptions are thrown during valid execution and that the appropriate exception types are thrown under failure conditions. They also verify that exception messages contain useful information and that exceptions are correctly propagated across layers, enabling proper user notification and logging when handled.
+
+
+\iffalse
+Exceptions are unit tested to ensure correct error handling behavior during different circumstances. The tests are written incrementally alongside development and implementation to verify both normal and error behavior where an exception is expected to be thrown.
+
+The tests ensure that no exceptions are thrown during valid execution, and that appropriate exceptions are thrown under failure conditions. The execution messages are also verified to contain correct and useful information, and exceptions are properly propagated through layers.
+
+As a result, user notification and logging behavior can be triggered correctly by the view and logging components when exceptions are handled. This ensures that the error-handling mechanism is reliable and behaves as expected in all relevant scenarios.
+\fi
+
+\subsection{Design Patterns}
+
+Design patterns are introduced to improve the structure, flexibility, and maintainability of the system by addressing recurring design problems identified during implementation. According to the guidelines in Chapter~9 of the course literature, patterns are applied when existing solutions contains tight coupling, low flexibility, or require modifications in multiple places when functionality is extended. In such cases, suitable GoF design patterns are applied to refactor the code and clearly separate responsibilities.
+
+The pattern selection process starts by analyzing responsibilities and dependencies in the existing system. Code sections that required frequent modification or where changes in one component affected multiple other components were identified as candidates for refactoring. Patterns were chosen based on their ability to reduce coupling, increase cohesion, and encapsulate variation, according to the principles described in Chapter~9.
+
+Several design patterns are introduced, each selected to address a specific design problem identified during system evolution.
+
+\paragraph{Polymorphism}
+Polymorphism plays a central role in the application of design patterns. Interfaces are introduced to ensure that clients depend only on abstractions rather than concrete implementations, allowing behavior to be substituted without modifying existing code. This is particularly important for patterns such as Observer and Strategy, where multiple interchangeable implementations must conform to a common interface.
+
+\paragraph{Observer pattern}
+The Observer pattern is implemented to address the requirement for automatic notification of \texttt{RepairOrderView} when a repair order is updated. Instead of having direct interaction between components for updating the repair order status, which leads to higher coupling, the observer pattern is introduced. By applying the Observer pattern, dependent views can be notified of state changes without the observed object depending on concrete implementations. This supports extensibility and reduces coupling between update logic and presentation concerns. 
+
+\paragraph{Singleton pattern}
+
+The Singleton pattern is applied to classes that is only allowed to be instantied once. These components are required to maintain a single, consistent state throughout the application lifecycle, and creating multiple instances could lead to resource conflicts or inconsistent behavior.
+
+To enforce single instantiation, such classes are designed with a private constructor and a single static instance that is initialized eagerly. Access to the instance is provided through a public static method. This design ensures that all parts of the system interact with the same resource instance while preventing accidental instantiation from other components.
+
+The use of the Singleton pattern simplifies resource management and enforces a clear lifecycle for shared infrastructure components.
+
+\paragraph{Strategy pattern}
+
+The Strategy pattern is applied in situations where alternative algorithms must be selected dynamically based on runtime conditions. During development, pricing logic was identified as behavior that varied depending on customer membership status and repair history. Embedding conditional pricing logic directly into domain classes would have reduced readability and made future extensions more difficult.
+
+To address this, pricing behavior was encapsulated into separate strategy classes implementing a common interface. Each strategy defines a distinct pricing algorithm, allowing different calculation rules to be substituted transparently. The repair order delegates pricing computation to a strategy instance instead of containing the pricing logic itself.
+
+The selection of the concrete strategy is performed through a factory, enabling the appropriate pricing behavior to be chosen based on customer information at runtime. This design isolates variation, supports extension with new pricing rules, and avoids modifying existing business logic when pricing requirements change.
+
+\paragraph{Factory pattern}
+
+The Factory pattern is applied to centralize object creation logic and decouple the
+system from concrete class implementations. During initialization, certain components
+such as data handlers must be instantiated based on configuration or runtime
+parameters, rather than being hardcoded.
+
+To support this, object creation is delegated to factory classes that encapsulate the
+instantiation logic. The factory determines which concrete implementation to create
+based on provided parameters and returns an interface type to the caller. This allows
+the rest of the system to operate independently of specific implementations.
+
+Using the Factory pattern improves flexibility, simplifies configuration-based
+initialization, and prevents the spread of instantiation logic across multiple
+components.
+
+\section{Result}
+\label{sec:result}
+
+% \textbf{This chapter explains \textit{the result} of what you did.} \textbf{The report must show that you have done the work yourself and that you have understood what you have done}, both of these goals are met by explaining your solution here in the result chapter. Include links to your code in your Git repository (for seminars 3 and 4), and also include diagrams, see Figure \ref{fig:diag}, and other figures to illustrate your reasoning. All figures must be referenced in the text. Ask yourself if the solution is clearly explained, and if the reader will understand the application. What would you yourself want to know if you read about the application, is that included in the report? More specifiec instructions for the content can be found in each assignment.
+
+By extending the current implementation of the Repair Electric Bike system with exception handling, errors are handled using dedicated exception classes and propagated through the system layers until they reach the view..
+
+Design patterns are also integrated to improve the code quality and program structure. For instance, the Observer pattern is implemented to notify an interactive \texttt{RepairOrderView} when repair orders are updated, which allows multiple views to react and update automatically without direct dependencies on the model or the controller.
+
+In addition, logging functionality has been introduced to track internal program failures only, making debugging easier, while user-friendly error messages are presented in the view. Business logic violations are displayed only in the view and are explicitly excluded from logging, since the internal program still produces correct behavior.
+
+Alongside the implementations, unit tests are written to verify both normal execution and error-handling behavior.
+
+The complete source code for this seminar is available in the public Git repository at: \href{https://github.com/mo-mosverkstad/java-learning/tree/main/maven-projects/ElectricBikeRepair/}{\nolinkurl{https://github.com/mo-mosverkstad/java-learning/tree/main/maven-projects/ElectricBikeRepair/}} \cite{sourcecode}.
+
+\subsection{Error handling using exceptions}
+
+In terms of error handling using exceptions, custom exception classes are extended from the \texttt{Exception} base class to cover different groups of error conditions. Business-rule violations are represented using checked exceptions, while internal failures are represented using unchecked exceptions.
+
+% Removed
+% When an error occurs in the model or integration layer, an appropriate exception is thrown and propagated through the system layers, which are shown in listings, related to the specific exception. Business-related exceptions are allowed to propagate to the view, where they are handled and presented as user-friendly error messages. Internal exceptions, such as simulated database failures, are caught in the controller layer and wrapped in a higher-level exception before being propagated further.
+
+The system distinguishes between two categories of exceptions: checked exceptions for business-rule violations and unchecked exceptions for internal program failures. Business-rule exceptions are thrown in the model or utility layers and are propagated unchanged through the controller to the view, where they are presented as user-friendly error messages. Unchecked exceptions originate in the integration layer and represent technical failures; these are caught in the controller layer, logged, and translated into a higher-level checked exception before being propagated to the view. As a result, only business-relevant exceptions reach the view layer.
+
+\subsubsection{Checked exception handling - InvalidTelephoneNumberException}
+
+The \texttt{InvalidTelephoneNumberException} exception arises when a telephone number is malformed and therefore cannot be read and parsed. Since the exception represents a violation of a business rule, it is implemented
+as a checked exception and extends \texttt{Exception}. The error message contains the malformed telephone number to inform the user. 
+
+\begin{lstlisting}[style=javastyle, caption={InvalidTelephoneNumberException class}]
+/**
+ * Thrown when a telephone number has an invalid format and cannot be parsed.
+ */
+public class InvalidTelephoneNumberException extends Exception {
+    /**
+     * Creates an exception indicating the given telephone number is invalid.
+     *
+     * @param telephoneNumber the telephone number that could not be parsed
+     */
+    public InvalidTelephoneNumberException(String telephoneNumber){
+        super(String.format("The phone number %s is not a valid phone number", telephoneNumber));
+    }
+}
+\end{lstlisting}
+
+The exception \texttt{InvalidTelephoneNumberException} is thrown in \texttt{TelephoneNumber} class constructor, located in utility layer. The \texttt{TelephoneNumber} takes responsibility of normalizing arbitrary formatted telephone number into E-164 format. When a telephone number is beyond recognition of any predefined format, the telephone number cannot be processed and therefore an exception \texttt{InvalidTelephoneNumberException} is thrown, whereas the logic is visualized in the listing.
+
+\begin{lstlisting}[style=javastyle, caption={TelephoneNumber constructor throwing InvalidTelephoneNumberException}]
+/**
+ * Parses a telephone number string into country code, area code, and subscriber number.
+ *
+ * @param telephoneNumber the telephone number in any supported Swedish format
+ * @throws InvalidTelephoneNumberException if the telephone number is null, empty, or has an invalid format
+ */
+public TelephoneNumber(String telephoneNumber) throws InvalidTelephoneNumberException {
+    if (telephoneNumber.trim().isEmpty()) {
+        throw new InvalidTelephoneNumberException("<empty>");
+    }
+    String digits = telephoneNumber.replaceAll("[\\s\\-\\(\\)]", "");
+    if (!digits.matches("\\+?[0-9]+")) {
+        throw new InvalidTelephoneNumberException(telephoneNumber);
+    }
+    // further validation and normalization logic
+}
+\end{lstlisting}
+
+The methods that propagate the exception must also declare the exception after the \texttt{throws} keyword, which specifies the thrown exceptions. Since the methods \texttt{findRepairOrder} as well as the internal private function \texttt{findRepairOrderIds} depends on the \texttt{TelephoneNumber} class, which throws InvalidTelephoneNumberException.
+
+\begin{lstlisting}[style=javastyle, caption={Controller.findRepairOrder propagating InvalidTelephoneNumberException}]
+/**
+ * Finds the most recent repair order for the given telephone number.
+ *
+ * @param telephoneNumber the customer's telephone number (any Swedish format)
+ * @return the most recent repair order as a DTO
+ * @throws InvalidTelephoneNumberException if the phone number format is invalid
+ * @throws NoExistedRepairOrderException if no repair orders exist for the customer or the order cannot be found
+ */
+public RepairOrderDTO findRepairOrder(String telephoneNumber) throws InvalidTelephoneNumberException, NoExistedRepairOrderException{
+    List<String> repairOrderIds = findRepairOrderIds(telephoneNumber);
+    // further process
+}
+
+private List<String> findRepairOrderIds(String telephoneNumber) throws InvalidTelephoneNumberException{
+    String phoneNumberE164 = new TelephoneNumber(telephoneNumber).toE164();
+    // process phoneNumberE164 ...
+}
+\end{lstlisting}
+
+Additionally, in \texttt{ReceptionistController} in controller layer, the methods \texttt{searchCustomer} and \texttt{createRepairOrder} both propagates the exception \texttt{InvalidTelephoneNumberException}.
+
+The method \texttt{searchCustomer} propagates checked business-rule exceptions and translates unchecked technical failures into a higher-level checked exception, as shown later in the unchecked exception handling example.
+
+The method \texttt{createRepairOrder} invokes \texttt{searchCustomer}, which may propagate the checked exception \texttt{NotFoundCustomerException} when the specified customer does not exist. The listing also illustrates how unchecked technical exceptions are caught locally and translated into a higher-level checked exception before being propagated to the caller.
+
+When the checked exception \texttt{InvalidTelephoneNumberException} reaches view, it is caught alongside with other checked exceptions. The internal methods that proceeds each hardcoded action are defined in \texttt{proceedReceptionPreparationActions}, \texttt{proceedTechnicianDiagnosticActions}, and \texttt{proceedReceptionConfirmationActions} passes all their checked exception to the larger \texttt{proceedActions} method where the unchecked exceptions are all handled collectively. The exception information, including error message, is extracted and displayed to the view. Since the view is simple, it only extracts the error message from the exception and printing it into standard output. After displaying the error message, no further workflow steps are executed.
+
+\begin{lstlisting}[style=javastyle, caption={View.proceedActions catching exceptions and displaying error messages}]
+/**
+ * Runs the full repair workflow: reception preparation, technician diagnostics, and reception confirmation.
+ *
+ * @param telephoneNumber the customer's telephone number
+ * @param bikeSerialNumber the serial number of the broken bike
+ */
+public void proceedActions(String telephoneNumber, String bikeSerialNumber) {
+    try{
+        proceedReceptionPreparationActions(telephoneNumber, bikeSerialNumber);
+        proceedTechnicianDiagnosticActions(telephoneNumber);
+        proceedReceptionConfirmationActions(telephoneNumber);
+    } catch (NotFoundCustomerException | InvalidTelephoneNumberException | NoExistedRepairOrderException e) {
+        System.out.println(ERROR_PREFIX + e.getMessage());
+    } catch (FailedOperationException e) {
+        System.out.println(ERROR_PREFIX + e.getMessage());
+        LogHandler.getLogger().logException(e);
+    }
+}
+\end{lstlisting}
+
+\subsubsection{Unchecked exception handling - ResourceNotFoundException}
+
+Unchecked exceptions are propagated through the layers without declaring it after \texttt{throws} keyword. The unchecked exception \texttt{ResourceNotFoundException} is thrown when a data resource cannot be found. The exception contains the error message with the resource name that cannot be found.
+
+\begin{lstlisting}[style=javastyle, caption={Unchecked Exception ResourceNotFoundException class}]
+/**
+ * Thrown when a classpath resource file cannot be found.
+ */
+public class ResourceNotFoundException extends RuntimeException{
+    /**
+     * Creates an exception indicating the resource was not found.
+     *
+     * @param resourceName the name of the resource that was not found
+     */
+    public ResourceNotFoundException(String resourceName) {
+        super(String.format("%s not found in resources", resourceName));
+    }
+}
+\end{lstlisting}
+
+The exception is thrown during initialization of a resource handler of \texttt{DatabaseHandler} in the method \texttt{initDataHandler}. The exception is propagated further through methods such as \texttt{loadDiagnosticTasks} of \texttt{DiagnosticReport} and \texttt{initRegistry} of \texttt{CustomerRegistry}. In these methods, the exception is not declared, but implicitly thrown.
+
+Eventually, all unchecked resource exceptions are the controller layer and are converted into a checked exception \texttt{FailedOperationException}, which can be handled and displayed in view layer. The methods \texttt{searchCustomer} and \texttt{createRepairOrder}, for example, catches all possible unchecked exceptions and wraps them into a \texttt{FailedOperationException}, which is thrown to the view caller. The method \texttt{searchCustomer} shows the wrapping process of multiple unchecked exceptions such as \texttt{ResourceNotFoundException}, in the catch block of the method. The error message is also logged as well using the \texttt{LogHandler}
+
+\begin{lstlisting}[style=javastyle, caption={ResourceNotFoundException wrapped to FailedOperationException}]
+/**
+ * Searches for a customer by telephone number.
+ *
+ * @param telephoneNumber the customer's telephone number (any Swedish format)
+ * @return the found customer DTO
+ * @throws NotFoundCustomerException if the phone number does not correspond to a customer
+ * @throws InvalidTelephoneNumberException if the telephone number is empty or invalid
+ * @throws FailedOperationException if an underlying infrastructure error occurs, such as a database or file system failure
+ */
+public CustomerDTO searchCustomer(String telephoneNumber) throws NotFoundCustomerException, InvalidTelephoneNumberException, FailedOperationException{
+    try {
+        // search customer operation
+    } catch (ResourceNotFoundException | InvalidResourceURIException | CannotReadFileException | CannotWriteFileException | NoDatabaseException exception){
+        LogHandler.getLogger().logException(exception);
+        throw new FailedOperationException("Fail to search customer", exception);
+    }
+}
+\end{lstlisting}
+
+\subsubsection{Log handling for exceptions}
+
+Reporting error messages is handled by a special utility class \texttt{LogHandler}. The class is responsible for writing formatted logs to a specified program file \texttt{ebikerepair.log}.
+
+Since the class is only instantiated once and the resource is never duplicated, the \texttt{singleton pattern} is applied. This is accomplished by making the constructor private as well as keeping its only singleton instance as a static class member, along with its desired log filepath. The instance is retrieved by the static method \texttt{getLogger} before the method \texttt{logException} can be called for writing the error message to the log.  
+
+During logging, the \texttt{logException} method is called from the controller layer whenever an internal exception is caught. The method takes an exception class of any type and extract out the error message, which is formatted with additional information such as created time. After that, the formatted message is written to the file.
+
+\begin{lstlisting}[style=javastyle, caption={Log exception}]
+/**
+ * Writes a log entry describing a thrown exception.
+ * 
+ * @param exception The exception that shall be logged.
+ */
+public void logException(Exception exception) {
+    logFile.println(String.format("[%s] [ERROR] %s: %s",
+        createTime(),
+        exception.getClass().getName(),
+        exception.getMessage()));
+    if (exception.getCause() != null) {
+        logFile.println(String.format("  Caused by: %s: %s",
+            exception.getCause().getClass().getName(),
+            exception.getCause().getMessage()));
+    }
+    logFile.println("  Stack trace:");
+    for (StackTraceElement element : exception.getStackTrace()) {
+        logFile.println(String.format("    at %s", element));
+    }
+    logFile.println();
+}
+\end{lstlisting}
+
+\subsection{Unit testing for handling errors and exceptions}
+
+Unit tests are written to verify that each method that throws or propagates exceptions produces correct behavior in different conditions.
+
+\subsubsection{Unit tests for checked exceptions}
+
+In terms of testing methods that throws checked exception, positive test cases are expected to not throw any exception while negative test cases are expected to produce a specified exception. In this case, the \texttt{TelephoneNumber} constructor is tested in the \texttt{TelephoneNumberTest} class. It verifies that valid phone numbers are read and interpreted without throwing, and that malformed formats must result into an \texttt{InvalidTelephoneNumberException} that is thrown. The test cases are checked using the method \texttt{assertThrows} during a test case where a specified exception is thrown. If a test case is not expected to throw any exception, the method \texttt{assertDoesNotThrow} is used instead.
+
+\begin{lstlisting}[style=javastyle, caption={TelephoneNumberTest - testing TelephoneNumber constructor}]
+@Test
+void testE164() {
+    assertDoesNotThrow(() -> {
+        TelephoneNumber number = new TelephoneNumber("+46701234567");
+        assertEquals("+46701234567", number.toE164());
+    });
+}
+
+@Test
+void testEmptyInput() {
+    assertThrows(InvalidTelephoneNumberException.class, () -> new TelephoneNumber("   "));
+}
+
+@Test
+void testWrongPrefix() {
+    assertThrows(InvalidTelephoneNumberException.class, () -> {
+        new TelephoneNumber("0001234567").toE164();
+    });
+}
+\end{lstlisting}
+
+The \texttt{searchCustomer} method in \texttt{ReceptionistController} class is tested in the \linebreak\texttt{ReceptionistControllerTest} class. Since the \texttt{searchCustomer} method calls the \linebreak\texttt{TelephoneNumber} that throws the specific exception\texttt{InvalidTelephoneNumberException} and other methods that throws similar methods, it is therefore tested and verified. It verifies that an existing customer is found without throwing, that \texttt{NotFoundCustomerException} is thrown for a non-existing customer, and that \texttt{InvalidTelephoneNumberException} is propagated for malformed input.
+
+\begin{lstlisting}[style=javastyle, caption={ReceptionistControllerTest - testing searchCustomer method test in ReceptionistController class}]
+@Test
+void testSearchExistingCustomer() {
+    assertDoesNotThrow(() -> {
+        CustomerDTO customer = controller.searchCustomer("0707654321");
+        assertNotNull(customer);
+    });
+}
+
+@Test
+void testSearchNonExistingCustomer() {
+    assertThrows(NotFoundCustomerException.class, () -> controller.searchCustomer("0700000000"));
+}
+
+@Test
+void testSearchInvalidPhoneNumber() {
+    assertThrows(InvalidTelephoneNumberException.class, () -> controller.searchCustomer("abc"));
+}
+\end{lstlisting}
+
+
+\subsubsection{Unit tests for unchecked exceptions}
+
+For unchecked exceptions, the unit tests are also written in same structure as the checked exceptions. The only difference is that the unchecked exceptions are not declared in public API. For instance, the exception \texttt{ResourceNotFound} exception is exxpected to be thrown when a non-existent resource is tried to be accessed in \texttt{initDataHandler} method. 
+
+\begin{lstlisting}[style=javastyle, caption={unit test for ResourceNotFoundException class}]
+@Test
+void testReadNonExistentFile() {
+    assertThrows(ResourceNotFoundException.class, () -> {
+        DatabaseHandler handler = new DatabaseHandler();
+        handler.initDataHandler("nonexistent");
+    });
+}
+\end{lstlisting}
+
+\subsubsection{Unit tests for log handler}
+Additionally, the unit tests for log handler are also written. For testing logging, an exception is created whereas a unique message is written inside it. The message is logged afterwards into a file which is later read to retrieve out the value and compare with the original error message to verify the correctness of the logging functionality.
+
+\begin{lstlisting}[style=javastyle, caption={Unit test for writing logging}]
+@Test
+void testLogExceptionWritesToFile() throws IOException {
+    LogHandler logger = LogHandler.getLogger();
+    String uniqueMessage = "Test exception " + System.nanoTime();
+    Exception testException = new Exception(uniqueMessage);
+
+    logger.logException(testException);
+
+    File logFile = new File("ebikerepair.log");
+    assertTrue(logFile.exists());
+    String content = Files.readString(logFile.toPath());
+    assertTrue(content.contains(uniqueMessage));
+    assertTrue(content.contains("[ERROR]"));
+}
+\end{lstlisting}
+
+\subsection{Sample run printouts}
+
+The sample run printouts for exception handling and error reporting concerns both checked and unchecked exception. Checked exceptions result in user-friendly error messages displayed in the view, while unchecked exceptions indicate technical failures and are logged to a file for developer inspection, according to Chapter~8 of course literature.
+
+\subsubsection{Checked exception printouts}
+
+When a checked exception occurs due to a business-rule violation, such as an invalid telephone number or a non-existent customer, the exception is propagated to the view layer without being logged. The view ultimately catches the exception and displays a user-friendly and informative error message to the user. The purpose is to provide a clear feedback about the incorrect input or invalid business condition, while the program continues.
+
+The listing below shows the message of a sample printout concerning a malformed telephone number. Since it concerns business logic violation, the error message is designed to notify the user about the invalid input as a feedback.
+
+\begin{lstlisting}[style=outputstyle, caption={Checked exception as error message}]
+Error: The phone number 11707654322 is not a valid phone number
+\end{lstlisting}
+
+\subsubsection{Unchecked exception printouts - writing logs}
+
+Unchecked exceptions that contains internal program failure are logged to a file \texttt{ebikerepair.log}, which simplifies debugging and therefore require additional diagnostic information for developers. The log contains two messages for one unchecked exception: one for the unchecked exception that is caught in controller layer and the lower one for the unchecked exception being wrapped into a checked exception in \texttt{FailedOperationException}, before being logged.
+
+For instance, the listing below shows that a missing database, which is a internal failure, is displayed in two log messages. The first log entry corresponds to the original internal failure (a missing database), and the second entry shows the higher-level checked exception (\texttt{FailedOperationException}) that wraps the original cause before being propagated to the view. This shows how abstraction boundaries are preserved while still retaining detailed diagnostic information in the log.
+
+\begin{lstlisting}[style=outputstyle, basicstyle=\ttfamily\scriptsize, caption={Unchecked exception and wrapped checked exception captured in log file}]
+[May 3, 2026, 9:52:47 AM] [ERROR] se.ebikerepair.data.NoDatabaseException: No database customers found or connected
+  Stack trace:
+    at se.ebikerepair.data.DatabaseHandler.initDataHandler(DatabaseHandler.java:35)
+    at se.ebikerepair.integration.CustomerRegistry.initRegistry(CustomerRegistry.java:37)
+    at se.ebikerepair.integration.CustomerRegistry.find(CustomerRegistry.java:51)
+    at se.ebikerepair.controller.ReceptionistController.searchCustomer(ReceptionistController.java:55)
+    at se.ebikerepair.view.View.proceedReceptionPreparationActions(View.java:59)
+    at se.ebikerepair.view.View.proceedActions(View.java:49)
+    at se.ebikerepair.startup.Main.main(Main.java:26)
+    at org.codehaus.mojo.exec.ExecJavaMojo$1.run(ExecJavaMojo.java:279)
+    at java.base/java.lang.Thread.run(Thread.java:1583)
+
+[May 3, 2026, 9:52:47 AM] [ERROR] se.ebikerepair.controller.FailedOperationException: Fail to search customer
+  Caused by: se.ebikerepair.data.NoDatabaseException: No database customers found or connected
+  Stack trace:
+    at se.ebikerepair.controller.ReceptionistController.searchCustomer(ReceptionistController.java:58)
+    at se.ebikerepair.view.View.proceedReceptionPreparationActions(View.java:59)
+    at se.ebikerepair.view.View.proceedActions(View.java:49)
+    at se.ebikerepair.startup.Main.main(Main.java:26)
+    at org.codehaus.mojo.exec.ExecJavaMojo$1.run(ExecJavaMojo.java:279)
+    at java.base/java.lang.Thread.run(Thread.java:1583)
+\end{lstlisting}
+
+\subsection{Design pattern designs}
+
+Design patterns are implemented in the system to improve code quality by adding flexibility while reducing coupling between classes.
+
+\subsubsection{Observer design pattern}
+
+The Observer pattern is implemented to notify all interactive observers when a repair order is updated. A common observer interface is defined, which is implemented by multiple observer classes.
+
+The class \texttt{RepairOrder} acts as the subject (the observed object) and maintains a list of registered observers, while \texttt{RepairOrderView} and \texttt{RepairOrderLogger} are concrete observers that both implements \texttt{RepairOrderObserver}. Whenever the repair order is updated, all registered observers are notified automatically by calling a notify method.
+
+Two observer implementations are provided. The class \texttt{RepairOrderView} displays updated repair order information to the user via \texttt{System.out}. The class \texttt{RepairOrderLogger} writes the updated repair order information to a file for logging purposes. Both observers implement the same interface and are updated without directly interacting with the controller or other system components.
+
+Observers are registered during view initialization and later associated with newly created repair orders.
+
+The observer interface defines the public interface that all observer implementations must implement. The method \texttt{updateRepairOrder} is invoked when the observed repair order changes and acts as an entry point to notify an observer object.
+
+\begin{lstlisting}[style=javastyle, caption={RepairOrderObserver interface}]
+public interface RepairOrderObserver {
+    public void updateRepairOrder(RepairOrderDTO repairOrderDTO);
+}
+\end{lstlisting}
+
+The \texttt{RepairOrderView} class implements the observer interface and provides a user-facing representation of repair order updates. When notified, it prints a structured notification message to standard output, allowing users to be informed of changes in repair order status without explicitly requesting this information.
+
+\begin{lstlisting}[style=javastyle, caption={RepairOrderView implementing RepairOrderObserver}]
+public class RepairOrderView implements RepairOrderObserver {
+
+    @Override
+    public void updateRepairOrder(RepairOrderDTO repairOrderDTO){
+        // Using System.out.println() to print the information of
+        // repairOrderDTO as observer notification
+    }
+}
+\end{lstlisting}
+
+The \texttt{RepairOrderLogger} class provides an alternative observer implementation that records repair order updates to a file instead of presenting them to the user. This implementation shares the same notification interface and mechanism as the view observer, but directs output to a persistent log instead.
+
+\begin{lstlisting}[style=javastyle, caption={RepairOrderLogger implementing RepairOrderObserver}]
+public class RepairOrderLogger implements RepairOrderObserver {
+    private static final String LOG_FILE_NAME = "ebikerepair-repairorder.log";
+    private PrintWriter logFile;
+
+    public RepairOrderLogger(){
+        try {
+            logFile = new PrintWriter(new FileWriter(LOG_FILE_NAME, true), true);
+        } catch (IOException ex) {
+            System.out.println("Could not create logger.");
+            ex.printStackTrace();
+        }
+    }
+
+    @Override
+    public void updateRepairOrder(RepairOrderDTO repairOrderDTO){
+        logFile.println(createTime());
+        logFile.println(repairOrderDTO);
+        logFile.println();
+    }
+    ...
+}
+\end{lstlisting}
+
+The \texttt{RepairOrder} class maintains its own list of observers, which is populated when a repair order is created. Whenever the internal state of the repair order changes, all registered observers are notified by calling the internal method \texttt{notifyRepairOrderObservers} that collectively notifies the observers with the current state represented as a data transfer object.
+
+\begin{lstlisting}[style=javastyle, caption={RepairOrder as the observed subject}]
+public class RepairOrder {
+    private List<RepairOrderObserver> repairOrderObservers;
+
+    public void addRepairOrderObservers(List<RepairOrderObserver> observers) {
+        repairOrderObservers.addAll(observers);
+    }
+
+    private void notifyRepairOrderObservers() {
+        for (RepairOrderObserver repairOrderObserver : repairOrderObservers) {
+            repairOrderObserver.updateRepairOrder(toDTO());
+        }
+    }
+    ...
+\end{lstlisting}
+
+During state changes, the observer objects must be therefore notified. This is implemented by notifying the observers using the method \texttt{notifyRepairOrderObservers} for every method that alters the state of a \texttt{RepairOrder} object. In this case, the methods \texttt{updateProblem}, \texttt{accept} and \texttt{reject} modifies the internal fields of the object, and the notification is handled at the end of each procedure.
+
+\begin{lstlisting}[style=javastyle, caption={Methods that changes the state of \texttt{RepairOrder}}]
+    public void updateProblem(ProblemDTO problemDTO) {
+        this.problem.update(problemDTO);
+        notifyRepairOrderObservers();
+    }
+
+    public void accept() {
+        repairOrderState = RepairOrderState.Accepted;
+        notifyRepairOrderObservers();
+    }
+
+    public void reject() {
+        repairOrderState = RepairOrderState.Rejected;
+        notifyRepairOrderObservers();
+    }
+}
+\end{lstlisting}
+
+The controller is responsible for maintaining a collection of observers that should be notified of repair order updates. Observers are registered once and stored internally by the controller, allowing them to be used for observed objects in the business logic. The observer collection inside controller enables an observer interface between View and Controller layers while avoiding direct coupling between View and Model layer.
+
+\begin{lstlisting}[style=javastyle, caption={Controller storing observers}]
+public class Controller {
+    protected final List<RepairOrderObserver> repairOrderObservers;
+
+    public Controller(RepairOrderRegistry repairOrderRegistry){
+        this.repairOrderRegistry = repairOrderRegistry;
+        this.repairOrderObservers = new ArrayList<>();
+    }
+
+    public void addRepairOrderObserver(RepairOrderObserver repairOrderObserver){
+        repairOrderObservers.add(repairOrderObserver);
+    }
+}
+\end{lstlisting}
+
+Ultimately, the observers are registered during view initialization. The observer objects are initialized during \texttt{View} constructor and added into the controller. 
+
+\begin{lstlisting}[style=javastyle, caption={View registering observers on the controller}]
+public class View {
+    public View(ControllerCreator controllerCreator) {
+        ...
+        receptionistController = controllerCreator.getReceptionistController();
+        receptionistController.addRepairOrderObserver(new RepairOrderView());
+        receptionistController.addRepairOrderObserver(new RepairOrderLogger());
+    }
+}
+\end{lstlisting}
+
+\subsubsection{Singleton design pattern}
+
+The singleton design pattern allows a class only to be instantiated once, which is useful for database connections and log handling objects. This means it is important to ensure that only one shared instance of resource-handling components exists throughout the application lifecycle.
+
+The pattern is designed by keeping the only instance of the class as its static final member, while keeping the constructor private to protect it from being instantiated accidentally. This ensures that only one instance of the class persists.
+
+The listing below shows an example of a singleton class \texttt{DatabaseHandler}. The handler class keeps its only instance as \texttt{INSTANCE} which is automatically instantiated. The instance can only be accessed by calling the static method \texttt{getInstance}, while creating the second instance is impossible due to its private constructor.
+
+\begin{lstlisting}[style=javastyle, caption={\texttt{DatabaseHandler} implementation with singleton}]
+public class DatabaseHandler{
+    private static final DatabaseHandler INSTANCE = new DatabaseHandler();
+    private String databaseName;
+
+    /**
+     * Returns the singleton DatabaseHandler instance.
+     *
+     * @return the single DatabaseHandler instance
+     */
+    public static DatabaseHandler getInstance() {
+        return INSTANCE;
+    }
+
+    /**
+     * No-arg constructor kept for reflection-based instantiation via {@link DataHandlerFactory}.
+     */
+    private DatabaseHandler() {}
+
+    // Methods for database handling
+}
+\end{lstlisting}
+
+\subsubsection{Strategy design pattern}
+Additionally, the strategy design pattern is applied where algorithm can be dynamically replaced and interchanged. In this case, the strategy design pattern is applied for customer memberships and discounts, where the customer is entitled to a 15\% discount every third bike repair. This means that non-membership customers and membership customers are priced differently using different pricing algorithms.
+
+The pricing algorithm is written inside the method \texttt{calculateTotalCost} of a dedicated class. In this case, an interface \texttt{PricingStrategy} is defined to keep the method name and signature of \texttt{calculateTotalCost} consistent among pricing algorithm classes.
+
+\begin{lstlisting}[style=javastyle, caption={Pricing strategy interface}]
+public interface PricingStrategy {
+    PricingResult calculateTotalCost(RepairOrder repairOrder);
+}
+\end{lstlisting}
+
+
+A default pricing strategy is provided for non-membership customers. The \texttt{StandardPricingStrategy} calculates the total repair cost based solely on diagnostic tasks and repair tasks, without applying any discounts. This strategy represents the baseline pricing behavior used when no membership rules apply.
+
+\begin{lstlisting}[style=javastyle, caption={\texttt{StandardPricingStrategy} implementation}]
+public class StandardPricingStrategy implements PricingStrategy {
+
+    @Override
+    public PricingResult calculateTotalCost(RepairOrder repairOrder) {
+        Cost base = calculateBaseCost(repairOrder);
+        return new PricingResult(base, new Cost(0), base);
+    }
+
+    private Cost calculateBaseCost(RepairOrder repairOrder) {
+        Cost total = new Cost();
+        total.calculate(repairOrder.getDiagnosticReport().getTotalCost());
+        total.calculate(repairOrder.getRepairTaskCollection().getTotalCost());
+        return total;
+    }
+}
+\end{lstlisting}
+
+For membership customers, an alternative pricing strategy is implemented. The \texttt{MembershipPricingStrategy} applies a discount every third repair based on the customer's repair history. This strategy uses the same base cost calculation as the standard strategy, but conditionally applies a discount before computing the final price.
+
+\begin{lstlisting}[style=javastyle, caption={\texttt{MembershipPricingStrategy} implementation}]
+public class MembershipPricingStrategy implements PricingStrategy {
+    private final float MEMBERSHIP_THIRD_DISCOUNT = .15F;
+    private int repairCount;
+
+    public MembershipPricingStrategy(int repairCount){
+        this.repairCount = repairCount;
+    }
+
+    @Override
+    public PricingResult calculateTotalCost(RepairOrder order) {
+        Cost base = calculateBaseCost(order);
+        Cost discount = new Cost(0, base.getCurrency());
+        if (repairCount % 3 == 0) {
+            discount = new Cost(base.getAmount() * MEMBERSHIP_THIRD_DISCOUNT, base.getCurrency());
+        }
+        Cost finalCost = new Cost(base);
+        finalCost.calculate(new Cost(-discount.getAmount(), base.getCurrency()));
+        return new PricingResult(base, discount, finalCost);
+    }
+
+    private Cost calculateBaseCost(RepairOrder order) {
+        Cost total = new Cost();
+        total.calculate(order.getDiagnosticReport().getTotalCost());
+        total.calculate(order.getRepairTaskCollection().getTotalCost());
+        return total;
+    }
+}
+\end{lstlisting}
+
+The selected pricing strategy is applied transparently when the total repair cost is requested from a repair order. The repair order delegates the pricing calculation to a strategy instance obtained from a factory based on customer information to produce a suitable instance with algorithm, allowing the concrete strategy to be selected dynamically based on customer information without modifying the repair order logic. This means that the responsibility for selecting the appropriate pricing strategy is delegated to a factory, keeping the repair order independent of concrete pricing rules.
+
+\begin{lstlisting}[style=javastyle, caption={Applying pricing strategy in \texttt{RepairOrder}}]
+/**
+ * Returns the total cost from diagnostic tasks and repair tasks combined.
+ *
+ * @return the total cost
+ */
+public Cost getTotalCost() {
+    return getPricingResult().getFinalCost();
+}
+
+public PricingResult getPricingResult(){
+    PricingStrategy pricingStrategy = PricingStrategyFactory.create(getCustomerDTO());
+    return pricingStrategy.calculateTotalCost(this);
+}
+\end{lstlisting}
+
+\subsubsection{Factory design pattern}
+Finally, the factory design pattern is useful in terms of initializing objects dynamically where the class of the object can be decided during runtime. A class name is stored as a string and passed into the \texttt{create} method, which uses Java reflection to dynamically dispatch and instantiate the desired class object. In this case, the \texttt{DataHandlerFactory} initializes a \texttt{DataHandler} object based on the class name stored in the string. This allows dynamic dispatching where the object initialization is determined during runtime, which adds flexibility during program initialization.
+
+\begin{lstlisting}[style=javastyle, caption={DataHandlerFactory that instantiates data handler object dynamically}]
+/**
+ * Factory for creating {@link DataHandler} instances by class name using reflection.
+ */
+public class DataHandlerFactory {
+
+    private DataHandlerFactory() {}
+
+    /**
+     * Creates a DataHandler instance from the given fully qualified class name
+     *
+     * @param className the fully qualified class name of the DataHandler implementation
+     * @return a new DataHandler instance
+     * @throws ClassNotFoundException if the class cannot be found
+     * @throws NoSuchMethodException if the class has no no-arg constructor
+     * @throws InstantiationException if the class cannot be instantiated
+     * @throws IllegalAccessException if the constructor is not accessible
+     * @throws InvocationTargetException if the constructor throws an exception
+     */
+    public static DataHandler create(String className) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        Class<?> classObject = Class.forName(className);
+        return (DataHandler) classObject.getConstructor().newInstance();
+    }
+}
+\end{lstlisting}
+
+Errors during reflective instantiation are propagated to the caller and handled by the existing exception-handling mechanism.
+
+\subsection{Unit tests for design pattern mechanism}
+
+\paragraph{Observer design tests}
+
+The Observer pattern is verified through the \texttt{RepairOrderView}, which acts as a concrete observer producing interactive notifications when a repair order changes state. The observer mechanism is tested by executing the full workflow of the bike repair system using the \texttt{proceedActions} method and capturing the printed output.
+
+The test verifies that observer notifications are produced during the execution of the workflow by asserting the presence of characteristic notification keywords in the printed output.
+
+
+\begin{lstlisting}[style=javastyle, caption={ViewTest — observer notification output}]
+@Test
+void testProceedActionsFullWorkflow() {
+    view.proceedActions("0707654321", "MO-2024-010");
+    String output = outputStream.toString();
+
+    assertTrue(output.contains("REPAIR ORDER MODIFICATION NOTIFICATION"));
+    assertTrue(output.contains("THE REPAIR ORDER HAS BEEN MODIFIED"));
+}
+\end{lstlisting}
+
+\paragraph{Singleton design tests}
+
+The Singleton pattern is tested using the \texttt{LogHandler} class, which is designed to only allow one single shared instance throughout the application. The tests verify that multiple calls to the \texttt{getLogger} method return the same instance and that the singleton instance is correctly initialized.
+
+
+\begin{lstlisting}[style=javastyle, caption={LogHandlerTest — singleton returns same instance}]
+@Test
+void testGetLoggerReturnsSameInstance() {
+    LogHandler first = LogHandler.getLogger();
+    LogHandler second = LogHandler.getLogger();
+    assertSame(first, second);
+}
+
+@Test
+void testGetLoggerNotNull() {
+    assertNotNull(LogHandler.getLogger());
+}
+\end{lstlisting}
+
+\paragraph{Strategy design tests}
+
+The Strategy pattern is tested by verifying that different pricing algorithms are applied depending on customer membership status and repair history. The tests confirm that non-membership customers receive no discount in \texttt{testNonMemberNoDiscount}, while membership customers receive a 15\% discount on every third repair in \texttt{testMemberThirdRepairGets15PercentDiscount}.
+
+The correctness of strategy selection and execution is verified by asserting the base cost, discount amount, and final cost returned by the pricing calculation. Helper methods are used to construct repair orders with the required membership configuration and repair count for each test case.
+
+\begin{lstlisting}[style=javastyle, caption={RepairOrderTest — strategy pricing for non-member and member}]
+@Test
+void testNonMemberNoDiscount() {
+    RepairOrder order = createOrderWithMembership(false, 0);
+    order.getRepairTaskCollection().addRepairTask(
+        new RepairTaskDTO("Task", "Desc", new Cost(1000, "SEK"), 1));
+
+    PricingResult result = order.getPricingResult();
+    assertEquals(1000.0F, result.getBaseCost().getAmount());
+    assertEquals(0.0F, result.getDiscount().getAmount());
+    assertEquals(1000.0F, result.getFinalCost().getAmount());
+}
+
+@Test
+void testMemberThirdRepairGets15PercentDiscount() {
+    RepairOrder order = createOrderWithMembership(true, 3);
+    order.getRepairTaskCollection().addRepairTask(
+        new RepairTaskDTO("Task", "Desc", new Cost(1000, "SEK"), 1));
+
+    PricingResult result = order.getPricingResult();
+    assertEquals(1000.0F, result.getBaseCost().getAmount());
+    assertEquals(150.0F, result.getDiscount().getAmount());
+    assertEquals(850.0F, result.getFinalCost().getAmount());
+}
+\end{lstlisting}
+
+\paragraph{Factory design tests}
+
+The Factory pattern is tested by verifying that the \texttt{DataHandlerFactory} creates the correct concrete data handler implementation based on the provided class name. Successful instantiation of known handler implementations is verified, while invalid class names are tested to ensure that appropriate exceptions are thrown.
+
+\begin{lstlisting}[style=javastyle, caption={DataHandlerFactoryTest — factory creates correct handler type}]
+@Test
+void testCreateJsonFileHandler() {
+    DataHandler dataHandler = assertDoesNotThrow(() ->
+        DataHandlerFactory.create("se.ebikerepair.data.JsonFileHandler")
+    );
+    assertEquals(JsonFileHandler.class, dataHandler.getClass());
+}
+
+@Test
+void testCreateDatabaseHandler() {
+    DataHandler dataHandler = assertDoesNotThrow(() ->
+        DataHandlerFactory.create("se.ebikerepair.data.DatabaseHandler")
+    );
+    assertEquals(DatabaseHandler.class, dataHandler.getClass());
+}
+
+@Test
+void testCreateNonexistent() {
+    assertThrows(ClassNotFoundException.class, () -> {
+        DataHandlerFactory.create("nonexistentclass");
+    });
+}
+\end{lstlisting}
+
+\subsection{Sample run printouts of design patterns}
+The sample run printouts of the functionality based on design patterns includes interactive notification of repair order using observer pattern as well as a membership-based discounts using strategy pattern. The remaining two functionalities implemented by singleton and factory design pattern does not produce direct user-facing output, but improves instead the flexibility of the program design. 
+
+The listing below shows a sample run printout for a member customer \texttt{Astrid Johansson} during third bike repair. The repair order notification is shown deliminated by the line brackets \texttt{ --- REPAIR ORDER MODIFICATION NOTIFICATION ---}, whereas it contains several detail regarding the repair order id and telephone number. Additionally, after two previous repairs in membership, the customer is entitled to a 15\% discount of a repair order, which is shown in the \texttt{-- costs --} section of the printout receipt. The base cost, the deducted cost and the resulting total cost are all shown.
+
+\begin{lstlisting}[style=outputstyle, escapeinside={(*@}{@*)}, caption={Sample printout of repair order receipt}]
+8. Reception - Accepted order
+(*@\textcolor{yellow!80!black}{ --- REPAIR ORDER MODIFICATION NOTIFICATION (BEGIN) ---}@*)
+(*@\textcolor{blue}{THE REPAIR ORDER HAS BEEN MODIFIED     : 399e9c4f-efcd-4a45-9b2b-2af4be4261df}@*)
+(*@\textcolor{blue}{PLEASE USE TELE NUMBER TO CHECK DETAILS: +46707654321 (Astrid Johansson)}@*)
+(*@\textcolor{yellow!80!black}{ --- REPAIR ORDER MODIFICATION NOTIFICATION -(END)- ---}@*)
+
+**** Printing repair order FROM PRINTER ****
+=================================
+  Repair Order
+=================================
+  Order ID:       399e9c4f-efcd-4a45-9b2b-2af4be4261df
+  Status:         Accepted
+  Created:        Sun May 03 13:13:01 CEST 2026
+  Est. Complete:  Thu May 07 13:13:01 CEST 2026
+  -- Costs --
+  base = 1175.00 SEK, discount = 176.25 SEK, finalCost = 998.75 SEK
+  Total Cost:     998.75 SEK
+********************************
+...
+\end{lstlisting}
+
+\section{Discussion}
+
+This seminar focused on improving program structure and quality by implementing exception mechanism as error handling as well as applying design patterns. The implemented solution is evaluated below using assessment criteria for Seminar~4, particularily on correctness, motivation, and architectural consequences.
+
+\subsection{Evaluation of Exception Handling}
+
+The exception-handling mechanism follows the nine guidelines described in Chapter~8 of the course literature and fulfills the requirements of Task~1.
+
+Business-rule violations, such as invalid input or missing customer data, are represented using checked exceptions, for instance \texttt{InvalidTelephoneNumberException} and \texttt{NotFoundCustomerException}. These exceptions clearly represent expected error situations that may occur during normal execution and therefore require explicit handling by the caller. Declaring them in method signatures makes the error conditions explicit and enforces correct handling at compile time.
+
+Internal program failures, such as missing resources or simulated database failures, are covered using unchecked exceptions. These failures are outside the control of the business logic and cannot be resolved meaningfully by the caller. Unchecked exceptions are therefore logged and wrapped into higher-level checked exceptions (e.g.\ \texttt{FailedOperationException}) when crossing architectural layer boundaries. This preserves abstraction levels and prevents technical details from leaking into the view layer, which is consistent with the separation principles described in Chapter~8.
+
+When throwing errors, the system state is not altered. This is accomplished using input validation before modifying state or executing all error-prone operations have completed before state change operations. This ensures that errors during program execution do not alter the system state.
+
+User notification and developer notification are clearly separated. Business-rule exceptions are presented as meaningful, user-friendly messages in the view layer and are not logged, since they represent normal execution paths. Technical failures are logged with full diagnostic information using a dedicated logging utility, while the user receives a general failure message. This separation follows the explicit recommendation in the course literature that business exceptions shall not be logged, while internal failures shall be.
+
+Unit tests ensures intended behavior in both normal execution and error scenarios. Tests confirm that the correct exception types are thrown, that exception propagation works across layers, and that logging is only reserved for internal failures. This testing strategy aligns with the guidelines in both Chapter~7 and Chapter~8.
+
+Overall, the exception-handling solution is consistent, well-motivated, and follows established best practices without mixing error handling with normal control flow.
+
+\subsection{Evaluation of Observer Pattern Usage}
+
+The Observer pattern is correctly implemented and motivated by shortcomings in the original system design. In the original version of the Repair Electric Bike system, both technicians and receptionists had to actively request updated repair order information, leading to unclear responsibility for update propagation.
+
+By introducing the Observer pattern, repair orders actively notify its listeners when the state changes. The class \texttt{RepairOrder} acts as the observed subject, while \texttt{RepairOrderView} and \texttt{RepairOrderLogger} are concrete observers. This is a faithful implementation of the GoF Observer pattern as described in Chapter~9.
+
+Observers implement a common interface and are notified exclusively through the observer mechanism. They do not call the controller or any other system component directly, which prevents cyclic dependencies and ensures low coupling. The observed object does not depend on any concrete observer implementations, only on the observer interface, which keeps the design extensible.
+
+Passing a DTO to observers preserves encapsulation of the observed object. Observers receive a snapshot of the current state instead of direct access to internal model objects, which prevents unintended modifications and aligns with the DTO principles discussed in the literature.
+
+Observer registration is handled by the controller, which serves as a coordination point between view and model layers. This avoids direct dependencies between view and model while maintaining a clear ownership of observer lifecycle management. The chosen design maintains high cohesion and avoids introducing a spider-in-the-web controller.
+
+The Observer pattern therefore improves responsiveness, reduces coupling, and clarifies responsibility boundaries without introducing architectural violations.
+
+\subsection{Evaluation of Additional Design Patterns}
+
+In addition to the Observer pattern, three additional GoF patterns were introduced: Singleton, Strategy, and Factory. Each pattern addresses a concrete design problem and is properly integrated into the system architecture.
+
+The Singleton pattern is used for shared utility tools such as logging and database handling. These classes represent unique resources that must not be duplicated. Using the implementation accidental instantiation can be avoided while ensuring consistent access without exposing global state. The use of Singleton is limited to several cases and does not appear in business or domain objects, avoiding common misuse of the pattern.
+
+The Strategy pattern is applied to pricing calculation, which depends on customer membership and previous repair informations. Encapsulating pricing logic into separate strategy classes removes conditional logic from the repair order and improves cohesion. New pricing rules can be introduced without modifying existing business logic, which directly supports the Open-Closed Principle described in Chapter~9.
+
+The Factory pattern is used to centralize object instantiation logic for data handlers and pricing strategies. This allows also dynamically initiation of an arbitrary class at runtime, as well as simplifying unit testing by isolating creation concerns.
+
+All three patterns are applied in suitable code sections only where they provide clear benefits. None of them overlap in responsibility, and each addresses a different form of variation or lifecycle management. Their usage is explicitly motivated and consistent with the intent of the original GoF definitions.
+
+\subsection{Architectural Considerations and Overall Quality}
+
+The solution maintains a clear layered MVC architecture throughout the implementation. Dependencies follow the intended direction from view to controller to model and integration layers. Exceptions and observer notifications cross layer boundaries in a controlled and well-defined manner.
+
+Encapsulation is preserved by strict use of DTOs at architectural layer boundaries, interfaces for polymorphic behavior, and private state within domain objects. Coupling is reduced through observer interfaces, strategy delegation, and factory-based instantiation. Cohesion is improved by separating distinct responsibilities into focused classes.
+
+One future improvement would be to further decouple observer registration from controller initialization, possibly through a dedicated configuration class. However, within the scope of this seminar, the current design represents a reasonable balance between simplicity and architectural correctness.
+
+In conclusion, the implemented solution fulfills all requirements for Seminar~4, adheres closely to course literature guidelines, and demonstrates a solid understanding of exception handling and design pattern application in an object-oriented system.
+
+\begin{thebibliography}{9}
+
+\bibitem{coursebook}
+Leif Lindbäck,
+\textit{A First Course in Object-Oriented Development --- A Hands-On Approach},
+Course material for IV1350,
+KTH Royal Institute of Technology,
+January 14, 2026.
+
+\bibitem{sourcecode}
+Mo Wang,
+``ElectricBikeRepair --- Source code for Seminar~4,''
+2026.
+[Online]. Available: \url{https://github.com/mo-mosverkstad/java-learning/tree/main/maven-projects/ElectricBikeRepair/}
+
+\end{thebibliography}
+
+\end{document}
